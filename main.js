@@ -20,7 +20,7 @@ app.on('ready', function() {
         width: 1500,
         height: 1000
     });
-    // mainWindow.setMenu(null);
+    mainWindow.setMenu(null);
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 
     // open devtools
