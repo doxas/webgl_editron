@@ -23,6 +23,9 @@ app.on('ready', function() {
     // mainWindow.setMenu(null);
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 
+    // open devtools
+    mainWindow.webContents.openDevTools();
+
     mainWindow.on('closed', function() {
         mainWindow = null;
     });

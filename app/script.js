@@ -1,8 +1,13 @@
+var fs = require('fs');
+var remote = require('electron').remote;
+var dialog = remote.dialog;
+
 var editors = [];
 var editorNames = ['Javascript', 'HTML', 'Vertex', 'Fragment', 'VertexPost', 'FragmentPost'];
 var editorModes = ['javascript', 'html', 'glsl', 'glsl', 'glsl', 'glsl'];
 var editorTheme = ['monokai', 'monokai', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink'];
 var ajaxTarget = '';
+var popupTime = 0;
 
 window.onload = function(){
     var e, s, t;
@@ -12,6 +17,15 @@ window.onload = function(){
     for(var i = 0, l = editorNames.length; i < l; i++){
         bid('tab' + editorNames[i]).addEventListener('click', tabSelecter, false);
     }
+    win.addEventListener('click', function(eve){showPopup(false);}, false);
+    e = bid('iconList');
+    e.addEventListener('click', function(eve){loadDirectory(true);}, false);
+    e = bid('iconMenu');
+    e.addEventListener('click', function(eve){showPopup(true);}, false);
+
+
+
+
     run = false;
 
     // switch(ajaxTarget){
@@ -44,6 +58,68 @@ window.onload = function(){
     // e = bid('runButton');
     // e.addEventListener('click', init, false);
 };
+
+function loadDirectory(){
+    var currentWindow = remote.getCurrentWindow();
+    remote.dialog.showOpenDialog(currentWindow, {
+        defaultPath: remote.app.getAppPath('exe'),
+        properties: ['openDirectory']
+    }, function(dir){
+        if(dir){
+            console.log(dir);
+        }
+    });
+}
+
+function readFile(path){
+    currentPath = path;
+    fs.readFile(path, function(err, text){
+        if(err){
+            console.warn('error : ' + err);
+            return;
+        }
+        // // フッター部分に読み込み先のパスを設定する
+        // footerArea.innerHTML = path;
+        // // テキスト入力エリアに設定する
+        // editor.setValue(text.toString(), -1);
+    });
+}
+
+function writeFile(path, data){
+    fs.writeFile(path, data, function(err){
+        if(err){
+            console.warn('error : ' + err);
+            return;
+        }
+    });
+}
+
+function openDirectry(){
+    console.log
+}
+
+function showPopup(flg){
+    var f, e = bid('hidden');
+    if(flg === undefined || flg === null){
+        f = e.style.display !== 'block';
+        if(f){
+            e.style.display = 'block';
+            popupTime = Date.now();
+        }else{
+            if(Date.now() - popupTime > 100){
+                e.style.display = 'none';
+            }
+        }
+    }
+    if(flg){
+        e.style.display = 'block';
+        popupTime = Date.now();
+    }else{
+        if(Date.now() - popupTime > 100){
+            e.style.display = 'none';
+        }
+    }
+}
 
 function editorInitialize(){
     for(var i = 0, l = editorNames.length; i < l; i++){
