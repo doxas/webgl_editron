@@ -46,7 +46,7 @@ function addTempleteList(list){
     a = e.childNodes;
     for(i = 0, j = a.length; i < j; ++i){
         if(a[i].nodeType === 1 && a[i].id !== 'hiddenDefault'){
-            e.removeChild(a);
+            e.removeChild(a[i]);
             a[i] = null;
         }
     }
@@ -59,6 +59,7 @@ function addTempleteList(list){
     }
     for(i = 0, j = list.length; i < j; ++i){
         f = document.createElement('div');
+        f.id = i + '_' + templeteHash(loadTargetDirectory);
         f.className = 'list';
         f.textContent = zeroPadding(i, 3);
         e.appendChild(f);
@@ -93,9 +94,13 @@ function loadDirectory(){
                 });
 
                 // map for templete/
+                loadTargetDirectory = dir[0];
+                document.title = 'glsl editron [ ' + loadTargetDirectory + ' ]';
                 sourceArray = [];
                 loadFileList(list, function(res){
+                    // directry load completed
                     console.log(res);
+                    // add to popup list and show popup
                     addTempleteList(res);
                     showPopup(true);
                 });
@@ -385,15 +390,19 @@ function keydown(eve){
 
 function bid(id){return document.getElementById(id);}
 
+function templeteHash(str){
+    if(!str){return;}
+    var s = str.replace(/\\/g, '/').match(/[^\/]+/g).pop();
+    var d = '';
+    for(var i = 0; i < s.length; ++i){
+        d += s.substr(i, 1).charCodeAt();
+    };
+    return d;
+}
+
 function zeroPadding(num, count){
     var z = (new Array(count)).join('0');
     if((num + '').length > count){return num + '';}
     return (z + num).slice(-1 * count);
-}
-
-function dirPath(){
-    var a = location.href.split('/');
-    a.pop();
-    return a.join('/') + '/';
 }
 
