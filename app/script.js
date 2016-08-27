@@ -10,6 +10,7 @@ var editorModes = ['javascript', 'html', 'glsl', 'glsl', 'glsl', 'glsl'];
 var editorTheme = ['monokai', 'monokai', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink'];
 var sourceArray = [];
 var popupTime = 0;
+var listAddEvent = [];
 
 // const var
 var TARGET_FILE_NAME = [
@@ -35,6 +36,8 @@ window.onload = function(){
     e.addEventListener('click', function(eve){showPopup(true);}, false);
     e = bid('iconList');
     e.addEventListener('click', loadDirectory, false);
+    e = bid('iconPlay');
+    e.addEventListener('click', init, false);
 
     run = false;
 
@@ -44,6 +47,12 @@ function addTempleteList(list){
     var i, j, e, f, a;
     e = bid('hidden');
     a = e.childNodes;
+    if(listAddEvent.length > 0){
+        for(i = 0, j = listAddEvent.length; i < j; ++i){
+            listAddEvent[i].target.removeEventListener('click', listAddEvent[i].function, false);
+        }
+    }
+    listAddEvent = [];
     for(i = 0, j = a.length; i < j; ++i){
         if(a[i].nodeType === 1 && a[i].id !== 'hiddenDefault'){
             e.removeChild(a[i]);
@@ -61,7 +70,16 @@ function addTempleteList(list){
         f = document.createElement('div');
         f.id = i + '_' + templeteHash(loadTargetDirectory);
         f.className = 'list';
-        f.textContent = zeroPadding(i, 3);
+        f.textContent = zeroPadding(i + 1, 3);
+        listAddEvent.push({
+            target: f,
+            function: function(eve){
+                var e = eve.currentTarget;
+                var i = parseInt(e.id.match(/\d+/), 10);
+                editorAddSource(i);
+            }
+        });
+        f.addEventListener('click', listAddEvent[i].function, false);
         e.appendChild(f);
     }
 }
@@ -218,40 +236,21 @@ function editorGenerate(id, mode, theme){
     return elm;
 }
 
-function editorAddSource(sourceList){
-    // var i, j;
-    // for(i = 0, j = sourceList.length; i < j; ++i){
-    //     if
-    // }
-    // switch(ajaxTarget){
-    //     case s + 'templete/':
-    //         try{
-    //             t = JSON.parse(r);
-    //         }catch(err){
-    //             return;
-    //         }
-    //         if(t != null){
-    //             if(t['javascript'] != null && t['html'] != null && t['vs'] != null && t['fs'] != null){
-    //                 editors[0].setValue(t['javascript']);
-    //                 editors[1].setValue(t['html']);
-    //                 editors[2].setValue(t['vs']);
-    //                 editors[3].setValue(t['fs']);
-    //                 editors[4].setValue(t['vsp']);
-    //                 editors[5].setValue(t['fsp']);
-    //                 editors[1].gotoLine(1);
-    //                 editors[2].gotoLine(1);
-    //                 editors[3].gotoLine(1);
-    //                 editors[4].gotoLine(1);
-    //                 editors[5].gotoLine(1);
-    //                 setTimeout(function(){editors[0].gotoLine(1);}, 100);
-    //             }
-    //         }
-    //         break;
-    // }
-    // e = bid('loadButton');
-    // e.addEventListener('click', editorLoadTemplete, false);
-    // e = bid('runButton');
-    // e.addEventListener('click', init, false);
+function editorAddSource(index){
+    var i, j;
+    if(!sourceArray[index]){return;}
+    editors[0].setValue(sourceArray[index]['javascript.js']);
+    editors[1].setValue(sourceArray[index]['html.html']);
+    editors[2].setValue(sourceArray[index]['vs.vert']);
+    editors[3].setValue(sourceArray[index]['fs.frag']);
+    editors[4].setValue(sourceArray[index]['vsp.vert']);
+    editors[5].setValue(sourceArray[index]['fsp.frag']);
+    editors[1].gotoLine(1);
+    editors[2].gotoLine(1);
+    editors[3].gotoLine(1);
+    editors[4].gotoLine(1);
+    editors[5].gotoLine(1);
+    setTimeout(function(){editors[0].gotoLine(1);}, 100);
 }
 
 function editorFontSize(upper){
@@ -286,13 +285,13 @@ function init(){
     b = d.body;
     s =  'var WE = {parent: window.parent, console: null, button: null, run: false, err: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
     s += 'function initialize(){\n';
-    s += '  WE.vs = "' + editors[2].getValue().replace(/\n/g, '\\n') + '";\n';
-    s += '  WE.fs = "' + editors[3].getValue().replace(/\n/g, '\\n') + '";\n';
-    s += '  WE.vsp = "' + editors[4].getValue().replace(/\n/g, '\\n') + '";\n';
-    s += '  WE.fsp = "' + editors[5].getValue().replace(/\n/g, '\\n') + '";\n';
+    s += '  WE.vs = `'  + editors[2].getValue() + '`;';
+    s += '  WE.fs = `'  + editors[3].getValue() + '`;';
+    s += '  WE.vsp = `' + editors[4].getValue() + '`;';
+    s += '  WE.fsp = `' + editors[5].getValue() + '`;';
     s += '  WE.run = false;\n';
     s += '  WE.console = WE.parent.document.getElementById("console");\n';
-    s += '  WE.button = WE.parent.document.getElementById("stopButton");\n';
+    s += '  WE.button = WE.parent.document.getElementById("iconStop");\n';
     s += '  WE.button.addEventListener("click", function(){WE.run = false;}, false);\n';
     s += '  window.onerror = function(msg, url, line){\n';
     s += '    var e = WE.parent.document.createElement("p");\n';
