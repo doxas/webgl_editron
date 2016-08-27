@@ -8,6 +8,7 @@ var editors = [];
 var editorNames = ['Javascript', 'HTML', 'Vertex', 'Fragment', 'VertexPost', 'FragmentPost'];
 var editorModes = ['javascript', 'html', 'glsl', 'glsl', 'glsl', 'glsl'];
 var editorTheme = ['monokai', 'monokai', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink'];
+var activeSource = -1;
 var sourceArray = [];
 var popupTime = 0;
 var listAddEvent = [];
@@ -57,6 +58,8 @@ function addTempleteList(list){
         if(a[i].nodeType === 1 && a[i].id !== 'hiddenDefault'){
             e.removeChild(a[i]);
             a[i] = null;
+            --i;
+            --j;
         }
     }
     f = bid('hiddenDefault')
@@ -152,19 +155,36 @@ function loadFileList(list, callback){
                     fileName: file,
                     path: item.targetDirectory,
                 };
-                readFile(projectRoot + file, (function(data){return function(source){
-                    var i, j, k, l, f = true;
-                    if(source){
-                        if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
-                        sourceArray[data.index][data.fileName] = source;
-                        if(sourceArray.length === list.length){
-                            for(i = 0, j = list.length; i < j; ++i){
-                                f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === (TARGET_FILE_NAME.length + 1);
+                if(file.match(/jpg$/) || file.match(/png$/)){
+                    readImage(projectRoot + file, (function(data){return function(image){
+                        var i, j, k, l, f = true;
+                        if(image){
+                            if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
+                            if(!sourceArray[data.index]['images']){sourceArray[data.index]['images'] = {};}
+                            sourceArray[data.index]['images'][data.fileName] = image;
+                            if(sourceArray.length === list.length){
+                                for(i = 0, j = list.length; i < j; ++i){
+                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === (TARGET_FILE_NAME.length + 2);
+                                }
+                                if(f){callback(sourceArray);}
                             }
-                            if(f){callback(sourceArray);}
                         }
-                    }
-                };})(fileData));
+                    };})(fileData));
+                }else{
+                    readFile(projectRoot + file, (function(data){return function(source){
+                        var i, j, k, l, f = true;
+                        if(source){
+                            if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
+                            sourceArray[data.index][data.fileName] = source;
+                            if(sourceArray.length === list.length){
+                                for(i = 0, j = list.length; i < j; ++i){
+                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === (TARGET_FILE_NAME.length + 2);
+                                }
+                                if(f){callback(sourceArray);}
+                            }
+                        }
+                    };})(fileData));
+                }
             });
         };})(list[i]));
     }
@@ -172,6 +192,9 @@ function loadFileList(list, callback){
 
 function fileNameMatch(name){
     var i, f = false;
+    if(name.match(/jpg$/) || name.match(/png$/)){
+        return true;
+    }
     for(i = 0; i < TARGET_FILE_NAME.length; ++i){
         f = f || (TARGET_FILE_NAME[i] === name);
     }
@@ -186,6 +209,21 @@ function readFile(path, callback){
         }
         callback(source.toString());
     });
+}
+
+function readImage(path, callback){
+    var img = new Image();
+    img.onload = function(){
+        callback(img);
+    };
+    img.src = path;
+    // fs.readFile(path, function(err, source){
+    //     if(err){
+    //         console.warn('error : ' + err);
+    //         return;
+    //     }
+    //     callback(source.toString());
+    // });
 }
 
 function writeFile(path, data){
@@ -239,6 +277,7 @@ function editorGenerate(id, mode, theme){
 function editorAddSource(index){
     var i, j;
     if(!sourceArray[index]){return;}
+    activeSource = index;
     editors[0].setValue(sourceArray[index]['javascript.js']);
     editors[1].setValue(sourceArray[index]['html.html']);
     editors[2].setValue(sourceArray[index]['vs.vert']);
@@ -268,6 +307,7 @@ function editorFontSize(upper){
 }
 
 function init(){
+    if(activeSource < 0){return;}
     var b, d, e, f;
     var s, t;
     e = bid('frame');
