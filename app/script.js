@@ -77,6 +77,7 @@ function loadDirectory(){
         properties: ['openDirectory']
     }, function(dir){
         if(dir){
+            // directory check
             fs.readdir(dir[0], function(err, files){
                 if(err || !files || !files.hasOwnProperty('length') || files.length === 0){
                     console.warn('error: readdire');
@@ -95,7 +96,7 @@ function loadDirectory(){
                     });
                 });
 
-                // map for list
+                // map for templete/
                 sourceArray = [];
                 loadFileList(list, function(res){
                     console.log(res);
@@ -110,6 +111,7 @@ function loadFileList(list, callback){
     var separator, projectRoot;
     if(!list){return;}
     for(i = 0, j = list.length; i < j; ++i){
+        // map for templete/i
         fs.readdir(list[i].targetDirectory, (function(item){return function(err, files){
             if(err || !files || !files.hasOwnProperty('length') || files.length === 0){
                 console.warn('error: readfiles');
@@ -126,16 +128,17 @@ function loadFileList(list, callback){
             }).forEach(function(file){
                 var fileData = {
                     index: item.index - 1,
-                    fileName: file
+                    fileName: file,
+                    path: item.targetDirectory,
                 };
                 readFile(projectRoot + file, (function(data){return function(source){
                     var i, j, k, l, f = true;
                     if(source){
-                        if(!sourceArray[data.index]){sourceArray[data.index] = {};}
+                        if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                         sourceArray[data.index][data.fileName] = source;
                         if(sourceArray.length === list.length){
                             for(i = 0, j = list.length; i < j; ++i){
-                                f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === TARGET_FILE_NAME.length;
+                                f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === (TARGET_FILE_NAME.length + 1);
                             }
                             if(f){callback(sourceArray);}
                         }
