@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="description" content="glsl editron">
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <script type="text/javascript" src="script.js"></script>
+    <script src="src-noconflict/ace.js" type="text/javascript"></script>
+    <script src="src-noconflict/ext-searchbox.js" type="text/javascript"></script>
+    <title>glsl editron</title>
+</head>
+<body>
+    <div id="left">
+        <iframe id="frame"></iframe>
+        <div id="console">
+            <p>editoron running</p>
+        </div>
+    </div>
+    <div id="right">
+        <div id="tabs">
+            <div id="tabJavascript" class="tab active">JS</div>
+            <div id="tabHTML" class="tab">html</div>
+            <div id="tabVertex" class="tab">vs</div>
+            <div id="tabFragment" class="tab">fs</div>
+            <div id="tabVertexPost" class="tab">vsp</div>
+            <div id="tabFragmentPost" class="tab">fsp</div>
+        </div>
+        <pre id="editorJavascript" class="editor selected"></pre>
+        <pre id="editorHTML" class="editor"></pre>
+        <pre id="editorVertex" class="editor"></pre>
+        <pre id="editorFragment" class="editor"></pre>
+        <pre id="editorVertexPost" class="editor"></pre>
+        <pre id="editorFragmentPost" class="editor"></pre>
+        <div id="menu">
+            <p><img class="play" src="icons/play.png" title="run" alt="run"></p>
+            <p><img class="stop" src="icons/stop.png" title="stop" alt="stop"></p>
+            <p><img class="menu" src="icons/menu.png" title="select sample" alt="select sample"></p>
+            <p><img class="list" src="icons/list.png" title="open project folder" alt="open project folder"></p>
+        </div>
+    </div>
+    <!-- hidden menu -->
+    <div id="hidden">
+        <div class="list" id="hiddenDefault">please load project</div>
+        <div class="list">test 000</div>
+        <div class="list">test 000</div>
+        <div class="list">test 000</div>
+        <div class="list">test 000</div>
+    </div>
+</body></html>
+
+
+

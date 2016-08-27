@@ -1,0 +1,20 @@
+{
+  "name": "glsl_editron",
+  "version": "1.0.0",
+  "description": "glsl editor app for electron",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ./app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doxas/glsl_editron.git"
+  },
+  "keywords": [],
+  "author": "doxas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/doxas/glsl_editron/issues"
+  },
+  "homepage": "https://github.com/doxas/glsl_editron#readme"
+}
