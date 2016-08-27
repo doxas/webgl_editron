@@ -26,8 +26,11 @@ app.on('ready', function() {
     // open devtools
     mainWindow.webContents.openDevTools();
 
+    // if not darwin then close window
     mainWindow.on('closed', function() {
-        mainWindow = null;
+        if(process.platform !== 'darwin'){
+            mainWindow = null;
+        }
     });
 
 

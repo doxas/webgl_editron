@@ -60,13 +60,31 @@ window.onload = function(){
 };
 
 function loadDirectory(){
+    var i, j, list, projectRoot, separator;
     var currentWindow = remote.getCurrentWindow();
     remote.dialog.showOpenDialog(currentWindow, {
         defaultPath: remote.app.getAppPath('exe'),
         properties: ['openDirectory']
     }, function(dir){
         if(dir){
-            console.log(dir);
+            fs.readdir(dir[0], function(err, files){
+                if(err || !files || !files.hasOwnProperty('length') || files.length === 0){
+                    console.warn('error: readdire');
+                    return
+                }
+                separator = process.platform === 'darwin' ? '/' : '\\';
+                projectRoot = dir[0] + separator;
+                list = [];
+                files.filter(function(file){
+                    return fs.existsSync(projectRoot + file) && fs.statSync(projectRoot + file).isDirectory();
+                }).forEach(function(file){
+                    list.push({
+                        index: parseInt(file, 10),
+                        indexString: file,
+                        targetDirectory: projectRoot + file
+                    });
+                });
+            });
         }
     });
 }
