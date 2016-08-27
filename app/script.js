@@ -38,36 +38,32 @@ window.onload = function(){
 
     run = false;
 
-    // switch(ajaxTarget){
-    //     case s + 'templete/':
-    //         try{
-    //             t = JSON.parse(r);
-    //         }catch(err){
-    //             return;
-    //         }
-    //         if(t != null){
-    //             if(t['javascript'] != null && t['html'] != null && t['vs'] != null && t['fs'] != null){
-    //                 editors[0].setValue(t['javascript']);
-    //                 editors[1].setValue(t['html']);
-    //                 editors[2].setValue(t['vs']);
-    //                 editors[3].setValue(t['fs']);
-    //                 editors[4].setValue(t['vsp']);
-    //                 editors[5].setValue(t['fsp']);
-    //                 editors[1].gotoLine(1);
-    //                 editors[2].gotoLine(1);
-    //                 editors[3].gotoLine(1);
-    //                 editors[4].gotoLine(1);
-    //                 editors[5].gotoLine(1);
-    //                 setTimeout(function(){editors[0].gotoLine(1);}, 100);
-    //             }
-    //         }
-    //         break;
-    // }
-    // e = bid('loadButton');
-    // e.addEventListener('click', editorLoadTemplete, false);
-    // e = bid('runButton');
-    // e.addEventListener('click', init, false);
 };
+
+function addTempleteList(list){
+    var i, j, e, f, a;
+    e = bid('hidden');
+    a = e.childNodes;
+    for(i = 0, j = a.length; i < j; ++i){
+        if(a[i].nodeType === 1 && a[i].id !== 'hiddenDefault'){
+            e.removeChild(a);
+            a[i] = null;
+        }
+    }
+    f = bid('hiddenDefault')
+    if(!list || !list.hasOwnProperty('length') || list.length === 0){
+        f.style.display = 'block';
+        return;
+    }else{
+        f.style.display = 'none';
+    }
+    for(i = 0, j = list.length; i < j; ++i){
+        f = document.createElement('div');
+        f.className = 'list';
+        f.textContent = zeroPadding(i, 3);
+        e.appendChild(f);
+    }
+}
 
 function loadDirectory(){
     var i, j, list, projectRoot, separator;
@@ -100,6 +96,8 @@ function loadDirectory(){
                 sourceArray = [];
                 loadFileList(list, function(res){
                     console.log(res);
+                    addTempleteList(res);
+                    showPopup(true);
                 });
             });
         }
@@ -215,11 +213,40 @@ function editorGenerate(id, mode, theme){
     return elm;
 }
 
-function editorLoadTemplete(eve){
-    var e = bid('loadSample');
-    if(e.value === ''){return;}
-    ajaxTarget = dirPath() + 'templete/';
-    ax.requestPost(ajaxTarget, {sample: e.value});
+function editorAddSource(sourceList){
+    // var i, j;
+    // for(i = 0, j = sourceList.length; i < j; ++i){
+    //     if
+    // }
+    // switch(ajaxTarget){
+    //     case s + 'templete/':
+    //         try{
+    //             t = JSON.parse(r);
+    //         }catch(err){
+    //             return;
+    //         }
+    //         if(t != null){
+    //             if(t['javascript'] != null && t['html'] != null && t['vs'] != null && t['fs'] != null){
+    //                 editors[0].setValue(t['javascript']);
+    //                 editors[1].setValue(t['html']);
+    //                 editors[2].setValue(t['vs']);
+    //                 editors[3].setValue(t['fs']);
+    //                 editors[4].setValue(t['vsp']);
+    //                 editors[5].setValue(t['fsp']);
+    //                 editors[1].gotoLine(1);
+    //                 editors[2].gotoLine(1);
+    //                 editors[3].gotoLine(1);
+    //                 editors[4].gotoLine(1);
+    //                 editors[5].gotoLine(1);
+    //                 setTimeout(function(){editors[0].gotoLine(1);}, 100);
+    //             }
+    //         }
+    //         break;
+    // }
+    // e = bid('loadButton');
+    // e.addEventListener('click', editorLoadTemplete, false);
+    // e = bid('runButton');
+    // e.addEventListener('click', init, false);
 }
 
 function editorFontSize(upper){
@@ -369,3 +396,4 @@ function dirPath(){
     a.pop();
     return a.join('/') + '/';
 }
+
