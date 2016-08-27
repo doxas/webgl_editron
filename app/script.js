@@ -1,14 +1,27 @@
+// modules
 var fs = require('fs');
 var remote = require('electron').remote;
 var dialog = remote.dialog;
 
+// variables
 var editors = [];
 var editorNames = ['Javascript', 'HTML', 'Vertex', 'Fragment', 'VertexPost', 'FragmentPost'];
 var editorModes = ['javascript', 'html', 'glsl', 'glsl', 'glsl', 'glsl'];
 var editorTheme = ['monokai', 'monokai', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink'];
-var ajaxTarget = '';
+var sourceArray = [];
 var popupTime = 0;
 
+// const var
+var TARGET_FILE_NAME = [
+    'html.html',
+    'javascript.js',
+    'vs.vert',
+    'vsp.vert',
+    'fs.frag',
+    'fsp.frag'
+];
+
+// initial
 window.onload = function(){
     var e, s, t;
     editorInitialize();
@@ -18,13 +31,10 @@ window.onload = function(){
         bid('tab' + editorNames[i]).addEventListener('click', tabSelecter, false);
     }
     win.addEventListener('click', function(eve){showPopup(false);}, false);
-    e = bid('iconList');
-    e.addEventListener('click', function(eve){loadDirectory(true);}, false);
     e = bid('iconMenu');
     e.addEventListener('click', function(eve){showPopup(true);}, false);
-
-
-
+    e = bid('iconList');
+    e.addEventListener('click', loadDirectory, false);
 
     run = false;
 
@@ -84,22 +94,73 @@ function loadDirectory(){
                         targetDirectory: projectRoot + file
                     });
                 });
+
+                // map for list
+                sourceArray = [];
+                loadFileList(list, function(res){
+                    console.log(res);
+                });
             });
         }
     });
 }
 
-function readFile(path){
-    currentPath = path;
-    fs.readFile(path, function(err, text){
+function loadFileList(list, callback){
+    var i, j;
+    var separator, projectRoot;
+    if(!list){return;}
+    for(i = 0, j = list.length; i < j; ++i){
+        fs.readdir(list[i].targetDirectory, (function(item){return function(err, files){
+            if(err || !files || !files.hasOwnProperty('length') || files.length === 0){
+                console.warn('error: readfiles');
+                return;
+            }
+            separator = process.platform === 'darwin' ? '/' : '\\';
+            projectRoot = item.targetDirectory + separator;
+            files.filter(function(file){
+                return (
+                    fs.existsSync(projectRoot + file) &&
+                    fs.statSync(projectRoot + file).isFile() &&
+                    fileNameMatch(file)
+                );
+            }).forEach(function(file){
+                var fileData = {
+                    index: item.index - 1,
+                    fileName: file
+                };
+                readFile(projectRoot + file, (function(data){return function(source){
+                    var i, j, k, l, f = true;
+                    if(source){
+                        if(!sourceArray[data.index]){sourceArray[data.index] = {};}
+                        sourceArray[data.index][data.fileName] = source;
+                        if(sourceArray.length === list.length){
+                            for(i = 0, j = list.length; i < j; ++i){
+                                f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === TARGET_FILE_NAME.length;
+                            }
+                            if(f){callback(sourceArray);}
+                        }
+                    }
+                };})(fileData));
+            });
+        };})(list[i]));
+    }
+}
+
+function fileNameMatch(name){
+    var i, f = false;
+    for(i = 0; i < TARGET_FILE_NAME.length; ++i){
+        f = f || (TARGET_FILE_NAME[i] === name);
+    }
+    return f;
+}
+
+function readFile(path, callback){
+    fs.readFile(path, function(err, source){
         if(err){
             console.warn('error : ' + err);
             return;
         }
-        // // フッター部分に読み込み先のパスを設定する
-        // footerArea.innerHTML = path;
-        // // テキスト入力エリアに設定する
-        // editor.setValue(text.toString(), -1);
+        callback(source.toString());
     });
 }
 
@@ -110,10 +171,6 @@ function writeFile(path, data){
             return;
         }
     });
-}
-
-function openDirectry(){
-    console.log
 }
 
 function showPopup(flg){
