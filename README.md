@@ -5,58 +5,98 @@ webgl editor app for electron.
 
 ## about
 
-template を読み込んで Electron で表示できる WebGL 用エディタ。
+template をディレクトリごと読み込んで Electron で表示できる WebGL エディタ。
 
-HTML と JavaScript、さらに頂点シェーダとフラグメントシェーダを編集可能で保存と同時にプレビューを更新できる。
+HTML と JavaScript、さらに頂点シェーダとフラグメントシェーダを編集可能で、保存すると同時にプレビューが更新される。
 
-シェーダは頂点シェーダとフラグメントシェーダをセットに、ふたつ同時に読み込む。
+シェーダは頂点シェーダとフラグメントシェーダを 2 セット同時に読み込む。
+
+二組同時にシェーダを読み込めるので、ポストプロセスなどを実行可能。
+
+
+## template
+
+以下、ディレクトリ構成の例。
 
 ```
 template
 ├── 001
-│      ├ html.html     | プレビューされる HTML
-│      ├ javascript.js | プレビュー実行される JS
-│      ├ vs.vert       | 頂点シェーダ（その１）
-│      ├ fs.frag       | フラグメントシェーダ（その１）
-│      ├ vsp.vert      | 頂点シェーダ（その２）
-│      ├ fsp.frag      | 頂点シェーダ（その２）
-│      └ info.json     | このテンプレートのインフォメーション
+│    ├ html.html     | プレビューされる HTML
+│    ├ javascript.js | プレビュー実行される JS
+│    ├ vs.vert       | 頂点シェーダ（その１）
+│    ├ fs.frag       | フラグメントシェーダ（その１）
+│    ├ vsp.vert      | 頂点シェーダ（その２）
+│    ├ fsp.frag      | フラグメントシェーダ（その２）
+│    └ info.json     | このテンプレートのインフォメーション
 ├── 002
-│      ├ html.html
-│      ├ javascript.js
-│      ├ vs.vert
-│      ├ fs.frag
-│      ├ vsp.vert
-│      ├ fsp.frag
-│      └ info.json
+│    ├ html.html
+│    ├ javascript.js
+│    ├ vs.vert
+│    ├ fs.frag
+│    ├ vsp.vert
+│    ├ fsp.frag
+│    └ info.json
 ├── 003
 ├── 004
-└── ...
+└── ... 以下つづく
 ```
 
-ふたつ同時にシェーダを読み込めるので、ポストプロセスなどを実行可能。
+`info.json` には、そのテンプレートのタイトルなどを記載する。これをベースに、エディタ上でサンプルの名前が表示される。
 
-`info.json` には、そのテンプレートのタイトルなどを記載。これがエディタ上でのサンプルの名前になる。
+以下その書式。
+
+```
+{
+    "title": "template name",
+    "version": "0.0.0",
+    "author": "author name",
+    "description": "template description"
+}
+```
 
 なお現状は上記全てのファイルが揃っていないと読み込めない仕様。
 
-また、各テンプレートのディレクトリ名も三桁数字で現状は固定。このテンプレートディレクトリの中に画像（JPG or PNG）突っ込んでおくと、プレビュー実行時に渡してテクスチャなどに利用できる。
-
-
-## template
+また、各テンプレートのディレクトリ名も三桁数字で現状は固定。このテンプレートディレクトリの中に画像（JPG or PNG）突っ込んでおくと、プレビュー実行時に渡してテクスチャなどに利用できる。（optional）
 
 テンプレートを作るときは、上記のような、三桁数字のディレクトリが連番で入っている形にする。
 
 テンプレートが実行される際、javascript では `WE` という名前のグローバル変数を参照でき、この中に、エディタ上で編集したシェーダのソースコード、親ウィンドウのインスタンス、親ウィンドウ側で読み込んだ画像のセットなどが含まれる。
 
 
+## editor
+
+エディタ実装部分は Ace Editor を拝借。
+
+JS、Coffee、TypeScript、CSS、HTML、JSON などはシンタックスハイライトが効くはず。
+
+ショートカットなどはいろいろあるので有志のドキュメント参照。
+
+> [Default Keyboard Shortcuts · ajaxorg/ace Wiki](https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts)
+
+また、本アプリケーション独自のカスタムショートカットは以下。
+
+| キー             | 機能                 |
+|------------------|----------------------|
+| Esc              | プレビュー実行停止   |
+| Ctrl + s         | 保存＋プレビュー実行 |
+| Ctrl + plus      | 文字サイズ大きく     |
+| Ctrl + hyphen    | 文字サイズ小さく     |
+| Alt + /          | テーマ明暗切り替え   |
+| Ctrl + Shift + i | 開発者ツールの表示   |
+
+※Mac の場合は Ctrl の代わりに Command を使用
+
+
 ## pack
 
 ```
-# mac
+# mac での例
 electron-packager ./app editron --platform=darwin --arch=x64 --version=1.3.4 --icon=webgl_editron.icns
-#win
+
+# win での例
 electron-packager app editron --platform=win32 --arch=x64 --version=1.3.4 --icon=icon_win_256x256.ico
+
+いずれの場合も、Electron のバージョンやアイコンデータを置く階層などに注意。要 electron-packager。
 ```
 
 
