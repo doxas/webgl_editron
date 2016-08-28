@@ -1,8 +1,10 @@
 {
-    "templetetitle": "test templete",
+    "templatetitle": "test template",
+    "version": "0.0.0",
+    "author": "doxas",
+    "description": "test template",
     "titles": [
         "test1",
         "test2"
     ]
-    
 }
