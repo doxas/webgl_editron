@@ -20,7 +20,8 @@ var TARGET_FILE_NAME = [
     'vs.vert',
     'vsp.vert',
     'fs.frag',
-    'fsp.frag'
+    'fsp.frag',
+    'info.json'
 ];
 
 // initial
@@ -44,6 +45,35 @@ window.onload = function(){
 
     run = false;
 
+    // drag and drop
+    document.ondragover = document.ondrop = function(eve){
+        eve.preventDefault();
+        return false;
+    };
+    document.addEventListener('dragleave', function(eve){return false;}, false);
+    document.addEventListener('dragend', function(eve){return false;}, false);
+    document.addEventListener('dragover', function(eve){return false;}, false);
+    document.addEventListener('drop', function(eve){
+        eve.preventDefault();
+        var target = eve.dataTransfer.items;
+        if(target.length !== 1){
+            alert('please drop single template directory');
+            return false;
+        }
+        var entry = null;
+        if(target[0].getAsEntry){
+            entry = target[0].getAsEntry();
+        }else{
+            entry = target[0].webkitGetAsEntry();
+        }
+        if(!entry || !entry.isDirectory){
+            alert('invalid drop file');
+            return false;
+        }
+        var path = eve.dataTransfer.files[0].path;
+        loadDirectory(path);
+        return false;
+    }, false);
 };
 
 function addTempleteList(list){
@@ -73,8 +103,8 @@ function addTempleteList(list){
     }
     for(i = 0, j = list.length; i < j; ++i){
         s = zeroPadding(i + 1, 3);
-        if(list[i].hasOwnProperty('info') && list[i].info.hasOwnProperty('title')){
-            s += ': ' + list[i].info.title;
+        if(list[i].hasOwnProperty('info.json') && list[i]['info.json'].hasOwnProperty('title')){
+            s += ': ' + list[i]['info.json'].title;
         }
         f = document.createElement('div');
         f.id = i + '_' + templateHash(loadTargetDirectory);
@@ -93,47 +123,55 @@ function addTempleteList(list){
     }
 }
 
-function loadDirectory(){
+function loadDirectory(path){
     var i, j, list, projectRoot, separator;
     var currentWindow = remote.getCurrentWindow();
-    remote.dialog.showOpenDialog(currentWindow, {
-        defaultPath: remote.app.getAppPath('exe'),
-        properties: ['openDirectory']
-    }, function(dir){
-        if(dir){
-            // directory check
-            fs.readdir(dir[0], function(err, files){
-                if(err || !files || !files.hasOwnProperty('length') || files.length === 0){
-                    console.warn('error: readdire');
-                    return
-                }
-                separator = process.platform === 'darwin' ? '/' : '\\';
-                projectRoot = dir[0] + separator;
-                list = [];
-                files.filter(function(file){
-                    return fs.existsSync(projectRoot + file) && fs.statSync(projectRoot + file).isDirectory();
-                }).forEach(function(file){
-                    list.push({
-                        index: parseInt(file, 10),
-                        indexString: file,
-                        targetDirectory: projectRoot + file
-                    });
-                });
+    if(path && Object.prototype.toString.call(path) === '[object String]'){
+        loaddir(path);
+    }else{
+        remote.dialog.showOpenDialog(currentWindow, {
+            defaultPath: remote.app.getAppPath('exe'),
+            properties: ['openDirectory']
+        }, loaddir);
+    }
 
-                // map for template/
-                loadTargetDirectory = dir[0];
-                document.title = 'glsl editron [ ' + loadTargetDirectory + ' ]';
-                sourceArray = [];
-                loadFileList(list, function(res){
-                    // directry load completed
-                    console.log(res);
-                    // add to popup list and show popup
-                    addTempleteList(res);
-                    showPopup(true);
+    function loaddir(dir){
+        var path = '';
+        if(Object.prototype.toString.call(dir) === '[object String]'){
+            path = dir;
+        }else{
+            path = dir[0];
+        }
+        // directory check
+        fs.readdir(path, function(err, files){
+            if(err || !files || !files.hasOwnProperty('length') || files.length === 0){
+                console.warn('error: readdire');
+                return
+            }
+            separator = process.platform === 'darwin' ? '/' : '\\';
+            projectRoot = path + separator;
+            list = [];
+            files.filter(function(file){
+                return fs.existsSync(projectRoot + file) && fs.statSync(projectRoot + file).isDirectory();
+            }).forEach(function(file){
+                list.push({
+                    index: parseInt(file, 10),
+                    indexString: file,
+                    targetDirectory: projectRoot + file
                 });
             });
-        }
-    });
+
+            // map for template/
+            loadTargetDirectory = path;
+            document.title = 'glsl editron [ ' + loadTargetDirectory + ' ]';
+            sourceArray = [];
+            loadFileList(list, function(res){
+                // add to popup list and show popup
+                addTempleteList(res);
+                showPopup(true);
+            });
+        });
+    }
 }
 
 function loadFileList(list, callback){
@@ -176,13 +214,13 @@ function loadFileList(list, callback){
                     };})(fileData));
                 }else if(file.match(/info\.json/i)){
                     readFile(projectRoot + file, (function(data){return function(source){
-                        var i, j, k, l, f = true;
+                        var i, j, f = true;
                         if(source){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
-                            if(!sourceArray[data.index]['info']){sourceArray[data.index]['info'] = JSON.parse(source);}
+                            if(!sourceArray[data.index]['info.json']){sourceArray[data.index]['info.json'] = JSON.parse(source);}
                             if(sourceArray.length === list.length){
                                 for(i = 0, j = list.length; i < j; ++i){
-                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length >= (TARGET_FILE_NAME.length + 2);
+                                    f = f && checkMember(sourceArray[i]);
                                 }
                                 if(f){callback(sourceArray);}
                             }
@@ -190,13 +228,13 @@ function loadFileList(list, callback){
                     };})(fileData));
                 }else{
                     readFile(projectRoot + file, (function(data){return function(source){
-                        var i, j, k, l, f = true;
+                        var i, j, f = true;
                         if(source){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             sourceArray[data.index][data.fileName] = source;
                             if(sourceArray.length === list.length){
                                 for(i = 0, j = list.length; i < j; ++i){
-                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length >= (TARGET_FILE_NAME.length + 2);
+                                    f = f && checkMember(sourceArray[i]);
                                 }
                                 if(f){callback(sourceArray);}
                             }
@@ -210,11 +248,19 @@ function loadFileList(list, callback){
 
 function fileNameMatch(name){
     var i, f = false;
-    if(name.match(/json$/i) || name.match(/jpg$/i) || name.match(/png$/i)){
+    if(name.match(/jpg$/i) || name.match(/png$/i)){
         return true;
     }
     for(i = 0; i < TARGET_FILE_NAME.length; ++i){
         f = f || (TARGET_FILE_NAME[i] === name);
+    }
+    return f;
+}
+
+function checkMember(arr){
+    var i, j, f = true;
+    for(i = 0, j = TARGET_FILE_NAME.length; i < j; ++i){
+        f = f && arr.hasOwnProperty(TARGET_FILE_NAME[i]);
     }
     return f;
 }
@@ -235,13 +281,6 @@ function readImage(path, callback){
         callback(img);
     };
     img.src = path;
-    // fs.readFile(path, function(err, source){
-    //     if(err){
-    //         console.warn('error : ' + err);
-    //         return;
-    //     }
-    //     callback(source.toString());
-    // });
 }
 
 function writeFile(path, data){
@@ -311,8 +350,8 @@ function editorAddSource(index){
 
     e = bid('info');
     e.textContent = zeroPadding(index + 1, 3);
-    if(sourceArray[index].info && sourceArray[index].info.hasOwnProperty('title')){
-        e.textContent += ': ' + sourceArray[index].info.title;
+    if(sourceArray[index]['info.json'] && sourceArray[index]['info.json'].hasOwnProperty('title')){
+        e.textContent += ': ' + sourceArray[index]['info.json'].title;
     }
 }
 
