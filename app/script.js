@@ -71,7 +71,7 @@ function addTempleteList(list){
     }
     for(i = 0, j = list.length; i < j; ++i){
         f = document.createElement('div');
-        f.id = i + '_' + templeteHash(loadTargetDirectory);
+        f.id = i + '_' + templateHash(loadTargetDirectory);
         f.className = 'list';
         f.textContent = zeroPadding(i + 1, 3);
         listAddEvent.push({
@@ -114,7 +114,7 @@ function loadDirectory(){
                     });
                 });
 
-                // map for templete/
+                // map for template/
                 loadTargetDirectory = dir[0];
                 document.title = 'glsl editron [ ' + loadTargetDirectory + ' ]';
                 sourceArray = [];
@@ -135,7 +135,7 @@ function loadFileList(list, callback){
     var separator, projectRoot;
     if(!list){return;}
     for(i = 0, j = list.length; i < j; ++i){
-        // map for templete/i
+        // map for template/i
         fs.readdir(list[i].targetDirectory, (function(item){return function(err, files){
             if(err || !files || !files.hasOwnProperty('length') || files.length === 0){
                 console.warn('error: readfiles');
@@ -424,7 +424,7 @@ function keydown(eve){
 
 function bid(id){return document.getElementById(id);}
 
-function templeteHash(str){
+function templateHash(str){
     if(!str){return;}
     var s = str.replace(/\\/g, '/').match(/[^\/]+/g).pop();
     var d = '';
