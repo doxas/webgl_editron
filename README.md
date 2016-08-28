@@ -50,6 +50,14 @@ template
 テンプレートが実行される際、javascript では `WE` という名前のグローバル変数を参照でき、この中に、エディタ上で編集したシェーダのソースコード、親ウィンドウのインスタンス、親ウィンドウ側で読み込んだ画像のセットなどが含まれる。
 
 
+## pack
+
+```
+# mac
+electron-packager ./app editron --platform=darwin --arch=x64 --version=1.3.4 --icon=webgl_editron.icns
+```
+
+
 ## license
 
 This software is released under the MIT License.
