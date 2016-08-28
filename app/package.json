@@ -4,7 +4,7 @@
   "description": "glsl editor app for electron",
   "main": "main.js",
   "scripts": {
-    "test": "electron ./app"
+    "test": "electron ."
   },
   "repository": {
     "type": "git",
