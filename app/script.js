@@ -45,7 +45,7 @@ window.onload = function(){
 };
 
 function addTempleteList(list){
-    var i, j, e, f, a;
+    var i, j, e, f, a, s;
     e = bid('hidden');
     a = e.childNodes;
     if(listAddEvent.length > 0){
@@ -70,10 +70,14 @@ function addTempleteList(list){
         f.style.display = 'none';
     }
     for(i = 0, j = list.length; i < j; ++i){
+        s = zeroPadding(i + 1, 3);
+        if(list[i].hasOwnProperty('info') && list[i].info.hasOwnProperty('title')){
+            s += ': ' + list[i].info.title;
+        }
         f = document.createElement('div');
         f.id = i + '_' + templateHash(loadTargetDirectory);
         f.className = 'list';
-        f.textContent = zeroPadding(i + 1, 3);
+        f.textContent = s;
         listAddEvent.push({
             target: f,
             function: function(eve){
@@ -141,8 +145,13 @@ function loadFileList(list, callback){
                 console.warn('error: readfiles');
                 return;
             }
+            if(!files || files.length < TARGET_FILE_NAME.length){
+                console.info('invalid directory');
+                return;
+            }
             separator = process.platform === 'darwin' ? '/' : '\\';
             projectRoot = item.targetDirectory + separator;
+
             files.filter(function(file){
                 return (
                     fs.existsSync(projectRoot + file) &&
@@ -155,13 +164,26 @@ function loadFileList(list, callback){
                     fileName: file,
                     path: item.targetDirectory,
                 };
-                if(file.match(/jpg$/) || file.match(/png$/)){
+                if(file.match(/jpg$/i) || file.match(/png$/i)){
                     readImage(projectRoot + file, (function(data){return function(image){
-                        var i, j, k, l, f = true;
                         if(image){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             if(!sourceArray[data.index]['images']){sourceArray[data.index]['images'] = {};}
                             sourceArray[data.index]['images'][data.fileName] = image;
+                        }
+                    };})(fileData));
+                }else if(file.match(/info\.json/i)){
+                    readFile(projectRoot + file, (function(data){return function(source){
+                        var i, j, k, l, f = true;
+                        if(source){
+                            if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
+                            if(!sourceArray[data.index]['info']){sourceArray[data.index]['info'] = JSON.parse(source);}
+                            if(sourceArray.length === list.length){
+                                for(i = 0, j = list.length; i < j; ++i){
+                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length >= (TARGET_FILE_NAME.length + 2);
+                                }
+                                if(f){callback(sourceArray);}
+                            }
                         }
                     };})(fileData));
                 }else{
@@ -172,7 +194,7 @@ function loadFileList(list, callback){
                             sourceArray[data.index][data.fileName] = source;
                             if(sourceArray.length === list.length){
                                 for(i = 0, j = list.length; i < j; ++i){
-                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length >= (TARGET_FILE_NAME.length + 1);
+                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length >= (TARGET_FILE_NAME.length + 2);
                                 }
                                 if(f){callback(sourceArray);}
                             }
@@ -186,7 +208,7 @@ function loadFileList(list, callback){
 
 function fileNameMatch(name){
     var i, f = false;
-    if(name.match(/jpg$/) || name.match(/png$/)){
+    if(name.match(/json$/i) || name.match(/jpg$/i) || name.match(/png$/i)){
         return true;
     }
     for(i = 0; i < TARGET_FILE_NAME.length; ++i){
