@@ -79,7 +79,7 @@ window.onload = function(){
 };
 
 function addTempleteList(list){
-    var i, j, e, f, a, s;
+    var i, j, e, f, a, s, t;
     e = bid('hidden');
     a = e.childNodes;
     if(listAddEvent.length > 0){
@@ -105,13 +105,16 @@ function addTempleteList(list){
     }
     for(i = 0, j = list.length; i < j; ++i){
         s = zeroPadding(i + 1, 3);
+        t = '';
         if(list[i].hasOwnProperty('info.json') && list[i]['info.json'].hasOwnProperty('title')){
             s += ': ' + list[i]['info.json'].title;
+            t = list[i]['info.json'].description;
         }
         f = document.createElement('div');
         f.id = i + '_' + templateHash(loadTargetDirectory);
         f.className = 'list';
         f.textContent = s;
+        f.title = t;
         listAddEvent.push({
             target: f,
             function: function(eve){
@@ -371,6 +374,7 @@ function editorAddSource(index){
     e.textContent = zeroPadding(index + 1, 3);
     if(sourceArray[index]['info.json'] && sourceArray[index]['info.json'].hasOwnProperty('title')){
         e.textContent += ': ' + sourceArray[index]['info.json'].title;
+        e.title = sourceArray[index]['info.json'].description;
     }
 }
 
