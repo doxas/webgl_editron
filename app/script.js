@@ -8,6 +8,8 @@ var editors = [];
 var editorNames = ['Javascript', 'HTML', 'Vertex', 'Fragment', 'VertexPost', 'FragmentPost'];
 var editorModes = ['javascript', 'html', 'glsl', 'glsl', 'glsl', 'glsl'];
 var editorTheme = ['monokai', 'monokai', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink'];
+var editorThemeLight = ['tomorrow', 'tomorrow', 'tomorrow', 'tomorrow', 'tomorrow', 'tomorrow'];
+var editorThemeDarken = true;
 var activeSource = -1;
 var sourceArray = [];
 var popupTime = 0;
@@ -323,18 +325,29 @@ function showPopup(flg){
 
 function editorInitialize(){
     for(var i = 0, l = editorNames.length; i < l; i++){
-        editors[i] = editorGenerate('editor' + editorNames[i], editorModes[i], editorTheme[i]);
+        editors[i] = editorGenerate('editor' + editorNames[i], editorModes[i]);
     }
+    editorSetTheme();
 }
 
-function editorGenerate(id, mode, theme){
+function editorGenerate(id, mode){
     var elm;
     elm = ace.edit(id);
-    elm.setTheme("ace/theme/" + theme);
     elm.getSession().setMode("ace/mode/" + mode);
     elm.getSession().setUseSoftTabs(false);
+    elm.setOption("showPrintMargin", false);
     bid(id).style.fontSize = '14px';
     return elm;
+}
+
+function editorSetTheme(){
+    for(var i = 0, l = editorNames.length; i < l; i++){
+        if(editorThemeDarken){
+            editors[i].setTheme("ace/theme/" + editorTheme[i]);
+        }else{
+            editors[i].setTheme("ace/theme/" + editorThemeLight[i]);
+        }
+    }
 }
 
 function editorAddSource(index){
@@ -485,14 +498,18 @@ function keydown(eve){
                     setTimeout(init, 100);
                     return false;
                     break;
+                case 189:
+                    editorFontSize(false);
+                    break;
+                case 187:
+                    editorFontSize(true);
+                    break;
             }
         }else if(eve.altKey){
             switch(eve.keyCode){
-                case 188:
-                    editorFontSize(false);
-                    break;
-                case 190:
-                    editorFontSize(true);
+                case 191:
+                    editorThemeDarken = !editorThemeDarken;
+                    editorSetTheme();
                     break;
             }
         }else{
