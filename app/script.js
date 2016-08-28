@@ -15,11 +15,11 @@ var listAddEvent = [];
 
 // const var
 var TARGET_FILE_NAME = [
-    'html.html',
     'javascript.js',
+    'html.html',
     'vs.vert',
-    'vsp.vert',
     'fs.frag',
+    'vsp.vert',
     'fsp.frag',
     'info.json'
 ];
@@ -283,13 +283,19 @@ function readImage(path, callback){
     img.src = path;
 }
 
-function writeFile(path, data){
-    fs.writeFile(path, data, function(err){
-        if(err){
-            console.warn('error : ' + err);
-            return;
-        }
-    });
+function saveFile(){
+    if(activeSource < 0){return;}
+    var i, j;
+    var separator = process.platform === 'darwin' ? '/' : '\\';
+    var path = loadTargetDirectory + separator + zeroPadding(activeSource + 1, 3) + separator;
+    for(i = 0, j = TARGET_FILE_NAME.length - 1; i < j; ++i){
+        fs.writeFile(path + TARGET_FILE_NAME[i], editors[i].getValue(), function(err){
+            if(err){
+                console.warn('error: ' + err);
+                return;
+            }
+        });
+    }
 }
 
 function showPopup(flg){
@@ -388,7 +394,6 @@ function init(){
     b = d.body;
     s =  'var WE = {parent: window.parent, console: null, button: null, run: false, err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
     s += 'function initialize(){\n';
-    s += '  window.gl3 = WE.parent.gl3;\n';
     s += '  WE.vs = `'  + editors[2].getValue() + '`;';
     s += '  WE.fs = `'  + editors[3].getValue() + '`;';
     s += '  WE.vsp = `' + editors[4].getValue() + '`;';
@@ -398,6 +403,7 @@ function init(){
     s += '  WE.button = WE.parent.document.getElementById("iconStop");\n';
     s += '  WE.button.addEventListener("click", function(){WE.run = false;}, false);\n';
     s += '  WE.images = WE.parent.sourceArray[' + activeSource + '].images;\n';
+    s += '  window.gl3 = WE.parent.gl3;\n';
     s += '  window.onerror = function(msg, url, line){\n';
     s += '    var e = WE.parent.document.createElement("p");\n';
     s += '    var f = WE.parent.document.createElement("strong");\n';
@@ -422,10 +428,6 @@ function init(){
     s += '  };\n';
     s += editors[0].getValue() + '}\n';
     s += 'initialize();\n';
-    // s += 'var scr = document.createElement("script");\n';
-    // s += 'scr.onload = function(){initialize();}\n';
-    // s += 'scr.src = "glcubic.js"\n';
-    // s += 'document.body.appendChild(scr);\n';
     t = d.createElement('script');
     t.textContent = s;
     b.appendChild(t);
@@ -472,6 +474,7 @@ function keydown(eve){
             switch(eve.keyCode){
                 case 83:
                     eve.returnValue = false;
+                    saveFile();
                     setTimeout(init, 100);
                     return false;
                     break;

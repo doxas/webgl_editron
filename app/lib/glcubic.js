@@ -387,13 +387,13 @@ gl3.create_texture = function(source, number, callback){
     img.src = source;
 };
 
-gl3.create_texture_canvas = function(canvas, number){
-    if(canvas == null || number == null){return;}
+gl3.create_texture_fromsource = function(image, number){
+    if(image == null || number == null){return;}
     var gl = this.gl;
     var tex = gl.createTexture();
     this.textures[number] = {texture: null, type: null, loaded: false};
     gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

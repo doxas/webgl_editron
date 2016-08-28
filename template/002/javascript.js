@@ -44,7 +44,7 @@
     gl3.canvas.addEventListener('mousemove', mouseMove, true);
 
     // テクスチャをロードしコールバックに init 関数を登録
-    gl3.create_texture('pepper.jpg', 0, init);
+    gl3.create_texture('sample.jpg', 0, init);
 
     // }, false); // onload event ---------------------------------------------
 
@@ -58,7 +58,7 @@
             ['mMatrix', 'mvpMatrix', 'normalMatrix', 'texture'],
             ['matrix4fv', 'matrix4fv', 'matrix4fv', '1i']
         );
-        if(prg == null){return;}
+        if(!prg){return;}
 
         // glcubic でプログラムオブジェクトのラッパーを生成（ポストエフェクト用）
         var pPrg = gl3.program.create_from_source(
@@ -69,7 +69,7 @@
             ['texture'],
             ['1i']
         );
-        if(pPrg == null){return;}
+        if(!pPrg){return;}
 
         // 球体のメッシュデータを生成
         var sphereData = gl3.mesh.sphere(64, 64, 1.25, [1.0, 1.0, 1.0, 1,0]);

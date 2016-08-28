@@ -45,7 +45,7 @@
 
     // テクスチャをロードしコールバックに init 関数を登録
     // gl3.create_texture('pepper.jpg', 0, init);
-    gl3.create_texture_canvas(WE.images['lenna.jpg'], 0);
+    gl3.create_texture_fromsource(WE.images['lenna.jpg'], 0);
     init();
 
     // }, false); // onload event ---------------------------------------------
