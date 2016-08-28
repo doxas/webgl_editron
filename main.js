@@ -24,7 +24,7 @@ app.on('ready', function() {
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 
     // open devtools
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     // if not darwin then close window
     mainWindow.on('closed', function() {

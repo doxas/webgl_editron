@@ -470,7 +470,14 @@ function tabSelecter(eve){
 
 function keydown(eve){
     if(eve != null){
-        if(eve.ctrlKey || eve.metaKey){
+        if(eve.shiftKey && (eve.ctrlKey || eve.metaKey)){
+            switch(eve.keyCode){
+                case 73:
+                    eve.returnValue = false;
+                    remote.getCurrentWebContents().openDevTools();
+                    break;
+            }
+        }else if(eve.ctrlKey || eve.metaKey){
             switch(eve.keyCode){
                 case 83:
                     eve.returnValue = false;
