@@ -31,7 +31,7 @@ html, body {
 
 #left #console {
     color: #999;
-    font-size: 12px;
+    font-size: 14px;
     padding: 10px;
     text-shadow: 1px 1px 1px #222;
 }
@@ -42,7 +42,7 @@ html, body {
 }
 
 #left #console p {
-    margin: 0px 10px 5px;
+    margin: 0px 10px 10px;
 }
 
 #left #console p em {
@@ -64,12 +64,12 @@ html, body {
     color: #999;
     font-size: 18px;
     font-weight: bold;
-    line-height: 30px;
+    line-height: 29px;
     height: 30px;
     padding: 0px;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: flex-start;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -77,11 +77,13 @@ html, body {
     right: 0;
     overflow: hidden;
     text-shadow: 1px 1px 2px #111;
+    box-shadow: 0px -1px 0px 0px #444 inset;
 }
 
 #right #tabs .tab {
     background-color: #272822;
     border-left: 1px solid #444;
+    border-bottom: 1px solid #444;
     text-align: center;
     min-width: 40px;
     padding: 0px 15px;
@@ -97,7 +99,28 @@ html, body {
 }
 
 #right #tabs .active, #right #tabs .active:hover {
+    border-bottom: 1px solid #272822;
     color: deeppink;
+}
+
+#tabs .tab:first-child {
+    margin-left: 75px;
+}
+
+#tabs .tab:nth-last-of-type(1) {
+    border-right: 1px solid #444;
+}
+
+#tabVertex, #tabFragment, #tabVertexPost, #tabFragmentPost {
+    background-color: #1a1a1a !important;
+}
+
+#tabVertex:hover, #tabFragment:hover, #tabVertexPost:hover, #tabFragmentPost:hover {
+    background-color: #666 !important;
+}
+
+#tabVertex.active, #tabFragment.active, #tabVertexPost.active, #tabFragmentPost.active {
+    border-bottom: 1px solid #191919 !important;
 }
 
 #right .editor {
@@ -112,7 +135,7 @@ html, body {
 }
 
 #right #menu {
-    background-color: #444;
+    background-color: #666670;
     color: #ccc;
     line-height: 25px;
     width: calc(100% - 512px);
@@ -139,17 +162,17 @@ html, body {
 }
 
 #menu img:hover {
-    background-color: orange;
+    background-color: gold;
     transition: background-color 0.1s linear;
 }
 
 #menu img.play:hover {
-    background-color: lightgreen;
+    background-color: springgreen;
     transition: background-color 0.1s linear;
 }
 
 #menu img.stop:hover {
-    background-color: crimson;
+    background-color: deeppink;
     transition: background-color 0.1s linear;
 }
 

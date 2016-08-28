@@ -163,7 +163,7 @@ function loadDirectory(path){
 
             // map for template/
             loadTargetDirectory = path;
-            document.title = 'glsl editron [ ' + loadTargetDirectory + ' ]';
+            document.title = 'webgl editron [ ' + loadTargetDirectory + ' ]';
             sourceArray = [];
             loadFileList(list, function(res){
                 // add to popup list and show popup
