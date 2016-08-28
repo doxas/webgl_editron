@@ -18,7 +18,8 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
     mainWindow = new BrowserWindow({
         width: 1500,
-        height: 1000
+        height: 1000,
+        icon: __dirname + '/icons/icon_win_256x256.ico'
     });
     mainWindow.setMenu(null);
     mainWindow.loadURL('file://' + __dirname + '/index.html');

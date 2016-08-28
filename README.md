@@ -55,6 +55,8 @@ template
 ```
 # mac
 electron-packager ./app editron --platform=darwin --arch=x64 --version=1.3.4 --icon=webgl_editron.icns
+#win
+electron-packager app editron --platform=win32 --arch=x64 --version=1.3.4 --icon=icon_win_256x256.ico
 ```
 
 
