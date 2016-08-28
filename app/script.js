@@ -37,6 +37,8 @@ window.onload = function(){
     e.addEventListener('click', function(eve){showPopup(true);}, false);
     e = bid('iconList');
     e.addEventListener('click', loadDirectory, false);
+    e = bid('hiddenDefault');
+    e.addEventListener('click', loadDirectory, false);
     e = bid('iconPlay');
     e.addEventListener('click', init, false);
 
