@@ -1,2 +1,9 @@
-# glsl_editron
-glsl editor app for electron
+# webgl editron
+
+webgl editor app for electron.
+
+
+# wip
+
+
+
