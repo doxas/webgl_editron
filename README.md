@@ -97,19 +97,19 @@ JS、Coffee、TypeScript、CSS、HTML、JSON などはシンタックスハイ�
 
 ディレクトリを開く際は、ボタンからダイアログを呼び出してディレクトリを開く、あるいは対象のテンプレートディレクトリをドラッグ・アンド・ドロップする。
 
-![](document/images/editor01.jpg)
+![](document/images/editor01.png)
 
-![](document/images/editor02.jpg)
+![](document/images/editor02.png)
 
 テンプレートを読み込むと、ウィンドウ下部のボタンからテンプレートリストが表示できるようになり、これをクリックで選択するとテンプレートが読み込まれる。
 
-![](document/images/editor03.jpg)
+![](document/images/editor03.png)
 
 あとは、Ctrl + s（Mac なら Command + s）でその時点でのソースコードが左側のプレビューペインで実行される。このとき、同時にローカルファイルが保存される。
 
 Esc キーを押下することにより、プレビューの実行を停止することができる。
 
-![](document/images/editor04.jpg)
+![](document/images/editor04.png)
 
 なお、プレビューの実行と停止は、ウィンドウ下部のボタンからも行うことができる。
 
