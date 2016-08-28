@@ -1,22 +1,16 @@
 // ============================================================================
+// template sample
+// ----------------------------------------------------------------------------
+// テンプレートとして読み込まれたサンプルでは、グローバル変数 WE や gl3 を利用
+// 可能。WE には、現在記述されているシェーダのコード四種を表す WE.vs などが含ま
+// れている。
 //
-// school 2016 10. sample.001 : simple scene
-//
-// ============================================================================
-//
-// 最もシンプルなマルチシェーダ実装です。
-// まずオフスクリーンにテクスチャを貼ったモデルをレンダリングします。
-// 本番の canvas には、オフスクリーンのシーンをそのまま描画します。これが全ての
-// サンプルのベースになる、最もシンプルな構成です。
-//
-// ============================================================================
-//
-// ローカルで開発する場合、変数名 WE となっているオブジェクトの扱いに気をつけて
-// ください。変数 WE は、オンラインエディタから値をバイパスするための変数なので
-// 単体で実行する場合には未定義になってしまいます。
-// また、window のロード完了と同時に動かすべき部分は、addEventListener をコメン
-// トアウトしている部分をコメント解除すればいいだけの状態になっています。
-//
+// WE.vs     | vs タブのソースコード（文字列）
+// WE.fs     | fs タブのソースコード（文字列）
+// WE.vsp    | vsp タブのソースコード（文字列）
+// WE.fsp    | fsp タブのソースコード（文字列）
+// WE.run    | プレビューの実行状態管理の Boolean 値（Esc 押下で false になる）
+// WE.images | template ディレクトリ内で見つかった画像（jpg or png）
 // ============================================================================
 
 (function(){
@@ -24,8 +18,6 @@
     var gl;
     var qt = gl3.qtn.create();
     gl3.qtn.identity(qt);
-
-    // window.addEventListener('load', function(){ // onload event ------------
 
     // glcubic の初期化
     var canvas = document.getElementById('canvas');
@@ -43,12 +35,12 @@
     // マウスカーソルの動きに応じてカメラを動かすためのイベント登録
     gl3.canvas.addEventListener('mousemove', mouseMove, true);
 
-    // テクスチャをロードしコールバックに init 関数を登録
-    // gl3.create_texture('pepper.jpg', 0, init);
+    // template 内にある画像は以下のように WE.images + filename で参照可能
+    // 中身は Image オブジェクトが入っているので src の割当てや読み込みは不要
     gl3.create_texture_fromsource(WE.images['lenna.jpg'], 0);
-    init();
 
-    // }, false); // onload event ---------------------------------------------
+    // 初期化関数の呼び出し
+    init();
 
     function init(){
         // glcubic でプログラムオブジェクトのラッパーを生成（ベースシーン用）
@@ -60,7 +52,7 @@
             ['mMatrix', 'mvpMatrix', 'normalMatrix', 'texture'],
             ['matrix4fv', 'matrix4fv', 'matrix4fv', '1i']
         );
-        if(prg == null){return;}
+        if(!prg){return;}
 
         // glcubic でプログラムオブジェクトのラッパーを生成（ポストエフェクト用）
         var pPrg = gl3.program.create_from_source(
@@ -71,7 +63,7 @@
             ['texture'],
             ['1i']
         );
-        if(pPrg == null){return;}
+        if(!pPrg){return;}
 
         // 球体のメッシュデータを生成
         var sphereData = gl3.mesh.sphere(64, 64, 1.25, [1.0, 1.0, 1.0, 1,0]);
