@@ -388,6 +388,7 @@ function init(){
     b = d.body;
     s =  'var WE = {parent: window.parent, console: null, button: null, run: false, err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
     s += 'function initialize(){\n';
+    s += '  window.gl3 = WE.parent.gl3;\n';
     s += '  WE.vs = `'  + editors[2].getValue() + '`;';
     s += '  WE.fs = `'  + editors[3].getValue() + '`;';
     s += '  WE.vsp = `' + editors[4].getValue() + '`;';
@@ -419,11 +420,12 @@ function init(){
     s += '    e.appendChild(f);\n';
     s += '    WE.console.insertBefore(e, WE.console.firstChild);\n';
     s += '  };\n';
-    s += editors[0].getValue() + '}';
-    s += 'var scr = document.createElement("script");\n';
-    s += 'scr.onload = function(){initialize();}\n';
-    s += 'scr.src = "glcubic.js"\n';
-    s += 'document.body.appendChild(scr);\n';
+    s += editors[0].getValue() + '}\n';
+    s += 'initialize();\n';
+    // s += 'var scr = document.createElement("script");\n';
+    // s += 'scr.onload = function(){initialize();}\n';
+    // s += 'scr.src = "glcubic.js"\n';
+    // s += 'document.body.appendChild(scr);\n';
     t = d.createElement('script');
     t.textContent = s;
     b.appendChild(t);

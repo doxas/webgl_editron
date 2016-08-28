@@ -28,7 +28,8 @@
     // window.addEventListener('load', function(){ // onload event ------------
 
     // glcubic の初期化
-    gl3.initGL('canvas');
+    var canvas = document.getElementById('canvas');
+    gl3.initGL(canvas);
     if(!gl3.ready){console.log('initialize error'); return;}
 
     // 扱いやすいように gl に WebGL Context オブジェクトを代入しておく

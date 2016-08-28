@@ -33,9 +33,15 @@ gl3.textureUnitCount = null;
 
 // initialize webgl
 gl3.initGL = function(canvasId, options){
+    if(Object.prototype.toString.call(canvasId) === '[object String]'){
+        this.canvas = document.getElementById(canvasId);
+    }else{
+        if(Object.prototype.toString.call(canvasId) === '[object HTMLCanvasElement]'){
+            this.canvas = canvasId;
+        }
+    }
     var opt = options || {};
     this.ready = false;
-    this.canvas = document.getElementById(canvasId);
     if(this.canvas == null){return false;}
     this.gl = this.canvas.getContext('webgl', opt)
            || this.canvas.getContext('experimental-webgl', opt);
