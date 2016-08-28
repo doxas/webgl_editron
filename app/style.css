@@ -167,6 +167,7 @@ html, body {
     bottom: 50px;
     right: 30px;
     box-shadow: 3px 3px 10px black;
+    z-index: 99;
 }
 
 #hidden .list {
