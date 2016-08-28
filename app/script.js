@@ -291,7 +291,7 @@ function editorGenerate(id, mode, theme){
 }
 
 function editorAddSource(index){
-    var i, j;
+    var i, j, e;
     if(!sourceArray[index]){return;}
     activeSource = index;
     editors[0].setValue(sourceArray[index]['javascript.js']);
@@ -306,6 +306,12 @@ function editorAddSource(index){
     editors[4].gotoLine(1);
     editors[5].gotoLine(1);
     setTimeout(function(){editors[0].gotoLine(1);}, 100);
+
+    e = bid('info');
+    e.textContent = zeroPadding(index + 1, 3);
+    if(sourceArray[index].info && sourceArray[index].info.hasOwnProperty('title')){
+        e.textContent += ': ' + sourceArray[index].info.title;
+    }
 }
 
 function editorFontSize(upper){

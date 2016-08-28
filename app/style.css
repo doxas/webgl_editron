@@ -123,6 +123,7 @@ html, body {
     position: absolute;
     bottom: 0px;
     left: 512px;
+    overflow: hidden;
 }
 
 #menu p {
@@ -150,6 +151,13 @@ html, body {
 #menu img.stop:hover {
     background-color: crimson;
     transition: background-color 0.1s linear;
+}
+
+#menu #info {
+    color: #111;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: auto;
 }
 
 #right .selected {
