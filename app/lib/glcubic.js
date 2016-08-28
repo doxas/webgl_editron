@@ -10,7 +10,7 @@ gl3.PIH  = 1.57079632679489661923132169163975144;
 gl3.PIH2 = 0.78539816339744830961566084581987572;
 gl3.TRI = new radianPreset();
 
-console.log('◆ glCubic.js ◆ : version ' + gl3.VERSION, 'color: crimson', '', 'color: crimson', '', 'color: royalblue');
+console.log('%c◆%c glCubic.js %c◆%c : version %c' + gl3.VERSION, 'color: crimson', '', 'color: crimson', '', 'color: royalblue');
 
 function radianPreset(){
     this.rad = [];
@@ -33,6 +33,11 @@ gl3.textureUnitCount = null;
 
 // initialize webgl
 gl3.initGL = function(canvasId, options){
+    this.ready = false;
+    this.canvas = null;
+    this.gl = null;
+    this.textures = null;
+    this.textureUnitCount = null;
     if(Object.prototype.toString.call(canvasId) === '[object String]'){
         this.canvas = document.getElementById(canvasId);
     }else{
@@ -41,7 +46,6 @@ gl3.initGL = function(canvasId, options){
         }
     }
     var opt = options || {};
-    this.ready = false;
     if(this.canvas == null){return false;}
     this.gl = this.canvas.getContext('webgl', opt)
            || this.canvas.getContext('experimental-webgl', opt);
@@ -174,7 +178,7 @@ gl3.program = {
             xml.setRequestHeader('Pragma', 'no-cache');
             xml.setRequestHeader('Cache-Control', 'no-cache');
             xml.onload = function(){
-                console.log('◆ shader source loaded: ' + target.targetUrl, 'color: crimson', '', 'color: goldenrod');
+                console.log('%c◆%c shader source loaded: %c' + target.targetUrl, 'color: crimson', '', 'color: goldenrod');
                 target.source = xml.responseText;
                 loadCheck();
             };
@@ -332,12 +336,12 @@ gl3.programManager.prototype.location_check = function(attLocation, uniLocation)
     var i, l;
     for(i = 0, l = attLocation.length; i < l; i++){
         if(this.attL[i] == null || this.attL[i] < 0){
-            console.warn('◆ invalid attribute location: "' + attLocation[i] + '"', 'color: crimson');
+            console.warn('◆ invalid attribute location: %c"' + attLocation[i] + '"', 'color: crimson');
         }
     }
     for(i = 0, l = uniLocation.length; i < l; i++){
         if(this.uniL[i] == null || this.uniL[i] < 0){
-            console.warn('◆ invalid uniform location: "' + uniLocation[i] + '"', 'color: crimson');
+            console.warn('◆ invalid uniform location: %c"' + uniLocation[i] + '"', 'color: crimson');
         }
     }
 };
@@ -380,7 +384,7 @@ gl3.create_texture = function(source, number, callback){
         self.textures[number].texture = tex;
         self.textures[number].type = gl.TEXTURE_2D;
         self.textures[number].loaded = true;
-        console.log('◆ texture number: ' + number + ', image loaded: ' + source, 'color: crimson', '', 'color: blue', '', 'color: goldenrod');
+        console.log('%c◆%c texture number: %c' + number + '%c, image loaded: %c' + source, 'color: crimson', '', 'color: blue', '', 'color: goldenrod');
         gl.bindTexture(gl.TEXTURE_2D, null);
         if(callback != null){callback(number);}
     };
@@ -402,7 +406,7 @@ gl3.create_texture_fromsource = function(image, number){
     this.textures[number].texture = tex;
     this.textures[number].type = gl.TEXTURE_2D;
     this.textures[number].loaded = true;
-    console.log('◆ texture number: ' + number + ', image data attached', 'color: crimson', '', 'color: blue', '');
+    console.log('%c◆%c texture number: %c' + number + '%c, image data attached', 'color: crimson', '', 'color: blue', '');
     gl.bindTexture(gl.TEXTURE_2D, null);
 };
 
@@ -421,7 +425,7 @@ gl3.create_texture_canvas = function(canvas, number){
     this.textures[number].texture = tex;
     this.textures[number].type = gl.TEXTURE_2D;
     this.textures[number].loaded = true;
-    console.log('◆ texture number: ' + number + ', canvas attached', 'color: crimson', '', 'color: blue', '');
+    console.log('%c◆%c texture number: %c' + number + '%c, canvas attached', 'color: crimson', '', 'color: blue', '');
     gl.bindTexture(gl.TEXTURE_2D, null);
 };
 
@@ -449,7 +453,7 @@ gl3.create_framebuffer = function(width, height, number){
     this.textures[number].texture = fTexture;
     this.textures[number].type = gl.TEXTURE_2D;
     this.textures[number].loaded = true;
-    console.log('◆ texture number: ' + number + ', framebuffer created', 'color: crimson', '', 'color: blue', '');
+    console.log('%c◆%c texture number: %c' + number + '%c, framebuffer created', 'color: crimson', '', 'color: blue', '');
     return {framebuffer: frameBuffer, depthRenderbuffer: depthRenderBuffer, texture: fTexture};
 };
 
@@ -478,7 +482,7 @@ gl3.create_framebuffer_cube = function(width, height, target, number){
     this.textures[number].texture = fTexture;
     this.textures[number].type = gl.TEXTURE_CUBE_MAP;
     this.textures[number].loaded = true;
-    console.log('◆ texture number: ' + number + ', framebuffer cube created', 'color: crimson', '', 'color: blue', '');
+    console.log('%c◆%c texture number: %c' + number + '%c, framebuffer cube created', 'color: crimson', '', 'color: blue', '');
     return {framebuffer: frameBuffer, depthRenderbuffer: depthRenderBuffer, texture: fTexture};
 };
 
@@ -521,7 +525,7 @@ gl3.create_texture_cube = function(source, target, number, callback){
         self.textures[number].texture = tex;
         self.textures[number].type = gl.TEXTURE_CUBE_MAP;
         self.textures[number].loaded = true;
-        console.log('◆ texture number: ' + number + ', image loaded: ' + source[0] + '...', 'color: crimson', '', 'color: blue', '', 'color: goldenrod');
+        console.log('%c◆%c texture number: %c' + number + '%c, image loaded: %c' + source[0] + '...', 'color: crimson', '', 'color: blue', '', 'color: goldenrod');
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
         if(callback != null){callback(number);}
     }
