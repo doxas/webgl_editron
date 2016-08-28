@@ -162,12 +162,6 @@ function loadFileList(list, callback){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             if(!sourceArray[data.index]['images']){sourceArray[data.index]['images'] = {};}
                             sourceArray[data.index]['images'][data.fileName] = image;
-                            if(sourceArray.length === list.length){
-                                for(i = 0, j = list.length; i < j; ++i){
-                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === (TARGET_FILE_NAME.length + 2);
-                                }
-                                if(f){callback(sourceArray);}
-                            }
                         }
                     };})(fileData));
                 }else{
@@ -178,7 +172,7 @@ function loadFileList(list, callback){
                             sourceArray[data.index][data.fileName] = source;
                             if(sourceArray.length === list.length){
                                 for(i = 0, j = list.length; i < j; ++i){
-                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length === (TARGET_FILE_NAME.length + 2);
+                                    f = f && sourceArray[i] && Object.keys(sourceArray[i]).length >= (TARGET_FILE_NAME.length + 1);
                                 }
                                 if(f){callback(sourceArray);}
                             }
@@ -323,7 +317,7 @@ function init(){
     d.write(editors[1].getValue());
     d.close();
     b = d.body;
-    s =  'var WE = {parent: window.parent, console: null, button: null, run: false, err: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
+    s =  'var WE = {parent: window.parent, console: null, button: null, run: false, err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
     s += 'function initialize(){\n';
     s += '  WE.vs = `'  + editors[2].getValue() + '`;';
     s += '  WE.fs = `'  + editors[3].getValue() + '`;';
@@ -333,6 +327,7 @@ function init(){
     s += '  WE.console = WE.parent.document.getElementById("console");\n';
     s += '  WE.button = WE.parent.document.getElementById("iconStop");\n';
     s += '  WE.button.addEventListener("click", function(){WE.run = false;}, false);\n';
+    s += '  WE.images = WE.parent.sourceArray[' + activeSource + '].images;\n';
     s += '  window.onerror = function(msg, url, line){\n';
     s += '    var e = WE.parent.document.createElement("p");\n';
     s += '    var f = WE.parent.document.createElement("strong");\n';
