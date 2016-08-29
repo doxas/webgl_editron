@@ -141,11 +141,17 @@ function loadDirectory(path){
     }
 
     function loaddir(dir){
+        var e;
         var path = '';
         if(Object.prototype.toString.call(dir) === '[object String]'){
             path = dir;
         }else{
-            path = dir[0];
+            if(dir && dir.length > 0){
+                path = dir[0];
+            }else{
+                console.warn('invalid directory');
+                return;
+            }
         }
         // directory check
         fs.readdir(path, function(err, files){
@@ -171,6 +177,9 @@ function loadDirectory(path){
             sourceArray = [];
             activeSource = -1;
             editorClearSource();
+            addTempleteList();
+            e = bid('info');
+            e.textContent = '';
             document.title = 'webgl editron [ ' + loadTargetDirectory + ' ]';
             loadFileList(list, function(res){
                 // add to popup list and show popup
@@ -225,12 +234,10 @@ function loadFileList(list, callback){
                         if(source){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             if(!sourceArray[data.index]['info.json']){sourceArray[data.index]['info.json'] = JSON.parse(source);}
-                            if(sourceArray.length === list.length){
-                                for(i = 0, j = list.length; i < j; ++i){
-                                    f = f && checkMember(sourceArray[i]);
-                                }
-                                if(f){callback(sourceArray);}
+                            for(i = 0, j = list.length; i < j; ++i){
+                                f = f && checkMember(sourceArray[list[i].index - 1]);
                             }
+                            if(f){callback(sourceArray);}
                         }
                     };})(fileData));
                 }else{
@@ -239,12 +246,10 @@ function loadFileList(list, callback){
                         if(source){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             sourceArray[data.index][data.fileName] = source;
-                            if(sourceArray.length === list.length){
-                                for(i = 0, j = list.length; i < j; ++i){
-                                    f = f && checkMember(sourceArray[i]);
-                                }
-                                if(f){callback(sourceArray);}
+                            for(i = 0, j = list.length; i < j; ++i){
+                                f = f && checkMember(sourceArray[list[i].index - 1]);
                             }
+                            if(f){callback(sourceArray);}
                         }
                     };})(fileData));
                 }
@@ -339,6 +344,22 @@ function editorClearSource(){
     for(var i = 0, l = editorNames.length; i < l; i++){
         editors[i].setValue('');
     }
+}
+
+function editorReloadActiveSource(){
+    if(activeSource < 0){return;}
+    var list = [];
+    var dirName = zeroPadding(activeSource + 1, 3);
+    var separator = process.platform === 'darwin' ? '/' : '\\';
+    list.push({
+        index: activeSource + 1,
+        indexString: dirName,
+        targetDirectory: loadTargetDirectory + separator + dirName
+    });
+    sourceArray[activeSource] = null;
+    loadFileList(list, function(res){
+        editorAddSource(activeSource);
+    });
 }
 
 function editorGenerate(id, mode){
@@ -500,6 +521,10 @@ function keydown(eve){
                 case 73:
                     eve.returnValue = false;
                     remote.getCurrentWebContents().openDevTools();
+                    break;
+                case 79:
+                    eve.returnValue = false;
+                    editorReloadActiveSource();
                     break;
             }
         }else if(eve.ctrlKey || eve.metaKey){
