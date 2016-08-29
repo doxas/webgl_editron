@@ -1,20 +1,20 @@
 {
-  "name": "glsl_editron",
+  "name": "webgl_editron",
   "version": "1.0.0",
-  "description": "glsl editor app for electron",
+  "description": "webgl and glsl editor application for electron",
   "main": "main.js",
   "scripts": {
-    "test": "electron ."
+    "test": "electron app"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/doxas/glsl_editron.git"
+    "url": "git+https://github.com/doxas/webgl_editron.git"
   },
   "keywords": [],
   "author": "doxas",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/doxas/glsl_editron/issues"
+    "url": "https://github.com/doxas/webgl_editron/issues"
   },
-  "homepage": "https://github.com/doxas/glsl_editron#readme"
+  "homepage": "https://github.com/doxas/webgl_editron#readme"
 }
