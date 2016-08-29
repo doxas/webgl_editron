@@ -302,7 +302,7 @@ function readImage(path, callback){
 
 function saveFile(){
     if(activeSource < 0){return;}
-    var i, j;
+    var i, j, e;
     var separator = process.platform === 'darwin' ? '/' : '\\';
     var path = loadTargetDirectory + separator + zeroPadding(activeSource + 1, 3) + separator;
     for(i = 0, j = TARGET_FILE_NAME.length - 1; i < j; ++i){
@@ -538,7 +538,7 @@ function keydown(eve){
             switch(eve.keyCode){
                 case 83:
                     eve.returnValue = false;
-                    saveFile();
+                    if(bid('inputAutoSave').checked){saveFile();}
                     setTimeout(init, 100);
                     return false;
                     break;
