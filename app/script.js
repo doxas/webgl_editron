@@ -168,8 +168,10 @@ function loadDirectory(path){
 
             // map for template/
             loadTargetDirectory = path;
-            document.title = 'webgl editron [ ' + loadTargetDirectory + ' ]';
             sourceArray = [];
+            activeSource = -1;
+            editorClearSource();
+            document.title = 'webgl editron [ ' + loadTargetDirectory + ' ]';
             loadFileList(list, function(res){
                 // add to popup list and show popup
                 addTempleteList(res);
@@ -331,6 +333,12 @@ function editorInitialize(){
         editors[i] = editorGenerate('editor' + editorNames[i], editorModes[i]);
     }
     editorSetTheme();
+}
+
+function editorClearSource(){
+    for(var i = 0, l = editorNames.length; i < l; i++){
+        editors[i].setValue('');
+    }
 }
 
 function editorGenerate(id, mode){
