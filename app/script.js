@@ -366,7 +366,7 @@ function editorGenerate(id, mode){
     var elm;
     elm = ace.edit(id);
     elm.getSession().setMode("ace/mode/" + mode);
-    elm.getSession().setUseSoftTabs(false);
+    elm.getSession().setUseSoftTabs(true);
     elm.setOption("showPrintMargin", false);
     bid(id).style.fontSize = '14px';
     return elm;
