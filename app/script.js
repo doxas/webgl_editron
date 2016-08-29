@@ -423,7 +423,7 @@ function editorFontSize(upper){
 
 function init(){
     if(activeSource < 0){return;}
-    var b, d, e, f;
+    var a, b, d, e, f;
     var s, t;
     e = bid('frame');
     try{e.contentWindow.WE.run = false;}catch(err){}
@@ -438,28 +438,20 @@ function init(){
     d.write(editors[1].getValue());
     d.close();
     b = d.body;
-    s =  'var WE = {parent: window.parent, console: null, button: null, run: false, err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
+    s =  'var WE = {parent: window.parent, console: null, consoleElement: null, button: null, run: false, err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
     s += 'function initialize(){\n';
-    s += '  WE.vs = `'  + editors[2].getValue() + '`;';
-    s += '  WE.fs = `'  + editors[3].getValue() + '`;';
-    s += '  WE.vsp = `' + editors[4].getValue() + '`;';
-    s += '  WE.fsp = `' + editors[5].getValue() + '`;';
+    s += '  WE.vs = `'  + editors[2].getValue() + '`;\n';
+    s += '  WE.fs = `'  + editors[3].getValue() + '`;\n';
+    s += '  WE.vsp = `' + editors[4].getValue() + '`;\n';
+    s += '  WE.fsp = `' + editors[5].getValue() + '`;\n';
     s += '  WE.run = false;\n';
-    s += '  WE.console = WE.parent.document.getElementById("console");\n';
+    s += '  WE.consoleElement = WE.parent.document.getElementById("console");\n';
     s += '  WE.button = WE.parent.document.getElementById("iconStop");\n';
     s += '  WE.button.addEventListener("click", function(){WE.run = false;}, false);\n';
     s += '  WE.images = WE.parent.sourceArray[' + activeSource + '].images;\n';
     s += '  window.gl3 = WE.parent.gl3;\n';
-    s += '  window.onerror = function(msg, url, line){\n';
-    s += '    var e = WE.parent.document.createElement("p");\n';
-    s += '    var f = WE.parent.document.createElement("strong");\n';
-    s += '    f.textContent = msg + "; line " + Math.max(line - 32, 0);\n';
-    s += '    e.appendChild(f);\n';
-    s += '    WE.console.insertBefore(e, WE.console.firstChild);\n';
-    s += '    WE.err = msg;\n';
-    s += '    return true;\n';
-    s += '  };\n';
-    s += '  window.console.log = function(msg){\n';
+    s += '  WE.console = {log: function(msg){\n';
+    s += '    var a;\n';
     s += '    var e = WE.parent.document.createElement("p");\n';
     s += '    var f = WE.parent.document.createElement("em");\n';
     s += '    if(typeof msg === "number"){\n';
@@ -470,8 +462,13 @@ function init(){
     s += '        f.textContent = "log: \'" + msg + "\'";\n';
     s += '    };\n';
     s += '    e.appendChild(f);\n';
-    s += '    WE.console.insertBefore(e, WE.console.firstChild);\n';
-    s += '  };\n';
+    s += '    WE.consoleElement.insertBefore(e, WE.consoleElement.firstChild);\n';
+    s += '    a = WE.consoleElement.children;\n';
+    s += '    if(a.length > 20){\n';
+    s += '      WE.consoleElement.removeChild(a[20]);\n';
+    s += '      a[20] = null;\n';
+    s += '    }\n';
+    s += '  }};\n';
     s += editors[0].getValue() + '}\n';
     s += 'initialize();\n';
     t = d.createElement('script');
@@ -482,8 +479,13 @@ function init(){
             e = bid('console');
             f = document.createElement('p');
             d = new Date();
-            f.textContent = 'reload [' + zeroPadding(d.getHours(), 2) + ':' + zeroPadding(d.getMinutes(), 2) + ']';
+            f.textContent = 'loaded [' + zeroPadding(d.getHours(), 2) + ':' + zeroPadding(d.getMinutes(), 2) + ']';
             e.insertBefore(f, e.firstChild);
+            a = e.children;
+            if(a.length > 20){
+                e.removeChild(a[20]);
+                a[20] = null;
+            }
         }
     }else{
         e = document.createElement('p');
