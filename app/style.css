@@ -183,6 +183,35 @@ html, body {
     margin-right: auto;
 }
 
+#menu #checkboxWrapper {
+    margin: 15px 20px;
+}
+
+#menu #inputAutoSave {
+    display: none;
+}
+
+#menu #inputAutoSave+#autoSave:before {
+    content: '\2713';
+    background-color: transparent;
+    border: 3px solid black;
+    color: #555560;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 18px;
+    text-align: center;
+    width: 18px;
+    height: 18px;
+    display: block;
+    text-shadow: 1px 1px 0px #444450;
+    cursor: pointer;
+}
+
+#menu #inputAutoSave:checked+#autoSave:before {
+    background-color: #345;
+    color: turquoise;
+}
+
 #right .selected {
     display: block !important;
 }

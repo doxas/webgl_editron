@@ -44,6 +44,11 @@ window.onload = function(){
     e.addEventListener('click', loadDirectory, false);
     e = bid('iconPlay');
     e.addEventListener('click', init, false);
+    e = bid('autoSave');
+    e.addEventListener('click', function(eve){
+        var e = bid('inputAutoSave');
+        e.checked = !e.checked;
+    }, false);
 
     run = false;
 
