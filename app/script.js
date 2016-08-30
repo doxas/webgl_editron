@@ -170,11 +170,13 @@ function loadDirectory(path){
             files.filter(function(file){
                 return fs.existsSync(projectRoot + file) && fs.statSync(projectRoot + file).isDirectory();
             }).forEach(function(file){
-                list.push({
-                    index: parseInt(file, 10),
-                    indexString: file,
-                    targetDirectory: projectRoot + file
-                });
+                if(file && !file.match(/\D/) && !isNaN(parseInt(file, 10))){
+                    list.push({
+                        index: parseInt(file, 10),
+                        indexString: file,
+                        targetDirectory: projectRoot + file
+                    });
+                }
             });
 
             // map for template/
