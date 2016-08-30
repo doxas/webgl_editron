@@ -242,7 +242,7 @@ function loadFileList(list, callback){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             if(!sourceArray[data.index]['info.json']){sourceArray[data.index]['info.json'] = JSON.parse(source);}
                             for(i = 0, j = list.length; i < j; ++i){
-                                f = f && checkMember(sourceArray[list[i].index - 1]);
+                                f = f && sourceArray[list[i].index - 1] && checkMember(sourceArray[list[i].index - 1]);
                             }
                             if(f){callback(sourceArray);}
                         }
@@ -254,7 +254,7 @@ function loadFileList(list, callback){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             sourceArray[data.index][data.fileName] = source;
                             for(i = 0, j = list.length; i < j; ++i){
-                                f = f && checkMember(sourceArray[list[i].index - 1]);
+                                f = f && sourceArray[list[i].index - 1] && checkMember(sourceArray[list[i].index - 1]);
                             }
                             if(f){callback(sourceArray);}
                         }
