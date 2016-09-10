@@ -528,6 +528,7 @@ function keydown(eve){
         if(eve.shiftKey && (eve.ctrlKey || eve.metaKey)){
             switch(eve.keyCode){
                 case 73:
+                    if(process.platform === 'darwin'){return;}
                     eve.returnValue = false;
                     remote.getCurrentWebContents().openDevTools();
                     break;

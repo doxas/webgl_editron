@@ -24,9 +24,6 @@ app.on('ready', function() {
     mainWindow.setMenu(null);
     mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-    // open devtools
-    // mainWindow.webContents.openDevTools();
-
     // if not darwin then close window
     mainWindow.on('closed', function() {
         if(process.platform !== 'darwin'){
@@ -34,5 +31,41 @@ app.on('ready', function() {
         }
     });
 
-
+    // darwin only
+    if(process.platform === 'darwin'){
+        var name = app.getName()
+        var template = [{
+            label: 'editron',
+            submenu: [{
+                role: 'undo'
+            }, {
+                role: 'redo'
+            }, {
+                type: 'separator'
+            }, {
+                role: 'cut'
+            }, {
+                role: 'copy'
+            }, {
+                role: 'paste'
+            }, {
+                role: 'pasteandmatchstyle'
+            }, {
+                role: 'selectall'
+            }]
+        }, {
+            label: 'developer',
+            submenu: [{
+                label: 'developer tools',
+                accelerator: 'Alt+Command+I',
+                click (item, focusedWindow){
+                    if(focusedWindow){
+                        focusedWindow.webContents.toggleDevTools();
+                    }
+                }
+            }]
+        }];
+        var menu = electron.Menu.buildFromTemplate(template)
+        electron.Menu.setApplicationMenu(menu)
+    }
 });
