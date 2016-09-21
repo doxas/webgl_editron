@@ -89,7 +89,9 @@ function addTempleteList(list){
     a = e.childNodes;
     if(listAddEvent.length > 0){
         for(i = 0, j = listAddEvent.length; i < j; ++i){
-            listAddEvent[i].target.removeEventListener('click', listAddEvent[i].function, false);
+            if(listAddEvent[i] && listAddEvent[i].hasOwnProperty('target')){
+                listAddEvent[i].target.removeEventListener('click', listAddEvent[i].function, false);
+            }
         }
     }
     listAddEvent = [];
@@ -109,6 +111,7 @@ function addTempleteList(list){
         f.style.display = 'none';
     }
     for(i = 0, j = list.length; i < j; ++i){
+        if(!list[i]){continue;}
         s = zeroPadding(i + 1, 3);
         t = '';
         if(list[i].hasOwnProperty('info.json') && list[i]['info.json'].hasOwnProperty('title')){
@@ -120,14 +123,14 @@ function addTempleteList(list){
         f.className = 'list';
         f.textContent = s;
         f.title = t;
-        listAddEvent.push({
+        listAddEvent[i] = {
             target: f,
             function: function(eve){
                 var e = eve.currentTarget;
                 var i = parseInt(e.id.match(/\d+/), 10);
                 editorAddSource(i);
             }
-        });
+        };
         f.addEventListener('click', listAddEvent[i].function, false);
         e.appendChild(f);
     }
