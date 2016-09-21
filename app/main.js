@@ -9,16 +9,14 @@ let mainWindow;
 
 // window all closed
 app.on('window-all-closed', function() {
-    if (process.platform != 'darwin') {
-        app.quit();
-    }
+    app.quit();
 });
 
 // initial
 app.on('ready', function() {
     mainWindow = new BrowserWindow({
-        width: 1500,
-        height: 1000,
+        width: 1280,
+        height: 720,
         icon: __dirname + '/icons/icon_win_256x256.ico'
     });
     mainWindow.setMenu(null);

@@ -232,7 +232,7 @@ html, body {
 
 #hidden .list {
     background-color: transparent;
-    padding: 7px 10px;
+    padding: 5px 10px;
     cursor: pointer;
     transition: background-color 0.1s linear;
 }
