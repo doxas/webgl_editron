@@ -221,8 +221,12 @@ html, body {
     border: 2px solid #444;
     border-radius: 3px;
     color: #eee;
+    height: 70%;
     min-width: 200px;
+    min-height: 200px;
     display: none;
+    overflow: 100%;
+    overflow-y: auto;
     position: absolute;
     bottom: 50px;
     right: 30px;
