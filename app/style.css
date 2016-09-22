@@ -221,11 +221,13 @@ html, body {
     border: 2px solid #444;
     border-radius: 3px;
     color: #eee;
-    height: 70%;
-    min-width: 200px;
-    min-height: 200px;
+    font-size: small;
+    width: auto;
+    height: auto;
+    min-width: 350px;
+    max-height: 50%;
     display: none;
-    overflow: 100%;
+    overflow: hidden;
     overflow-y: auto;
     position: absolute;
     bottom: 50px;
