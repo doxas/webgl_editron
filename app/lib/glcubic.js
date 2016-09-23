@@ -122,6 +122,7 @@ gl3.program = {
         mng.vs = mng.create_shader(vsId);
         mng.fs = mng.create_shader(fsId);
         mng.prg = mng.create_program(mng.vs, mng.fs);
+        if(!mng.prg){return null;}
         mng.attL = new Array(attLocation.length);
         mng.attS = new Array(attLocation.length);
         for(i = 0; i < attLocation.length; i++){
@@ -143,6 +144,7 @@ gl3.program = {
         mng.vs = mng.create_shader_from_source(vs, gl3.gl.VERTEX_SHADER);
         mng.fs = mng.create_shader_from_source(fs, gl3.gl.FRAGMENT_SHADER);
         mng.prg = mng.create_program(mng.vs, mng.fs);
+        if(!mng.prg){return null;}
         mng.attL = new Array(attLocation.length);
         mng.attS = new Array(attLocation.length);
         for(i = 0; i < attLocation.length; i++){
@@ -190,6 +192,7 @@ gl3.program = {
             mng.vs = mng.create_shader_from_source(src.vs.source, gl3.gl.VERTEX_SHADER);
             mng.fs = mng.create_shader_from_source(src.fs.source, gl3.gl.FRAGMENT_SHADER);
             mng.prg = mng.create_program(mng.vs, mng.fs);
+            if(!mng.prg){return null;}
             mng.attL = new Array(attLocation.length);
             mng.attS = new Array(attLocation.length);
             for(i = 0; i < attLocation.length; i++){
@@ -245,7 +248,7 @@ gl3.programManager.prototype.create_shader = function(id){
 };
 
 gl3.programManager.prototype.create_shader_from_source = function(source, type){
-    var shader;
+    var shader, msg;
     switch(type){
         case this.gl.VERTEX_SHADER:
             shader = this.gl.createShader(this.gl.VERTEX_SHADER);
@@ -261,7 +264,9 @@ gl3.programManager.prototype.create_shader_from_source = function(source, type){
     if(this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)){
         return shader;
     }else{
-        console.warn('◆ compile failed of shader: ' + this.gl.getShaderInfoLog(shader));
+        msg = this.gl.getShaderInfoLog(shader);
+        alert(msg);
+        console.warn('◆ compile failed of shader: ' + msg);
     }
 };
 
@@ -275,6 +280,7 @@ gl3.programManager.prototype.create_program = function(vs, fs){
         return program;
     }else{
         console.warn('◆ link program failed: ' + this.gl.getProgramInfoLog(program));
+        return null;
     }
 };
 
