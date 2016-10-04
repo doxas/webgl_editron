@@ -448,7 +448,14 @@ function init(){
     d.write(editors[1].getValue());
     d.close();
     b = d.body;
-    s =  'var WE = {parent: window.parent, console: null, consoleElement: null, button: null, run: false, err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""};\n';
+    s =  'var WE = {';
+    s += '  parent: window.parent,\n';
+    s += '  console: null,\n';
+    s += '  consoleElement: null,\n';
+    s += '  button: null,\n';
+    s += '  run: false,\n';
+    s += '  err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""\n';
+    s += '};\n';
     s += 'function initialize(){\n';
     s += '  WE.vs = `'  + editors[2].getValue() + '`;\n';
     s += '  WE.fs = `'  + editors[3].getValue() + '`;\n';
@@ -460,6 +467,7 @@ function init(){
     s += '  WE.button.addEventListener("click", function(){WE.run = false;}, false);\n';
     s += '  WE.images = WE.parent.sourceArray[' + activeSource + '].images;\n';
     s += '  window.gl3 = WE.parent.gl3;\n';
+    s += '  window.THREE = WE.parent.THREE;\n';
     s += '  WE.console = {log: function(msg){\n';
     s += '    var a;\n';
     s += '    var e = WE.parent.document.createElement("p");\n';
@@ -483,28 +491,30 @@ function init(){
     s += 'initialize();\n';
     t = d.createElement('script');
     t.textContent = s;
-    b.appendChild(t);
-    if(e.contentWindow.WE != null){
-        if(e.contentWindow.WE.err === null){
-            e = bid('console');
-            f = document.createElement('p');
-            d = new Date();
-            f.textContent = 'loaded [' + zeroPadding(d.getHours(), 2) + ':' + zeroPadding(d.getMinutes(), 2) + ']';
-            e.insertBefore(f, e.firstChild);
-            a = e.children;
-            if(a.length > 20){
-                e.removeChild(a[20]);
-                a[20] = null;
+    setTimeout(function(){
+        b.appendChild(t);
+        if(e.contentWindow.WE != null){
+            if(e.contentWindow.WE.err === null){
+                e = bid('console');
+                f = document.createElement('p');
+                d = new Date();
+                f.textContent = 'loaded [' + zeroPadding(d.getHours(), 2) + ':' + zeroPadding(d.getMinutes(), 2) + ']';
+                e.insertBefore(f, e.firstChild);
+                a = e.children;
+                if(a.length > 20){
+                    e.removeChild(a[20]);
+                    a[20] = null;
+                }
             }
+        }else{
+            e = document.createElement('p');
+            f = document.createElement('strong');
+            f.textContent = 'editor -> javascript syntax error';
+            e.appendChild(f);
+            f = bid('console');
+            f.insertBefore(e, f.firstChild);
         }
-    }else{
-        e = document.createElement('p');
-        f = document.createElement('strong');
-        f.textContent = 'editor -> javascript syntax error';
-        e.appendChild(f);
-        f = bid('console');
-        f.insertBefore(e, f.firstChild);
-    }
+    }, 100);
 }
 
 function tabSelecter(eve){
