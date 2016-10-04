@@ -246,3 +246,10 @@ electron-packager app editron --platform=win32 --arch=x64 --version=1.3.4 --icon
 
 This software is released under the MIT License.
 
+
+## special thanks
+
+[mrdoob/three\.js: JavaScript 3D library\.](https://github.com/mrdoob/three.js/)
+
+
+
