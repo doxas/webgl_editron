@@ -251,7 +251,11 @@ This software is released under the MIT License.
 
 ## special thanks
 
+Editron の利便性を考慮して同梱しているライブラリなど。
+
+[Ace \- The High Performance Code Editor for the Web](https://ace.c9.io/#nav=about)
+
 [mrdoob/three\.js: JavaScript 3D library\.](https://github.com/mrdoob/three.js/)
 
-
+[dat\.GUI](https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage)
 
