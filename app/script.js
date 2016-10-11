@@ -10,6 +10,7 @@ var editorModes = ['javascript', 'html', 'glsl', 'glsl', 'glsl', 'glsl'];
 var editorTheme = ['monokai', 'monokai', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink', 'vibrant_ink'];
 var editorThemeLight = ['tomorrow', 'tomorrow', 'tomorrow', 'tomorrow', 'tomorrow', 'tomorrow'];
 var editorThemeDarken = true;
+var editorFontSizePx = 14;
 var activeSource = -1;
 var sourceArray = [];
 var popupTime = 0;
@@ -378,7 +379,7 @@ function editorGenerate(id, mode){
     elm.getSession().setMode("ace/mode/" + mode);
     elm.getSession().setUseSoftTabs(true);
     elm.setOption("showPrintMargin", false);
-    bid(id).style.fontSize = '14px';
+    bid(id).style.fontSize = editorFontSizePx + 'px';
     return elm;
 }
 
@@ -423,9 +424,11 @@ function editorFontSize(upper){
         var size = e.style.fontSize.match(/\d+/);
         if(size != null){
             if(upper){
-                e.style.fontSize = Math.max(parseInt(size[0]) + 2, 8) + 'px';
+                editorFontSizePx = Math.max(parseInt(size[0]) + 2, 8);
+                e.style.fontSize = editorFontSizePx + 'px';
             }else{
-                e.style.fontSize = Math.max(parseInt(size[0]) - 2, 8) + 'px';
+                editorFontSizePx = Math.max(parseInt(size[0]) - 2, 8);
+                e.style.fontSize = editorFontSizePx + 'px';
             }
         }
     }
