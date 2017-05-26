@@ -168,7 +168,7 @@ function loadDirectory(path){
                 console.warn('error: readdire');
                 return
             }
-            separator = process.platform === 'darwin' ? '/' : '\\';
+            separator = process.platform.match(/^win/) ? '\\' : '/';
             projectRoot = path + separator;
             list = [];
             files.filter(function(file){
@@ -216,7 +216,7 @@ function loadFileList(list, callback){
                 console.info('invalid directory');
                 return;
             }
-            separator = process.platform === 'darwin' ? '/' : '\\';
+            separator = process.platform.match(/^win/) ? '\\' : '/';
             projectRoot = item.targetDirectory + separator;
 
             files.filter(function(file){
@@ -309,7 +309,7 @@ function readImage(path, callback){
 function saveFile(){
     if(activeSource < 0){return;}
     var i, j, e;
-    var separator = process.platform === 'darwin' ? '/' : '\\';
+    var separator = process.platform.match(/^win/) ? '\\' : '/';
     var path = loadTargetDirectory + separator + zeroPadding(activeSource + 1, 3) + separator;
     for(i = 0, j = TARGET_FILE_NAME.length - 1; i < j; ++i){
         fs.writeFile(path + TARGET_FILE_NAME[i], editors[i].getValue(), function(err){
@@ -361,7 +361,7 @@ function editorReloadActiveSource(){
     if(activeSource < 0){return;}
     var list = [];
     var dirName = zeroPadding(activeSource + 1, 3);
-    var separator = process.platform === 'darwin' ? '/' : '\\';
+    var separator = process.platform.match(/^win/) ? '\\' : '/';
     list.push({
         index: activeSource + 1,
         indexString: dirName,
