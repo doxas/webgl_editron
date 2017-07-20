@@ -243,10 +243,10 @@ WebGL Editron では、Node.js でファイルを開いて画像を初期化す�
 
 ```
 # mac での例
-electron-packager ./app editron --platform=darwin --arch=x64 --version=1.3.4 --icon=webgl_editron.icns
+electron-packager ./app editron --platform=darwin --arch=x64 --electron-version=1.3.4 --icon=webgl_editron.icns
 
 # win での例
-electron-packager app editron --platform=win32 --arch=x64 --version=1.3.4 --icon=icon_win_256x256.ico
+electron-packager app editron --platform=win32 --arch=x64 --electron-version=1.3.4 --icon=icon_win_256x256.ico
 
 いずれの場合も、Electron のバージョンやアイコンデータを置く階層などに注意。要 electron-packager。
 ```
