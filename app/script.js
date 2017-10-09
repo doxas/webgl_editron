@@ -378,6 +378,7 @@ function editorGenerate(id, mode){
     elm = ace.edit(id);
     elm.getSession().setMode("ace/mode/" + mode);
     elm.getSession().setUseSoftTabs(true);
+    elm.getSession().setUseWorker(false);
     elm.setOption("showPrintMargin", false);
     bid(id).style.fontSize = editorFontSizePx + 'px';
     return elm;
@@ -469,6 +470,8 @@ function init(){
     s += '  WE.button = WE.parent.document.getElementById("iconStop");\n';
     s += '  WE.button.addEventListener("click", function(){WE.run = false;}, false);\n';
     s += '  WE.images = WE.parent.sourceArray[' + activeSource + '].images;\n';
+    s += '  window.matIV = WE.parent.matIV;\n';
+    s += '  window.qtnIV = WE.parent.qtnIV;\n';
     s += '  window.gl3 = WE.parent.gl3;\n';
     s += '  window.THREE = WE.parent.THREE;\n';
     s += '  WE.console = {log: function(msg){\n';
