@@ -3,7 +3,7 @@
     let canvas, canvasWidth, canvasHeight;
     let gl, ext, mat, qtn, camera;
     let startTime, nowTime;
-    let scenePrg;
+    let scenePrg, postPrg;
 
     function main(){
         canvas        = document.getElementById('canvas');
@@ -26,62 +26,58 @@
         canvas.addEventListener('mouseup', camera.endEvent, false);
         canvas.addEventListener('wheel', camera.wheelEvent, false);
 
-        let tex = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, WE.images['sample.jpg']);
-        gl.generateMipmap(gl.TEXTURE_2D);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         let vs = createShader(WE.vs, gl.VERTEX_SHADER);
         let fs = createShader(WE.fs, gl.FRAGMENT_SHADER);
         let prg = createProgram(vs, fs);
         if(prg == null){return;}
         scenePrg = new ProgramParameter(prg);
+        vs = createShader(WE.vsp, gl.VERTEX_SHADER);
+        fs = createShader(WE.fsp, gl.FRAGMENT_SHADER);
+        prg = createProgram(vs, fs);
+        if(prg == null){return;}
+        postPrg = new ProgramParameter(prg);
         init();
     }
 
     function init(texture){
         scenePrg.attLocation[0] = gl.getAttribLocation(scenePrg.program, 'position');
         scenePrg.attLocation[1] = gl.getAttribLocation(scenePrg.program, 'color');
-        scenePrg.attLocation[2] = gl.getAttribLocation(scenePrg.program, 'texCoord');
         scenePrg.attStride[0]   = 3;
         scenePrg.attStride[1]   = 4;
-        scenePrg.attStride[2]   = 2;
         scenePrg.uniLocation[0] = gl.getUniformLocation(scenePrg.program, 'mvpMatrix');
-        scenePrg.uniLocation[1] = gl.getUniformLocation(scenePrg.program, 'globalColor');
-        scenePrg.uniLocation[2] = gl.getUniformLocation(scenePrg.program, 'textureUnit');
         scenePrg.uniType[0]     = 'uniformMatrix4fv';
-        scenePrg.uniType[1]     = 'uniform4fv';
-        scenePrg.uniType[2]     = 'uniform1i';
-
-        let position = [];
-        let color = [];
-        let texCoord = [];
-        {
-            let width = 5.0;
-            let half = width / 2.0;
-            let interval = 0.1;
-            let count = width / interval;
-            for(let i = 0; i <= count; ++i){
-                let x = -half + i * interval;
-                for(let j = 0; j <= count; ++j){
-                    let y = -half + j * interval;
-                    position.push(x, y, 0.0);
-                    color.push(1.0, 1.0, 1.0, 1.0);
-                    texCoord.push(i / count, 1.0 - j / count);
-                }
-            }
-        }
+        postPrg.attLocation[0] = gl.getAttribLocation(postPrg.program, 'position');
+        postPrg.attStride[0]   = 3;
+        postPrg.uniLocation[0] = gl.getUniformLocation(postPrg.program, 'texture');
+        postPrg.uniLocation[1] = gl.getUniformLocation(postPrg.program, 'time');
+        postPrg.uniType[0]     = 'uniform1i';
+        postPrg.uniType[1]     = 'uniform1f';
+        let position = [
+            -1.0,  1.0,  0.0,
+             1.0,  1.0,  0.0,
+            -1.0, -1.0,  0.0,
+             1.0, -1.0,  0.0
+        ];
+        let color = [
+            1.0, 0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0
+        ];
         let VBO = [
             createVbo(position),
-            createVbo(color),
-            createVbo(texCoord)
+            createVbo(color)
         ];
+        let postVBO = [
+            createVbo(position)
+        ];
+        let index = [
+            0, 2, 1, 1, 2, 3
+        ];
+        let IBO = createIbo(index);
+
+        let fBuffer = createFramebuffer(canvasWidth, canvasHeight);
+        gl.bindTexture(gl.TEXTURE_2D, fBuffer.texture);
 
         let mMatrix   = mat.identity(mat.create());
         let vMatrix   = mat.identity(mat.create());
@@ -90,11 +86,9 @@
         let mvpMatrix = mat.identity(mat.create());
         let qtnMatrix = mat.identity(mat.create());
 
-        gl.clearColor(0.3, 0.3, 0.3, 1.0);
+        gl.clearColor(0.7, 0.7, 1.0, 1.0);
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
-        gl.useProgram(scenePrg.program);
-        gl[scenePrg.uniType[1]](scenePrg.uniLocation[1], [1.0, 1.0, 1.0, 1.0]);
 
         startTime = Date.now();
         nowTime = 0;
@@ -109,19 +103,18 @@
             canvas.width  = canvasWidth;
             canvas.height = canvasHeight;
 
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fBuffer.framebuffer);
+            gl.useProgram(scenePrg.program);
             gl.viewport(0, 0, canvasWidth, canvasHeight);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-            let rad               = Math.PI / 10.0;
-            let sin               = Math.sin(rad);
-            let cos               = Math.cos(rad);
-            let cameraPosition    = [0.0, sin * 5.0, cos * 5.0];
+            let cameraPosition    = [0.0, 0.0, 3.0];
             let centerPoint       = [0.0, 0.0, 0.0];
-            let cameraUpDirection = [0.0, cos, -sin];
-            let fovy              = 60 * camera.scale;
-            let aspect            = canvasWidth / canvasHeight;
-            let near              = 0.1;
-            let far               = 20.0;
+            let cameraUpDirection = [0.0, 1.0, 0.0];
+            let fovy   = 60 * camera.scale;
+            let aspect = canvasWidth / canvasHeight;
+            let near   = 0.1;
+            let far    = 10.0;
 
             mat.lookAt(cameraPosition, centerPoint, cameraUpDirection, vMatrix);
             mat.perspective(fovy, aspect, near, far, pMatrix);
@@ -131,13 +124,20 @@
             qtn.toMatIV(camera.qtn, qtnMatrix);
             mat.multiply(vpMatrix, qtnMatrix, vpMatrix);
 
-            setAttribute(VBO, scenePrg.attLocation, scenePrg.attStride, null);
+            setAttribute(VBO, scenePrg.attLocation, scenePrg.attStride, IBO);
             mat.identity(mMatrix);
-            mat.rotate(mMatrix, nowTime * 0.2, [0.0, 1.0, 0.0], mMatrix);
+            mat.rotate(mMatrix, nowTime * 0.1, [0.0, 1.0, 0.0], mMatrix);
             mat.multiply(vpMatrix, mMatrix, mvpMatrix);
             gl[scenePrg.uniType[0]](scenePrg.uniLocation[0], false, mvpMatrix);
-            gl[scenePrg.uniType[2]](scenePrg.uniLocation[2], 0);
-            gl.drawArrays(gl.POINTS, 0, position.length / 3);
+            gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.useProgram(postPrg.program);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            setAttribute(postVBO, postPrg.attLocation, postPrg.attStride, IBO);
+            gl[postPrg.uniType[0]](postPrg.uniLocation[0], 0);
+            gl[postPrg.uniType[1]](postPrg.uniLocation[1], nowTime);
+            gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
             gl.flush();
 
             if(WE.run){requestAnimationFrame(render);}
