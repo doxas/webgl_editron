@@ -1,7 +1,7 @@
 // modules
-var fs = require('fs');
-var remote = require('electron').remote;
-var dialog = remote.dialog;
+let fs = require('fs');
+let remote = require('electron').remote;
+let dialog = remote.dialog;
 
 // variables
 var editors = [];
@@ -18,7 +18,7 @@ var listAddEvent = [];
 var kioskMode = false;
 
 // const var
-var TARGET_FILE_NAME = [
+const TARGET_FILE_NAME = [
     'javascript.js',
     'html.html',
     'vs.vert',
@@ -30,11 +30,11 @@ var TARGET_FILE_NAME = [
 
 // initial
 window.onload = function(){
-    var e, s, t;
+    let e, s, t;
     editorInitialize();
     win = window;
     win.addEventListener('keydown', keydown, false);
-    for(var i = 0, l = editorNames.length; i < l; i++){
+    for(let i = 0, l = editorNames.length; i < l; i++){
         bid('tab' + editorNames[i]).addEventListener('click', tabSelecter, false);
     }
     win.addEventListener('click', function(eve){showPopup(false);}, false);
@@ -48,7 +48,7 @@ window.onload = function(){
     e.addEventListener('click', init, false);
     e = bid('autoSave');
     e.addEventListener('click', function(eve){
-        var e = bid('inputAutoSave');
+        let e = bid('inputAutoSave');
         e.checked = !e.checked;
     }, false);
 
@@ -64,12 +64,12 @@ window.onload = function(){
     document.addEventListener('dragover', function(eve){return false;}, false);
     document.addEventListener('drop', function(eve){
         eve.preventDefault();
-        var target = eve.dataTransfer.items;
+        let target = eve.dataTransfer.items;
         if(target.length !== 1){
             alert('please drop single template directory');
             return false;
         }
-        var entry = null;
+        let entry = null;
         if(target[0].getAsEntry){
             entry = target[0].getAsEntry();
         }else{
@@ -79,14 +79,14 @@ window.onload = function(){
             alert('invalid drop file');
             return false;
         }
-        var path = eve.dataTransfer.files[0].path;
+        let path = eve.dataTransfer.files[0].path;
         loadDirectory(path);
         return false;
     }, false);
 };
 
 function addTempleteList(list){
-    var i, j, e, f, a, s, t;
+    let i, j, e, f, a, s, t;
     e = bid('hidden');
     a = e.childNodes;
     if(listAddEvent.length > 0){
@@ -128,8 +128,8 @@ function addTempleteList(list){
         listAddEvent[i] = {
             target: f,
             function: function(eve){
-                var e = eve.currentTarget;
-                var i = parseInt(e.id.match(/\d+/), 10);
+                let e = eve.currentTarget;
+                let i = parseInt(e.id.match(/\d+/), 10);
                 editorAddSource(i);
             }
         };
@@ -139,8 +139,8 @@ function addTempleteList(list){
 }
 
 function loadDirectory(path){
-    var i, j, list, projectRoot, separator;
-    var currentWindow = remote.getCurrentWindow();
+    let i, j, list, projectRoot, separator;
+    let currentWindow = remote.getCurrentWindow();
     if(path && Object.prototype.toString.call(path) === '[object String]'){
         loaddir(path);
     }else{
@@ -151,8 +151,8 @@ function loadDirectory(path){
     }
 
     function loaddir(dir){
-        var e;
-        var path = '';
+        let e;
+        let path = '';
         if(Object.prototype.toString.call(dir) === '[object String]'){
             path = dir;
         }else{
@@ -203,8 +203,8 @@ function loadDirectory(path){
 }
 
 function loadFileList(list, callback){
-    var i, j;
-    var separator, projectRoot;
+    let i, j;
+    let separator, projectRoot;
     if(!list){return;}
     for(i = 0, j = list.length; i < j; ++i){
         // map for template/i
@@ -227,7 +227,7 @@ function loadFileList(list, callback){
                     fileNameMatch(file)
                 );
             }).forEach(function(file){
-                var fileData = {
+                let fileData = {
                     index: item.index - 1,
                     fileName: file,
                     path: item.targetDirectory,
@@ -242,7 +242,7 @@ function loadFileList(list, callback){
                     };})(fileData));
                 }else if(file.match(/info\.json/i)){
                     readFile(projectRoot + file, (function(data){return function(source){
-                        var i, j, f = true;
+                        let i, j, f = true;
                         if(source){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             if(!sourceArray[data.index]['info.json']){sourceArray[data.index]['info.json'] = JSON.parse(source);}
@@ -254,7 +254,7 @@ function loadFileList(list, callback){
                     };})(fileData));
                 }else{
                     readFile(projectRoot + file, (function(data){return function(source){
-                        var i, j, f = true;
+                        let i, j, f = true;
                         if(source){
                             if(!sourceArray[data.index]){sourceArray[data.index] = {path: data.path};}
                             sourceArray[data.index][data.fileName] = source;
@@ -271,7 +271,7 @@ function loadFileList(list, callback){
 }
 
 function fileNameMatch(name){
-    var i, f = false;
+    let i, f = false;
     if(name.match(/jpg$/i) || name.match(/png$/i)){
         return true;
     }
@@ -282,7 +282,7 @@ function fileNameMatch(name){
 }
 
 function checkMember(arr){
-    var i, j, f = true;
+    let i, j, f = true;
     for(i = 0, j = TARGET_FILE_NAME.length; i < j; ++i){
         f = f && arr.hasOwnProperty(TARGET_FILE_NAME[i]);
     }
@@ -305,7 +305,7 @@ function readFile(path, callback){
 }
 
 function readImage(path, callback){
-    var img = new Image();
+    let img = new Image();
     img.onload = function(){
         callback(img);
     };
@@ -314,9 +314,9 @@ function readImage(path, callback){
 
 function saveFile(){
     if(activeSource < 0){return;}
-    var i, j, e;
-    var separator = process.platform.match(/^win/) ? '\\' : '/';
-    var path = loadTargetDirectory + separator + zeroPadding(activeSource + 1, 3) + separator;
+    let i, j, e;
+    let separator = process.platform.match(/^win/) ? '\\' : '/';
+    let path = loadTargetDirectory + separator + zeroPadding(activeSource + 1, 3) + separator;
     for(i = 0, j = TARGET_FILE_NAME.length - 1; i < j; ++i){
         fs.writeFile(path + TARGET_FILE_NAME[i], editors[i].getValue(), function(err){
             if(err){
@@ -328,7 +328,7 @@ function saveFile(){
 }
 
 function showPopup(flg){
-    var f, e = bid('hidden');
+    let f, e = bid('hidden');
     if(flg === undefined || flg === null){
         f = e.style.display !== 'block';
         if(f){
@@ -351,23 +351,23 @@ function showPopup(flg){
 }
 
 function editorInitialize(){
-    for(var i = 0, l = editorNames.length; i < l; i++){
+    for(let i = 0, l = editorNames.length; i < l; i++){
         editors[i] = editorGenerate('editor' + editorNames[i], editorModes[i]);
     }
     editorSetTheme();
 }
 
 function editorClearSource(){
-    for(var i = 0, l = editorNames.length; i < l; i++){
+    for(let i = 0, l = editorNames.length; i < l; i++){
         editors[i].setValue('');
     }
 }
 
 function editorReloadActiveSource(){
     if(activeSource < 0){return;}
-    var list = [];
-    var dirName = zeroPadding(activeSource + 1, 3);
-    var separator = process.platform.match(/^win/) ? '\\' : '/';
+    let list = [];
+    let dirName = zeroPadding(activeSource + 1, 3);
+    let separator = process.platform.match(/^win/) ? '\\' : '/';
     list.push({
         index: activeSource + 1,
         indexString: dirName,
@@ -380,7 +380,7 @@ function editorReloadActiveSource(){
 }
 
 function editorGenerate(id, mode){
-    var elm;
+    let elm;
     elm = ace.edit(id);
     elm.getSession().setMode("ace/mode/" + mode);
     elm.getSession().setUseSoftTabs(true);
@@ -391,7 +391,7 @@ function editorGenerate(id, mode){
 }
 
 function editorSetTheme(){
-    for(var i = 0, l = editorNames.length; i < l; i++){
+    for(let i = 0, l = editorNames.length; i < l; i++){
         if(editorThemeDarken){
             editors[i].setTheme("ace/theme/" + editorTheme[i]);
         }else{
@@ -401,7 +401,7 @@ function editorSetTheme(){
 }
 
 function editorAddSource(index){
-    var i, j, e;
+    let i, j, e;
     if(!sourceArray[index]){return;}
     activeSource = index;
     editors[0].setValue(sourceArray[index]['javascript.js']);
@@ -426,9 +426,9 @@ function editorAddSource(index){
 }
 
 function editorFontSize(upper){
-    for(var i = 0, l = editorNames.length; i < l; i++){
-        var e = bid('editor' + editorNames[i]);
-        var size = e.style.fontSize.match(/\d+/);
+    for(let i = 0, l = editorNames.length; i < l; i++){
+        let e = bid('editor' + editorNames[i]);
+        let size = e.style.fontSize.match(/\d+/);
         if(size != null){
             if(upper){
                 editorFontSizePx = Math.max(parseInt(size[0]) + 2, 8);
@@ -443,8 +443,13 @@ function editorFontSize(upper){
 
 function init(){
     if(activeSource < 0){return;}
-    var a, b, d, e, f;
-    var s, t;
+    let a, b, d, e, f;
+    let s, t;
+    // let source = [];
+    // source[0] = ;
+    // source[1] = ;
+    // source[2] = ;
+    // source[3] = ;
     e = bid('frame');
     try{e.contentWindow.WE.run = false;}catch(err){}
     f = e.parentNode;
@@ -458,49 +463,54 @@ function init(){
     d.write(editors[1].getValue());
     d.close();
     b = d.body;
-    s =  'var WE = {';
-    s += '  parent: window.parent,\n';
-    s += '  console: null,\n';
-    s += '  consoleElement: null,\n';
-    s += '  button: null,\n';
-    s += '  run: false,\n';
-    s += '  err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""\n';
-    s += '};\n';
-    s += 'function initialize(){\n';
-    s += '  WE.vs = `'  + editors[2].getValue() + '`;\n';
-    s += '  WE.fs = `'  + editors[3].getValue() + '`;\n';
-    s += '  WE.vsp = `' + editors[4].getValue() + '`;\n';
-    s += '  WE.fsp = `' + editors[5].getValue() + '`;\n';
-    s += '  WE.run = false;\n';
-    s += '  WE.consoleElement = WE.parent.document.getElementById("console");\n';
-    s += '  WE.button = WE.parent.document.getElementById("iconStop");\n';
-    s += '  WE.button.addEventListener("click", function(){WE.run = false;}, false);\n';
-    s += '  WE.images = WE.parent.sourceArray[' + activeSource + '].images;\n';
-    s += '  window.matIV = WE.parent.matIV;\n';
-    s += '  window.qtnIV = WE.parent.qtnIV;\n';
-    s += '  window.gl3 = WE.parent.gl3;\n';
-    s += '  window.THREE = WE.parent.THREE;\n';
-    s += '  WE.console = {log: function(msg){\n';
-    s += '    var a;\n';
-    s += '    var e = WE.parent.document.createElement("p");\n';
-    s += '    var f = WE.parent.document.createElement("em");\n';
-    s += '    if(typeof msg === "number"){\n';
-    s += '      f.textContent = "log: " + msg;\n';
-    s += '    }else if(msg instanceof Array){;\n';
-    s += '      f.textContent = "log: " + "[" + msg.join(\', \') + "]";\n';
-    s += '    }else{;\n';
-    s += '        f.textContent = "log: \'" + msg + "\'";\n';
-    s += '    };\n';
-    s += '    e.appendChild(f);\n';
-    s += '    WE.consoleElement.insertBefore(e, WE.consoleElement.firstChild);\n';
-    s += '    a = WE.consoleElement.children;\n';
-    s += '    if(a.length > 20){\n';
-    s += '      WE.consoleElement.removeChild(a[20]);\n';
-    s += '      a[20] = null;\n';
-    s += '    }\n';
-    s += '  }};\n';
-    s += editors[0].getValue() + '}\n';
-    s += 'initialize();\n';
+
+    s = `
+var WE = {
+    parent: window.parent,
+    console: null,
+    consoleElement: null,
+    button: null,
+    run: false,
+    err: null, images: null, vs: "", fs: "", vsp: "", fsp: ""
+};
+function initialize(){
+    WE.vs  = \`${editors[2].getValue()}\`;
+    WE.fs  = \`${editors[3].getValue()}\`;
+    WE.vsp = \`${editors[4].getValue()}\`;
+    WE.fsp = \`${editors[5].getValue()}\`;
+    WE.run = false;
+    WE.consoleElement = WE.parent.document.getElementById("console");
+    WE.button = WE.parent.document.getElementById("iconStop");
+    WE.button.addEventListener("click", function(){WE.run = false;}, false);
+    WE.images = WE.parent.sourceArray[${activeSource}].images;
+    window.matIV = WE.parent.matIV;
+    window.qtnIV = WE.parent.qtnIV;
+    window.gl3 = WE.parent.gl3;
+    window.THREE = WE.parent.THREE;
+    WE.console = {log: function(msg){
+        let a;
+        let e = WE.parent.document.createElement("p");
+        let f = WE.parent.document.createElement("em");
+        if(typeof msg === "number"){
+            f.textContent = "log: " + msg;
+        }else if(msg instanceof Array){
+            f.textContent = "log: " + "[" + msg.join(', ') + "]";
+        }else{
+            f.textContent = "log: '" + msg + "'";
+        }
+        e.appendChild(f);
+        WE.consoleElement.insertBefore(e, WE.consoleElement.firstChild);
+        a = WE.consoleElement.children;
+        if(a.length > 20){
+            WE.consoleElement.removeChild(a[20]);
+            a[20] = null;
+        }
+    }};
+}
+initialize();
+${editors[0].getValue()}
+`;
+
     t = d.createElement('script');
     t.textContent = s;
     setTimeout(function(){
@@ -530,11 +540,11 @@ function init(){
 }
 
 function tabSelecter(eve){
-    var c, d, e, t;
+    let c, d, e, t;
     e = eve.currentTarget;
     if(e.className.match(/active/)){return;}
     t = e.id.replace('tab', '');
-    for(var i = 0, l = editorNames.length; i < l; i++){
+    for(let i = 0, l = editorNames.length; i < l; i++){
         if(t === editorNames[i]){
             c = 'editor selected';
             d = 'tab active';
@@ -605,16 +615,16 @@ function bid(id){return document.getElementById(id);}
 
 function templateHash(str){
     if(!str){return;}
-    var s = str.replace(/\\/g, '/').match(/[^\/]+/g).pop();
-    var d = '';
-    for(var i = 0; i < s.length; ++i){
+    let s = str.replace(/\\/g, '/').match(/[^\/]+/g).pop();
+    let d = '';
+    for(let i = 0; i < s.length; ++i){
         d += s.substr(i, 1).charCodeAt();
     };
     return d;
 }
 
 function zeroPadding(num, count){
-    var z = (new Array(count)).join('0');
+    let z = (new Array(count)).join('0');
     if((num + '').length > count){return num + '';}
     return (z + num).slice(-1 * count);
 }
