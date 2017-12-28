@@ -1,6 +1,6 @@
 {
   "name": "webgl-editron",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "webgl and glsl editor application for electron",
   "main": "main.js",
   "scripts": {

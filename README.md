@@ -64,6 +64,7 @@ editron では、ローカルファイルを読み込んで表示します。ま
 | Ctrl + Shift + o | 開いているサンプルを再読込み |
 | Ctrl + Shift + i | 開発者ツールの表示（Windows）|
 | Cmd + Alt + i    | 開発者ツールの表示（Mac）    |
+| F11              | フルスクリーンモード         |
 
 ※Mac の場合は Ctrl の代わりに Command を使用
 
