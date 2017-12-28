@@ -289,8 +289,12 @@ function checkMember(arr){
     return f;
 }
 
-function toggleFullScreen(){
-    kioskMode = !kioskMode;
+function toggleFullScreen(flag){
+    if(flag == null){
+        kioskMode = !kioskMode;
+    }else{
+        kioskMode = flag;
+    }
     remote.getCurrentWindow().setKiosk(kioskMode);
 }
 
@@ -445,11 +449,6 @@ function init(){
     if(activeSource < 0){return;}
     let a, b, d, e, f;
     let s, t;
-    // let source = [];
-    // source[0] = ;
-    // source[1] = ;
-    // source[2] = ;
-    // source[3] = ;
     e = bid('frame');
     try{e.contentWindow.WE.run = false;}catch(err){}
     f = e.parentNode;
@@ -458,6 +457,13 @@ function init(){
     e = document.createElement('iframe');
     e.id = 'frame';
     f.insertBefore(e, f.firstChild);
+    if(kioskMode === true){
+        e.style.width = window.innerWidth + 'px';
+        e.style.height = window.innerHeight + 'px';
+    }else{
+        e.style.width = '512px';
+        e.style.height = '512px';
+    }
     d = e.contentDocument;
     d.open();
     d.write(editors[1].getValue());
@@ -516,6 +522,12 @@ ${editors[0].getValue()}
     setTimeout(function(){
         b.appendChild(t);
         if(e.contentWindow.WE != null){
+            e.contentWindow.addEventListener('keydown', (eve) => {
+                if(kioskMode === true && (eve.key === 'Escape' || eve.key === 'F11')){
+                    toggleFullScreen();
+                    setTimeout(init, 100);
+                }
+            }, false);
             if(e.contentWindow.WE.err === null){
                 e = bid('console');
                 f = document.createElement('p');
@@ -597,15 +609,13 @@ function keydown(eve){
             }
         }else if(eve.key === 'F11'){
             toggleFullScreen();
-            let f = bid('frame');
-            f.contentWindow.WE.run = !f.contentWindow.WE.run;
-            if(f.contentWindow.WE.run !== true){
-                f.contentWindow.WE.run = true;
-                editorReloadActiveSource();
-            }
+            setTimeout(init, 100);
+        }else if(kioskMode === true && (eve.key === 'Escape' || eve.key === 'F11')){
+            toggleFullScreen();
+            setTimeout(init, 100);
         }else{
             try{
-                bid('frame').contentWindow.WE.run = (eve.keyCode !== 27);
+                bid('frame').contentWindow.WE.run = (eve.key !== 'Escape');
             }catch(err){}
         }
     }
