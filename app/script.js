@@ -15,6 +15,7 @@ var activeSource = -1;
 var sourceArray = [];
 var popupTime = 0;
 var listAddEvent = [];
+var kioskMode = false;
 
 // const var
 var TARGET_FILE_NAME = [
@@ -288,6 +289,11 @@ function checkMember(arr){
     return f;
 }
 
+function toggleFullScreen(){
+    kioskMode = !kioskMode;
+    remote.getCurrentWindow().setKiosk(kioskMode);
+}
+
 function readFile(path, callback){
     fs.readFile(path, function(err, source){
         if(err){
@@ -545,38 +551,47 @@ function tabSelecter(eve){
 function keydown(eve){
     if(eve != null){
         if(eve.shiftKey && (eve.ctrlKey || eve.metaKey)){
-            switch(eve.keyCode){
-                case 73:
+            switch(eve.key){
+                case 'I':
                     if(process.platform === 'darwin'){return;}
                     eve.returnValue = false;
-                    remote.getCurrentWebContents().openDevTools();
+                    remote.getCurrentWindow().openDevTools();
                     break;
-                case 79:
+                case 'o':
                     eve.returnValue = false;
                     editorReloadActiveSource();
                     break;
             }
         }else if(eve.ctrlKey || eve.metaKey){
-            switch(eve.keyCode){
-                case 83:
+            switch(eve.key){
+                case 's':
                     eve.returnValue = false;
                     if(bid('inputAutoSave').checked){saveFile();}
                     setTimeout(init, 100);
                     return false;
                     break;
-                case 189:
+                case '-':
                     editorFontSize(false);
                     break;
-                case 187:
+                case '=':
+                case ';':
                     editorFontSize(true);
                     break;
             }
         }else if(eve.altKey){
-            switch(eve.keyCode){
-                case 191:
+            switch(eve.key){
+                case '/':
                     editorThemeDarken = !editorThemeDarken;
                     editorSetTheme();
                     break;
+            }
+        }else if(eve.key === 'F11'){
+            toggleFullScreen();
+            let f = bid('frame');
+            f.contentWindow.WE.run = !f.contentWindow.WE.run;
+            if(f.contentWindow.WE.run !== true){
+                f.contentWindow.WE.run = true;
+                editorReloadActiveSource();
             }
         }else{
             try{
