@@ -32,7 +32,11 @@ npm install -g electron
 Electron がインストールできたら、WebGL Editron のディレクトリに移動してから、以下のように app ディレクトリを対象として Electron を実行します。
 
 ```
+# リポジトリのルートからの場合
 electron app
+
+# app ディレクトリの中にがカレントの場合
+electron .
 ```
 
 これだけで、WebGL Editron が実行され、ウィンドウが表示されるはずです。
