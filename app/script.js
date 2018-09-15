@@ -489,10 +489,14 @@ function initialize(){
     WE.button = WE.parent.document.getElementById("iconStop");
     WE.button.addEventListener("click", function(){WE.run = false;}, false);
     WE.images = WE.parent.sourceArray[${activeSource}].images;
-    window.matIV = WE.parent.matIV;
-    window.qtnIV = WE.parent.qtnIV;
-    window.gl3 = WE.parent.gl3;
-    window.THREE = WE.parent.THREE;
+    window.matIV  = WE.parent.matIV;
+    window.qtnIV  = WE.parent.qtnIV;
+    window.torus  = WE.parent.torus;
+    window.sphere = WE.parent.sphere;
+    window.cube   = WE.parent.cube;
+    window.hsva   = WE.parent.hsva;
+    window.gl3    = WE.parent.gl3;
+    window.THREE  = WE.parent.THREE;
     WE.console = {log: function(msg){
         let a;
         let e = WE.parent.document.createElement("p");
