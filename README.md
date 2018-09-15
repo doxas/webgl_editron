@@ -268,3 +268,5 @@ Editron の利便性を考慮して同梱しているライブラリなど。
 
 [dat\.GUI](https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage)
 
+[doxas/minMatrix\.js: simple math library of matrix and quaternion](https://github.com/doxas/minMatrix.js)
+
