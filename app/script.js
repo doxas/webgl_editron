@@ -607,6 +607,8 @@ function keydown(eve){
         }else if(eve.altKey){
             switch(eve.key){
                 case '/':
+                case '÷':
+                    eve.preventDefault();
                     editorThemeDarken = !editorThemeDarken;
                     editorSetTheme();
                     break;
