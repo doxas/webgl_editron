@@ -45,7 +45,10 @@ window.onload = function(){
     e = bid('hiddenDefault');
     e.addEventListener('click', loadDirectory, false);
     e = bid('iconPlay');
-    e.addEventListener('click', init, false);
+    e.addEventListener('click', function(eve){
+        if(bid('inputAutoSave').checked){saveFile();}
+        setTimeout(init, 100);
+    }, false);
     e = bid('autoSave');
     e.addEventListener('click', function(eve){
         let e = bid('inputAutoSave');
@@ -321,6 +324,14 @@ function saveFile(){
     let i, j, e;
     let separator = process.platform.match(/^win/) ? '\\' : '/';
     let path = loadTargetDirectory + separator + zeroPadding(activeSource + 1, 3) + separator;
+
+    sourceArray[activeSource]['javascript.js'] = editors[0].getValue();
+    sourceArray[activeSource]['html.html']     = editors[1].getValue();
+    sourceArray[activeSource]['vs.vert']       = editors[2].getValue();
+    sourceArray[activeSource]['fs.frag']       = editors[3].getValue();
+    sourceArray[activeSource]['vsp.vert']      = editors[4].getValue();
+    sourceArray[activeSource]['fsp.frag']      = editors[5].getValue();
+
     for(i = 0, j = TARGET_FILE_NAME.length - 1; i < j; ++i){
         fs.writeFile(path + TARGET_FILE_NAME[i], editors[i].getValue(), function(err){
             if(err){
