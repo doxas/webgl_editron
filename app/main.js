@@ -17,7 +17,10 @@ app.on('ready', function() {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 720,
-        icon: __dirname + '/icons/icon_win_256x256.ico'
+        icon: __dirname + '/icons/icon_win_256x256.ico',
+        webPreferences: {
+            nodeIntegration: true
+        }
     });
     mainWindow.setMenu(null);
     mainWindow.loadURL('file://' + __dirname + '/index.html');
