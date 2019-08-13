@@ -133,6 +133,89 @@ class Splitter extends Emitter {
     }
 }
 
+class Tab extends Emitter {
+    static get ACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgb(${TABSTRIP_COLOR.join(',')})`;}
+    static get DEACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgba(${TABSTRIP_COLOR.join(',')},0.3)`;}
+    static get ACTIVE_COLOR(){return `rgb(${TABSTRIP_COLOR.join(',')})`;}
+    static get DEACTIVE_COLOR(){return `rgba(${TABSTRIP_COLOR.join(',')},0.3)`;}
+    constructor(parentDOM, index, title, isActive = false){
+        super();
+        this.parentDOM = parentDOM;
+        this.index = index;
+        this.wrap = document.createElement('div');
+        this.wrap.textContent = title;
+        this.active = isActive;
+        // styling
+        appendStyle(this.wrap, {
+            borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
+            color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
+            lineHeight: `${TABSTRIP_TAB_HEIGHT}px`,
+            minWidth: `${TABSTRIP_TAB_WIDTH}px`,
+            maxWidth: `${TABSTRIP_TAB_WIDTH}px`,
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            userSelect: 'none',
+            cursor: 'default',
+        });
+        // appending
+        this.parentDOM.appendChild(this.wrap);
+        // event setting
+        this.wrap.addEventListener('click', () => {
+            this.emit('click', index);
+        }, false);
+        this.wrap.addEventListener('mouseenter', () => {
+            appendStyle(this.wrap, {
+                borderBottom: Tab.ACTIVE,
+            });
+        }, false);
+        this.wrap.addEventListener('mouseleave', () => {
+            this.update();
+        }, false);
+    }
+    setActive(isActive){
+        if(isActive == null){return;}
+        this.active = isActive;
+    }
+    update(isActive){
+        this.setActive(isActive);
+        appendStyle(this.wrap, {
+            color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
+            borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
+        });
+    }
+}
+
+class Block extends Emitter {
+    constructor(parentDOM, index, isActive = false){
+        super();
+        this.parentDOM = parentDOM;
+        this.index = index;
+        this.wrap = document.createElement('div');
+        this.wrap.setAttribute('id', `page_${index}`);
+        this.active = isActive;
+        // styling
+        appendStyle(this.wrap, {
+            width: '100%',
+            height: '100%',
+            display: this.active === true ? 'block' : 'none',
+            overflow: 'hidden',
+        });
+        // appending
+        this.parentDOM.appendChild(this.wrap);
+    }
+    setActive(isActive){
+        if(isActive == null){return;}
+        this.active = isActive;
+    }
+    update(isActive){
+        this.setActive(isActive);
+        appendStyle(this.wrap, {
+            display: this.active === true ? 'block' : 'none',
+        });
+    }
+}
+
 class TabStrip extends Emitter {
     constructor(parentDOM, tabs, selectedIndex){
         super();
@@ -162,7 +245,7 @@ class TabStrip extends Emitter {
         });
         appendStyle(this.innerBlock, {
             width: '100%',
-            height: '100%',
+            height: `calc(100% - ${TABSTRIP_TAB_HEIGHT + TABSTRIP_TAB_LINE_WIDTH}px)`,
         });
 
         // appending
@@ -173,77 +256,19 @@ class TabStrip extends Emitter {
             let item = new Tab(this.tabBlock, index, v, this.index === index);
             item.on('click', (idx) => {
                 this.tabs.forEach((tab, i) => {
-                    tab.update(idx === i);
+                    this.tabs[i].update(idx === i);
+                    this.inners[i].update(idx === i);
                 });
             });
             this.tabs.push(item);
-            let inner = document.createElement('div');
-            appendStyle(inner, {
-                width: '100%',
-                height: '100%',
-                overflow: 'hidden',
-            });
-            inner.setAttribute('id', `page${index}_${v}`);
-            inner.textContent = index;
-            this.innerBlock.appendChild(inner);
-            this.inners.push(inner);
+            let block = new Block(this.innerBlock, index, this.index === index);
+            this.inners.push(block);
         });
 
         // event setting
     }
     getPage(index){
-        return this.inners[index];
-    }
-}
-
-class Tab extends Emitter {
-    static get ACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgb(${TABSTRIP_COLOR.join(',')})`;}
-    static get DEACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgba(${TABSTRIP_COLOR.join(',')},0.3)`;}
-    static get ACTIVE_COLOR(){return `rgb(${TABSTRIP_COLOR.join(',')})`;}
-    static get DEACTIVE_COLOR(){return `rgba(${TABSTRIP_COLOR.join(',')},0.3)`;}
-    constructor(parentDOM, index, title, isActive = false){
-        super();
-        this.parentDOM = parentDOM;
-        this.index = index;
-        this.wrap = document.createElement('div');
-        this.wrap.textContent = title;
-        this.active = isActive;
-        // styling
-        appendStyle(this.wrap, {
-            borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
-            color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
-            lineHeight: `${TABSTRIP_TAB_HEIGHT}px`,
-            minWidth: `${TABSTRIP_TAB_WIDTH}px`,
-            maxWidth: `${TABSTRIP_TAB_WIDTH}px`,
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-        });
-        // appending
-        this.parentDOM.appendChild(this.wrap);
-        // event setting
-        this.wrap.addEventListener('click', () => {
-            this.emit('click', index);
-        }, false);
-        this.wrap.addEventListener('mouseenter', () => {
-            appendStyle(this.wrap, {
-                borderBottom: Tab.ACTIVE,
-            });
-        }, false);
-        this.wrap.addEventListener('mouseleave', () => {
-            this.update();
-        }, false);
-    }
-    setActive(isActive){
-        if(isActive == null){return;}
-        this.active = isActive;
-    }
-    update(isActive){
-        this.setActive(isActive);
-        appendStyle(this.wrap, {
-            color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
-            borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
-        });
+        return this.inners[index].wrap;
     }
 }
 
