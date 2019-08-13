@@ -25,6 +25,7 @@ function initialSetting(){
         split.first.setAttribute('id', 'first');
         split.second.setAttribute('id', 'second');
         split.on('change', (arg) => {console.log(arg);});
+        let tabs = new Component.TabStrip(split.second, ['html', 'js', 'glsl'], 0);
         resolve();
     });
 }
@@ -38,7 +39,6 @@ function editorSetting(){
             highlightSelectedWord: true,
             useSoftTabs: true,
             navigateWithinSoftTabs: true,
-
             vScrollBarAlwaysVisible: true,
             highlightGutterLine: true,
             showPrintMargin: false,
@@ -47,7 +47,6 @@ function editorSetting(){
             fontSize: '16px',
             fontFamily: '"Ricty Diminished Discord", "Ricty Diminished", Ricty, Monaco, consolas, monospace',
             theme: 'ace/theme/tomorrow_night_bright',
-
             enableBasicAutocompletion: true,
             enableSnippets: false,
             enableLiveAutocompletion: true
