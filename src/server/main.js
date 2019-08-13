@@ -7,7 +7,7 @@ import connect from 'electron-connect';
 const IS_DEVELOPMENT = __MODE__ === 'development';
 const INDEX_HTML_PATH = IS_DEVELOPMENT ? './app/client/index.html' : './client/index.html';
 const MAIN_WINDOW_PARAMETER = {
-    width: 1200,
+    width: 1500,
     height: 800,
     frame: false,
     webPreferences: {
@@ -65,6 +65,10 @@ function createMainWindow(){
     });
     ipcMain.on('opendevtools', (evt, arg) => {
         mainWindow.webContents.openDevTools();
+    });
+    ipcMain.on('settitle', (evt, arg) => {
+        mainWindow.setTitle(arg);
+        evt.sender.send('settitledom', arg);
     });
 
     if(IS_DEVELOPMENT === true){
