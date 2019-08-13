@@ -66,22 +66,9 @@ html, body {
 }
 
 #windowinterfacemenuicon {
-    text-align: center;
-    min-width: 48px;
-    max-width: 48px;
-}
-
-#windowinterfacemenuicon > span {
-    background-color: #323336;
-    width: 100%;
-    height: 100%;
-    display: inline-block;
-    cursor: default;
-    /* transform: rotate(90deg); */
-}
-
-#windowinterfacemenuicon > span:hover {
     background-color: deeppink;
+    min-width: 8px;
+    max-width: 8px;
 }
 
 #windowinterfacetitle {
