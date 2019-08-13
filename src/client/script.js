@@ -1,19 +1,22 @@
 
 import {ipcRenderer} from 'electron';
 
+let editor;
+
 window.addEventListener('DOMContentLoaded', () => {
     windowSetting()
     .then(() => {
         return editorSetting();
     })
     .then(() => {
+        eventSetting();
         console.log('📐: welcome editron');
     });
 }, false);
 
 function editorSetting(){
     return new Promise((resolve) => {
-        let editor = ace.edit('container');
+        editor = ace.edit('container');
         editor.$blockScrolling = Infinity;
         editor.setOptions({
             highlightActiveLine: true,
@@ -38,6 +41,27 @@ function editorSetting(){
         editor.getSession().setUseWrapMode(true);
         editor.getSession().setTabSize(4);
         resolve();
+    });
+}
+
+function eventSetting(){
+    let vimMode = false;
+    editor.commands.addCommand({
+        name: 'disableCtrl-L',
+        bindKey: {win: 'Ctrl-L', mac: 'Command-L'},
+        exec: () => {},
+    });
+    editor.commands.addCommand({
+        name: 'toggleVimMode',
+        bindKey: {win: 'Ctrl-Alt-V', mac: 'Command-Alt-V'},
+        exec: () => {
+            if(vimMode !== true){
+                editor.setKeyboardHandler('ace/keyboard/vim');
+            }else{
+                editor.setKeyboardHandler(null);
+            }
+            vimMode = !vimMode;
+        },
     });
 }
 
