@@ -1,10 +1,14 @@
 
 import {ipcRenderer} from 'electron';
+import Component from './lib/component.js';
 
 let editor;
 
 window.addEventListener('DOMContentLoaded', () => {
     windowSetting()
+    .then(() => {
+        return initialSetting();
+    })
     .then(() => {
         return editorSetting();
     })
@@ -14,9 +18,20 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 }, false);
 
+function initialSetting(){
+    return new Promise((resolve) => {
+        let container = document.querySelector('#container');
+        let split = new Component.Splitter(container, true);
+        split.first.setAttribute('id', 'first');
+        split.second.setAttribute('id', 'second');
+        split.on('change', (arg) => {console.log(arg);});
+        resolve();
+    });
+}
+
 function editorSetting(){
     return new Promise((resolve) => {
-        editor = ace.edit('container');
+        editor = ace.edit('first');
         editor.$blockScrolling = Infinity;
         editor.setOptions({
             highlightActiveLine: true,
