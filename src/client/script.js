@@ -2,7 +2,26 @@
 import {ipcRenderer} from 'electron';
 import Component from './lib/component.js';
 
-let editor;
+let pages = [];
+let editors = [];
+
+const EDITOR_OPTION = {
+    highlightActiveLine: true,
+    highlightSelectedWord: true,
+    useSoftTabs: true,
+    navigateWithinSoftTabs: true,
+    vScrollBarAlwaysVisible: true,
+    highlightGutterLine: true,
+    showPrintMargin: false,
+    printMargin: false,
+    displayIndentGuides: true,
+    fontSize: '16px',
+    fontFamily: '"Ricty Diminished Discord", "Ricty Diminished", Ricty, Monaco, consolas, monospace',
+    theme: 'ace/theme/tomorrow_night_bright',
+    enableBasicAutocompletion: true,
+    enableSnippets: false,
+    enableLiveAutocompletion: true,
+};
 
 window.addEventListener('DOMContentLoaded', () => {
     windowSetting()
@@ -25,58 +44,49 @@ function initialSetting(){
         split.first.setAttribute('id', 'first');
         split.second.setAttribute('id', 'second');
         split.on('change', (arg) => {console.log(arg);});
-        let tabs = new Component.TabStrip(split.second, ['html', 'js', 'glsl'], 0);
+        let tabStrip = new Component.TabStrip(split.second, ['html', 'js', 'glsl'], 0);
+        pages = tabStrip.getAllPage();
         resolve();
     });
 }
 
 function editorSetting(){
     return new Promise((resolve) => {
-        editor = ace.edit('first');
-        editor.$blockScrolling = Infinity;
-        editor.setOptions({
-            highlightActiveLine: true,
-            highlightSelectedWord: true,
-            useSoftTabs: true,
-            navigateWithinSoftTabs: true,
-            vScrollBarAlwaysVisible: true,
-            highlightGutterLine: true,
-            showPrintMargin: false,
-            printMargin: false,
-            displayIndentGuides: true,
-            fontSize: '16px',
-            fontFamily: '"Ricty Diminished Discord", "Ricty Diminished", Ricty, Monaco, consolas, monospace',
-            theme: 'ace/theme/tomorrow_night_bright',
-            enableBasicAutocompletion: true,
-            enableSnippets: false,
-            enableLiveAutocompletion: true
+        pages.forEach((v, index) => {
+            let editor = ace.edit(v.id);
+            editor.$blockScrolling = Infinity;
+            editor.setOptions(EDITOR_OPTION);
+            editor.getSession().setMode('ace/mode/javascript');
+            editor.getSession().setUseWrapMode(true);
+            editor.getSession().setTabSize(4);
+
+            // event setting
+            let vimMode = false;
+            editor.commands.addCommand({
+                name: 'disableCtrl-L',
+                bindKey: {win: 'Ctrl-L', mac: 'Command-L'},
+                exec: () => {},
+            });
+            editor.commands.addCommand({
+                name: 'toggleVimMode',
+                bindKey: {win: 'Ctrl-Alt-V', mac: 'Command-Alt-V'},
+                exec: () => {
+                    if(vimMode !== true){
+                        editor.setKeyboardHandler('ace/keyboard/vim');
+                    }else{
+                        editor.setKeyboardHandler(null);
+                    }
+                    vimMode = !vimMode;
+                },
+            });
+
+            editors.push(editor);
         });
-        editor.getSession().setMode('ace/mode/javascript');
-        editor.getSession().setUseWrapMode(true);
-        editor.getSession().setTabSize(4);
         resolve();
     });
 }
 
 function eventSetting(){
-    let vimMode = false;
-    editor.commands.addCommand({
-        name: 'disableCtrl-L',
-        bindKey: {win: 'Ctrl-L', mac: 'Command-L'},
-        exec: () => {},
-    });
-    editor.commands.addCommand({
-        name: 'toggleVimMode',
-        bindKey: {win: 'Ctrl-Alt-V', mac: 'Command-Alt-V'},
-        exec: () => {
-            if(vimMode !== true){
-                editor.setKeyboardHandler('ace/keyboard/vim');
-            }else{
-                editor.setKeyboardHandler(null);
-            }
-            vimMode = !vimMode;
-        },
-    });
 }
 
 function windowSetting(){
@@ -106,7 +116,7 @@ function windowSetting(){
             ttl.textContent = arg;
             resolve();
         });
-        let title = 'webgl-editron';
+        let title = 'webgl - editron';
         ipcRenderer.send('settitle', title);
     });
 }

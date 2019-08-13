@@ -2,7 +2,7 @@
 const SPLITTER_COLOR = [255, 20, 147];
 const SPLITTER_WIDTH = 4;
 const TABSTRIP_COLOR = [240, 240, 240];
-const TABSTRIP_TAB_WIDTH = 100;
+const TABSTRIP_TAB_WIDTH = 80;
 const TABSTRIP_TAB_HEIGHT = 20;
 const TABSTRIP_TAB_LINE_WIDTH = 4;
 
@@ -242,6 +242,7 @@ class TabStrip extends Emitter {
             maxHeight: `${TABSTRIP_TAB_HEIGHT + TABSTRIP_TAB_LINE_WIDTH}px`,
             display: 'flex',
             flexDirection: 'row',
+            userSelect: 'none',
         });
         appendStyle(this.innerBlock, {
             width: '100%',
@@ -269,6 +270,12 @@ class TabStrip extends Emitter {
     }
     getPage(index){
         return this.inners[index].wrap;
+    }
+    getAllPage(){
+        let pages = this.inners.map((v) => {
+            return v.wrap;
+        });
+        return pages;
     }
 }
 
