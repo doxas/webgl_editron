@@ -1,10 +1,17 @@
 
 const SPLITTER_COLOR = [255, 20, 147];
 const SPLITTER_WIDTH = 4;
+const TABSTRIP_COLOR = [240, 240, 240];
+const TABSTRIP_TAB_WIDTH = 100;
+const TABSTRIP_TAB_HEIGHT = 20;
+const TABSTRIP_TAB_LINE_WIDTH = 4;
 
 export default class Component {
     static get Splitter(){
         return Splitter;
+    }
+    static get TabStrip(){
+        return TabStrip;
     }
 }
 
@@ -87,7 +94,7 @@ class Splitter extends Emitter {
     }
     update(ratio = 0.5){
         let first = `calc(${ratio * 100}% - ${SPLITTER_WIDTH / 2}px)`;
-        let second = `calc(${100 - first}% - ${SPLITTER_WIDTH / 2}px)`;
+        let second = `calc(${100 - ratio * 100}% - ${SPLITTER_WIDTH / 2}px)`;
         if(this.horizontal === true){
             appendStyle(this.first, {
                 width: '100%',
@@ -123,6 +130,120 @@ class Splitter extends Emitter {
                 height: '100%',
             });
         }
+    }
+}
+
+class TabStrip extends Emitter {
+    constructor(parentDOM, tabs, selectedIndex){
+        super();
+        this.parentDOM = parentDOM;
+        this.count = Math.max(1, tabs.length);
+        this.index = Math.min(this.count - 1, selectedIndex);
+        this.tabs = [];
+        this.inners = [];
+        this.wrap = document.createElement('div');
+        this.tabBlock = document.createElement('div');
+        this.innerBlock = document.createElement('div');
+
+        // styling
+        appendStyle(this.wrap, {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+        });
+        appendStyle(this.tabBlock, {
+            lineHeight: `${TABSTRIP_TAB_HEIGHT}px`,
+            width: '100%',
+            minHeight: `${TABSTRIP_TAB_HEIGHT + TABSTRIP_TAB_LINE_WIDTH}px`,
+            maxHeight: `${TABSTRIP_TAB_HEIGHT + TABSTRIP_TAB_LINE_WIDTH}px`,
+            display: 'flex',
+            flexDirection: 'row',
+        });
+        appendStyle(this.innerBlock, {
+            width: '100%',
+            height: '100%',
+        });
+
+        // appending
+        this.parentDOM.appendChild(this.wrap);
+        this.wrap.appendChild(this.tabBlock);
+        this.wrap.appendChild(this.innerBlock);
+        tabs.forEach((v, index) => {
+            let item = new Tab(this.tabBlock, index, v, this.index === index);
+            item.on('click', (idx) => {
+                this.tabs.forEach((tab, i) => {
+                    tab.update(idx === i);
+                });
+            });
+            this.tabs.push(item);
+            let inner = document.createElement('div');
+            appendStyle(inner, {
+                width: '100%',
+                height: '100%',
+                overflow: 'hidden',
+            });
+            inner.setAttribute('id', `page${index}_${v}`);
+            inner.textContent = index;
+            this.innerBlock.appendChild(inner);
+            this.inners.push(inner);
+        });
+
+        // event setting
+    }
+    getPage(index){
+        return this.inners[index];
+    }
+}
+
+class Tab extends Emitter {
+    static get ACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgb(${TABSTRIP_COLOR.join(',')})`;}
+    static get DEACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgba(${TABSTRIP_COLOR.join(',')},0.3)`;}
+    static get ACTIVE_COLOR(){return `rgb(${TABSTRIP_COLOR.join(',')})`;}
+    static get DEACTIVE_COLOR(){return `rgba(${TABSTRIP_COLOR.join(',')},0.3)`;}
+    constructor(parentDOM, index, title, isActive = false){
+        super();
+        this.parentDOM = parentDOM;
+        this.index = index;
+        this.wrap = document.createElement('div');
+        this.wrap.textContent = title;
+        this.active = isActive;
+        // styling
+        appendStyle(this.wrap, {
+            borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
+            color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
+            lineHeight: `${TABSTRIP_TAB_HEIGHT}px`,
+            minWidth: `${TABSTRIP_TAB_WIDTH}px`,
+            maxWidth: `${TABSTRIP_TAB_WIDTH}px`,
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+        });
+        // appending
+        this.parentDOM.appendChild(this.wrap);
+        // event setting
+        this.wrap.addEventListener('click', () => {
+            this.emit('click', index);
+        }, false);
+        this.wrap.addEventListener('mouseenter', () => {
+            appendStyle(this.wrap, {
+                borderBottom: Tab.ACTIVE,
+            });
+        }, false);
+        this.wrap.addEventListener('mouseleave', () => {
+            this.update();
+        }, false);
+    }
+    setActive(isActive){
+        if(isActive == null){return;}
+        this.active = isActive;
+    }
+    update(isActive){
+        this.setActive(isActive);
+        appendStyle(this.wrap, {
+            color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
+            borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
+        });
     }
 }
 
