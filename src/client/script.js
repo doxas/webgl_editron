@@ -1,7 +1,45 @@
 
 import {ipcRenderer} from 'electron';
 
-windowSetting();
+window.addEventListener('DOMContentLoaded', () => {
+    windowSetting()
+    .then(() => {
+        return editorSetting();
+    })
+    .then(() => {
+        console.log('📐: welcome editron');
+    });
+}, false);
+
+function editorSetting(){
+    return new Promise((resolve) => {
+        let editor = ace.edit('container');
+        editor.$blockScrolling = Infinity;
+        editor.setOptions({
+            highlightActiveLine: true,
+            highlightSelectedWord: true,
+            useSoftTabs: true,
+            navigateWithinSoftTabs: true,
+
+            vScrollBarAlwaysVisible: true,
+            highlightGutterLine: true,
+            showPrintMargin: false,
+            printMargin: false,
+            displayIndentGuides: true,
+            fontSize: '16px',
+            fontFamily: '"Ricty Diminished Discord", "Ricty Diminished", Ricty, Monaco, consolas, monospace',
+            theme: 'ace/theme/tomorrow_night_bright',
+
+            enableBasicAutocompletion: true,
+            enableSnippets: false,
+            enableLiveAutocompletion: true
+        });
+        editor.getSession().setMode('ace/mode/javascript');
+        editor.getSession().setUseWrapMode(true);
+        editor.getSession().setTabSize(4);
+        resolve();
+    });
+}
 
 function windowSetting(){
     return new Promise((resolve) => {
@@ -28,7 +66,6 @@ function windowSetting(){
         }, false);
         ipcRenderer.on('settitledom', (evt, arg) => {
             ttl.textContent = arg;
-            console.log(`%cset title dom%c: ${arg}`, 'color: maroon', 'color: inherit');
             resolve();
         });
         let title = 'webgl-editron';
