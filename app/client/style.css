@@ -1,0 +1,106 @@
+@charset "utf-8";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+#windowinterfacewrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#windowinterfaceheader {
+    color: white;
+    font-family: monaco;
+    line-height: 36px;
+    width: 100%;
+    min-height: 36px;
+    max-height: 36px;
+    display: flex;
+    flex-direction: row;
+    cursor: default;
+    user-select: none;
+}
+
+#windowinterfacemenuicon {
+    text-align: center;
+    min-width: 48px;
+    max-width: 48px;
+}
+
+#windowinterfacemenuicon > span {
+    background-color: #323336;
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    cursor: default;
+    /* transform: rotate(90deg); */
+}
+
+#windowinterfacemenuicon > span:hover {
+    background-color: deeppink;
+}
+
+#windowinterfacetitle {
+    -webkit-app-region: drag;
+    background-color: #323336;
+    font-family: sans-serif;
+    text-align: left;
+    padding: 0px 8px;
+    width: 100%;
+    min-width: 100px;
+}
+
+#windowinterfacecontroller {
+    background-color: #323336;
+    min-width: 180px;
+    max-width: 180px;
+    display: flex;
+    flex-direction: row;
+}
+
+#windowinterfacecontrollermin {
+    text-align: center;
+    width: 33%;
+}
+
+#windowinterfacecontrollermax {
+    text-align: center;
+    width: 33%;
+}
+
+#windowinterfacecontrollerclose {
+    text-align: center;
+    width: 34%;
+}
+
+#windowinterfacecontrollermin:hover,
+#windowinterfacecontrollermax:hover,
+#windowinterfacecontrollerclose:hover {
+    background-color: deeppink;
+    cursor: default;
+}
+
+
+#windowinterfacefooter {
+    width: 100%;
+    height: 0%;
+}

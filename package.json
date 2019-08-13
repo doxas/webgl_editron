@@ -1,0 +1,47 @@
+{
+  "name": "webgl_editron",
+  "version": "2.0.0",
+  "description": "mock",
+  "main": "./app/server/main.js",
+  "scripts": {
+    "electron": ".\\node_modules\\electron\\dist\\electron.exe .\\app\\server\\main.js",
+    "debug": "node index.js --development",
+    "build": "node index.js --production",
+    "package": "npm-run-all build package:win",
+    "package:win": "node build-win.js",
+    "start": "npm-run-all debug",
+    "jest": "jest",
+    "test:watch": "jest --watch",
+    "test:silent": "jest --silent",
+    "test:coverage": "jest --coverage",
+    "test:open": "http-server ./coverage/lcov-report -op 9090",
+    "test": "npm-run-all test:coverage test:open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doxas/webgl_editron.git"
+  },
+  "author": "doxas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/doxas/webgl_editron/issues"
+  },
+  "homepage": "https://github.com/doxas/webgl_editron#readme",
+  "dependencies": {
+    "electron-connect": "^0.6.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-jest": "^24.5.0",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "electron": "^4.1.1",
+    "electron-builder": "^20.43.0",
+    "http-server": "^0.11.1",
+    "jest": "^24.5.0",
+    "npm-run-all": "^4.1.5",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-node-externals": "^1.7.2"
+  }
+}
