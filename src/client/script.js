@@ -330,10 +330,8 @@ function eventSetting(){
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');
+                clearList();
                 let left = document.querySelector('#listblock');
-                while(left.children.length > 0){
-                    left.removeChild(left.children[0]);
-                }
                 items = [];
                 latestResponse = res;
                 latestResponse.dirs.forEach((v, index) => {
@@ -343,8 +341,10 @@ function eventSetting(){
                             w.update(false);
                         });
                         item.update(true);
-                        setStatusBarMessage(`open: [ ${latestResponse.dirs[idx].dirName} ]`);
+                        setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
                         setEditorSource(latestResponse.dirs[idx].data);
+                        let frame = document.querySelector('#frame');
+                        frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[idx].dirName}`;
                     });
                     items[index] = item;
                 });
@@ -354,11 +354,32 @@ function eventSetting(){
     }, false);
     close.addEventListener('click', () => {
         ipcRenderer.once('localserverclosed', (arg, res) => {
+            clearFrame();
+            clearList();
+            clearEditor();
             setStatusBarMessage(`local server closed`)
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
         });
         ipcRenderer.send('closelocalserver');
     }, false);
+}
+
+function clearFrame(){
+    let frame = document.querySelector('#frame');
+    frame.src = 'about:blank';
+}
+
+function clearList(){
+    let left = document.querySelector('#listblock');
+    while(left.children.length > 0){
+        left.removeChild(left.children[0]);
+    }
+}
+
+function clearEditor(){
+    editors.forEach((v, index) => {
+        v.setValue('', -1);
+    });
 }
 
 function setEditorSource(data){
