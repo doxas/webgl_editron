@@ -4,6 +4,14 @@ import Component from './lib/component.js';
 
 let pages = [];
 let editors = [];
+let editorMode = [
+    {mode: 'html', title: 'HTML'},
+    {mode: 'javascript', title: 'js'},
+    {mode: 'glsl', title: 'vs(1)'},
+    {mode: 'glsl', title: 'fs(1)'},
+    {mode: 'glsl', title: 'vs(2)'},
+    {mode: 'glsl', title: 'fs(2)'},
+];
 
 const FONT_SIZE = 16;
 const LIGHT_THEME = 'ace/theme/tomorrow';
@@ -47,7 +55,8 @@ function initialSetting(){
         split.first.setAttribute('id', 'first');
         split.second.setAttribute('id', 'second');
         split.on('change', (arg) => {console.log(arg);});
-        let tabStrip = new Component.TabStrip(split.second, ['html', 'js', 'glsl'], 0);
+        let titles = editorMode.map((v) => {return v.title});
+        let tabStrip = new Component.TabStrip(split.second, titles, 0);
         pages = tabStrip.getAllPage();
         resolve();
     });
@@ -59,7 +68,7 @@ function editorSetting(){
             let editor = ace.edit(v.id);
             editor.$blockScrolling = Infinity;
             editor.setOptions(EDITOR_OPTION);
-            editor.session.setMode('ace/mode/javascript');
+            editor.session.setMode(`ace/mode/${editorMode[index].mode}`);
             editor.session.setUseWrapMode(true);
             editor.session.setTabSize(4);
 

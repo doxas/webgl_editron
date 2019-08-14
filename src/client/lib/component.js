@@ -152,6 +152,7 @@ class Tab extends Emitter {
             lineHeight: `${TABSTRIP_TAB_HEIGHT}px`,
             minWidth: `${TABSTRIP_TAB_WIDTH}px`,
             maxWidth: `${TABSTRIP_TAB_WIDTH}px`,
+            padding: '0px 2px',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden',
