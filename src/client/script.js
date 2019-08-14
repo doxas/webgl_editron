@@ -6,6 +6,8 @@ let pages = [];
 let editors = [];
 
 const FONT_SIZE = 16;
+const LIGHT_THEME = 'ace/theme/tomorrow';
+const DARK_THEME = 'ace/theme/tomorrow_night_bright';
 const EDITOR_OPTION = {
     highlightActiveLine: true,
     highlightSelectedWord: true,
@@ -18,7 +20,7 @@ const EDITOR_OPTION = {
     displayIndentGuides: true,
     fontSize: `${FONT_SIZE}px`,
     fontFamily: '"Ricty Diminished Discord", "Ricty Diminished", Ricty, Monaco, consolas, monospace',
-    theme: 'ace/theme/tomorrow_night_bright',
+    theme: DARK_THEME,
     enableBasicAutocompletion: true,
     enableSnippets: false,
     enableLiveAutocompletion: true,
@@ -57,9 +59,9 @@ function editorSetting(){
             let editor = ace.edit(v.id);
             editor.$blockScrolling = Infinity;
             editor.setOptions(EDITOR_OPTION);
-            editor.getSession().setMode('ace/mode/javascript');
-            editor.getSession().setUseWrapMode(true);
-            editor.getSession().setTabSize(4);
+            editor.session.setMode('ace/mode/javascript');
+            editor.session.setUseWrapMode(true);
+            editor.session.setTabSize(4);
 
             // event setting
             let vimMode = false;
@@ -106,6 +108,18 @@ function windowSetting(){
                 case 'I':
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         ipcRenderer.send('opendevtools', {});
+                    }
+                    break;
+                case 'b':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        dark = !dark;
+                        editors.forEach((v, index) => {
+                            if(dark === true){
+                                v.setTheme(DARK_THEME);
+                            }else{
+                                v.setTheme(LIGHT_THEME);
+                            }
+                        });
                     }
                     break;
                 case ',':
