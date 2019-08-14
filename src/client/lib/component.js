@@ -1,4 +1,6 @@
 
+import util from './util.js';
+
 const HEADER_HEIGHT = 36;
 const FOOTER_HEIGHT = 20;
 const SPLITTER_COLOR = [255, 20, 147];
@@ -47,18 +49,18 @@ class Splitter extends Emitter {
         this.isDown = false;
 
         // styling
-        appendStyle(this.wrap, {
+        util.appendStyle(this.wrap, {
             width: '100%',
             height: '100%',
             display: 'flex',
             flexDirection: this.horizontal === true ? 'column' : 'row',
             overflow: 'hidden',
         });
-        appendStyle(this.split, {
+        util.appendStyle(this.split, {
             backgroundColor: `rgb(${SPLITTER_COLOR.join(',')})`,
             userSelect: 'none',
         });
-        appendStyle(this.layer, {
+        util.appendStyle(this.layer, {
             backgroundColor: `rgba(36, 32, 34, 0.8)`,
             width: '100%',
             height: `calc(100% - ${HEADER_HEIGHT + FOOTER_HEIGHT}px)`,
@@ -112,11 +114,11 @@ class Splitter extends Emitter {
         let first = `calc(${ratio * 100}% - ${SPLITTER_WIDTH / 2}px)`;
         let second = `calc(${100 - ratio * 100}% - ${SPLITTER_WIDTH / 2}px)`;
         if(this.horizontal === true){
-            appendStyle(this.first, {
+            util.appendStyle(this.first, {
                 width: '100%',
                 height: first,
             });
-            appendStyle(this.split, {
+            util.appendStyle(this.split, {
                 borderTop: `1px solid rgba(0, 0, 0, 0.3)`,
                 borderBottom: `1px solid rgba(0, 0, 0, 0.3)`,
                 width: '100%',
@@ -124,16 +126,16 @@ class Splitter extends Emitter {
                 maxHeight: `${SPLITTER_WIDTH}px`,
                 cursor: 'row-resize',
             });
-            appendStyle(this.second, {
+            util.appendStyle(this.second, {
                 width: '100%',
                 height: second,
             });
         }else{
-            appendStyle(this.first, {
+            util.appendStyle(this.first, {
                 width: first,
                 height: '100%',
             });
-            appendStyle(this.split, {
+            util.appendStyle(this.split, {
                 borderLeft: `1px solid rgba(0, 0, 0, 0.3)`,
                 borderRight: `1px solid rgba(0, 0, 0, 0.3)`,
                 minWidth: `${SPLITTER_WIDTH}px`,
@@ -141,7 +143,7 @@ class Splitter extends Emitter {
                 height: '100%',
                 cursor: 'col-resize',
             });
-            appendStyle(this.second, {
+            util.appendStyle(this.second, {
                 width: second,
                 height: '100%',
             });
@@ -162,7 +164,7 @@ class Tab extends Emitter {
         this.wrap.textContent = title;
         this.active = isActive;
         // styling
-        appendStyle(this.wrap, {
+        util.appendStyle(this.wrap, {
             borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
             color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
             lineHeight: `${TABSTRIP_TAB_HEIGHT}px`,
@@ -182,7 +184,7 @@ class Tab extends Emitter {
             this.emit('click', index);
         }, false);
         this.wrap.addEventListener('mouseenter', () => {
-            appendStyle(this.wrap, {
+            util.appendStyle(this.wrap, {
                 borderBottom: Tab.ACTIVE,
             });
         }, false);
@@ -196,7 +198,7 @@ class Tab extends Emitter {
     }
     update(isActive){
         this.setActive(isActive);
-        appendStyle(this.wrap, {
+        util.appendStyle(this.wrap, {
             color: this.active === true ? Tab.ACTIVE_COLOR : Tab.DEACTIVE_COLOR,
             borderBottom: this.active === true ? Tab.ACTIVE : Tab.DEACTIVE,
         });
@@ -212,7 +214,7 @@ class Block extends Emitter {
         this.wrap.setAttribute('id', `page_${index}`);
         this.active = isActive;
         // styling
-        appendStyle(this.wrap, {
+        util.appendStyle(this.wrap, {
             width: '100%',
             height: '100%',
             display: this.active === true ? 'block' : 'none',
@@ -227,7 +229,7 @@ class Block extends Emitter {
     }
     update(isActive){
         this.setActive(isActive);
-        appendStyle(this.wrap, {
+        util.appendStyle(this.wrap, {
             display: this.active === true ? 'block' : 'none',
         });
     }
@@ -246,13 +248,13 @@ class TabStrip extends Emitter {
         this.innerBlock = document.createElement('div');
 
         // styling
-        appendStyle(this.wrap, {
+        util.appendStyle(this.wrap, {
             width: '100%',
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
         });
-        appendStyle(this.tabBlock, {
+        util.appendStyle(this.tabBlock, {
             lineHeight: `${TABSTRIP_TAB_HEIGHT}px`,
             width: '100%',
             minHeight: `${TABSTRIP_TAB_HEIGHT + TABSTRIP_TAB_LINE_WIDTH}px`,
@@ -261,7 +263,7 @@ class TabStrip extends Emitter {
             flexDirection: 'row',
             userSelect: 'none',
         });
-        appendStyle(this.innerBlock, {
+        util.appendStyle(this.innerBlock, {
             width: '100%',
             height: `calc(100% - ${TABSTRIP_TAB_HEIGHT + TABSTRIP_TAB_LINE_WIDTH}px)`,
         });
@@ -293,12 +295,6 @@ class TabStrip extends Emitter {
             return v.wrap;
         });
         return pages;
-    }
-}
-
-function appendStyle(target, style){
-    for(let s in style){
-        target.style[s] = style[s];
     }
 }
 
