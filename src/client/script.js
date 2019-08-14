@@ -5,6 +5,7 @@ import Component from './lib/component.js';
 let pages = [];
 let editors = [];
 
+const FONT_SIZE = 16;
 const EDITOR_OPTION = {
     highlightActiveLine: true,
     highlightSelectedWord: true,
@@ -15,7 +16,7 @@ const EDITOR_OPTION = {
     showPrintMargin: false,
     printMargin: false,
     displayIndentGuides: true,
-    fontSize: '16px',
+    fontSize: `${FONT_SIZE}px`,
     fontFamily: '"Ricty Diminished Discord", "Ricty Diminished", Ricty, Monaco, consolas, monospace',
     theme: 'ace/theme/tomorrow_night_bright',
     enableBasicAutocompletion: true,
@@ -90,6 +91,8 @@ function eventSetting(){
 }
 
 function windowSetting(){
+    let fontSize = FONT_SIZE;
+    let dark = true;
     return new Promise((resolve) => {
         let ttl = document.body.querySelector('#windowinterfacetitle');
         let min = document.body.querySelector('#windowinterfacecontrollermin');
@@ -103,6 +106,22 @@ function windowSetting(){
                 case 'I':
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         ipcRenderer.send('opendevtools', {});
+                    }
+                    break;
+                case ',':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        --fontSize;
+                        pages.forEach((v, index) => {
+                            v.style.fontSize = `${fontSize}px`;
+                        });
+                    }
+                    break;
+                case '.':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        ++fontSize;
+                        pages.forEach((v, index) => {
+                            v.style.fontSize = `${fontSize}px`;
+                        });
                     }
                     break;
                 case 'F12':
