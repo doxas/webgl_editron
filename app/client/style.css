@@ -117,10 +117,46 @@ iframe {
     cursor: default;
 }
 
-
 #windowinterfacefooter {
     background-color: #323336;
     width: 100%;
     min-height: 20px;
     max-height: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+#windowinterfacestatusmessage {
+    color: silver;
+    font-size: x-small;
+    line-height: 20px;
+    padding: 0px 5px;
+    width: 100%;
+    height: 100%;
+}
+
+#windowinterfacestatusicon {
+    min-width: 48px;
+    min-width: 48px;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.footericon {
+    background-color: gray;
+    border-radius: 10px;
+    width: 8px;
+    height: 8px;
+    margin: 6px 4px;
+}
+
+.footericon.green {
+    background-color: mediumaquamarine;
+}
+.footericon.yellow {
+    background-color: goldenrod;
+}
+.footericon.red {
+    background-color: deeppink;
 }
