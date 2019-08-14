@@ -3,6 +3,9 @@ import fs from 'fs';
 import path from 'path';
 
 export default class Util {
+    // target に指定されたパスを開き、ディレクトリが見つかったらその中身をチェックするため
+    // Util.checkFiles を実行する。このとき resolve が受け取っている res には対象となる
+    // 子ディレクトリの名前や、各ファイルの中身の文字列が含まれる。
     static checkDirectories(target){
         return new Promise((resolve, reject) => {
             fs.readdir(target, (err, files) => {
@@ -40,6 +43,8 @@ export default class Util {
             });
         });
     }
+    // target に指定されたパスを開き、その中身が必要なファイル構成になっているかをチェックする。
+    // このとき正しいファイル構成である場合は各ファイルを開いて一覧にしてから解決する。
     static checkFiles(target, dirname){
         return new Promise((resolve, reject) => {
             fs.readdir(target, (err, files) => {
@@ -48,13 +53,14 @@ export default class Util {
                     return;
                 }
                 let promises = [];
+                let openPromises = [];
                 let flags = {
-                    html: false,
-                    js: false,
-                    vs1: false,
-                    fs1: false,
-                    vs2: false,
-                    fs2: false,
+                    html: {data: '', exists: false},
+                    js:   {data: '', exists: false},
+                    vs1:  {data: '', exists: false},
+                    fs1:  {data: '', exists: false},
+                    vs2:  {data: '', exists: false},
+                    fs2:  {data: '', exists: false},
                 };
                 files.forEach((v, index) => {
                     promises.push(new Promise((res, rej) => {
@@ -64,12 +70,60 @@ export default class Util {
                                 rej(err);
                                 return;
                             }
-                            if(v.search(/^index\.html$/i) > -1){flags.html = true;}
-                            if(v.search(/^script\.js$/i) > -1){flags.js = true;}
-                            if(v.search(/^vs1\.vert$/i) > -1){flags.vs1 = true;}
-                            if(v.search(/^fs1\.frag$/i) > -1){flags.fs1 = true;}
-                            if(v.search(/^vs2\.vert$/i) > -1){flags.vs2 = true;}
-                            if(v.search(/^fs2\.frag$/i) > -1){flags.fs2 = true;}
+                            if(v.search(/^index\.html$/i) > -1){
+                                flags.html.exists = true;
+                                openPromises.push(new Promise((openResolve) => {
+                                    fs.readFile(filePath, 'utf-8', (err, data) => {
+                                        flags.html.data = data;
+                                        openResolve();
+                                    });
+                                }));
+                            }
+                            if(v.search(/^script\.js$/i) > -1){
+                                flags.js.exists = true;
+                                openPromises.push(new Promise((openResolve) => {
+                                    fs.readFile(filePath, 'utf-8', (err, data) => {
+                                        flags.js.data = data;
+                                        openResolve();
+                                    });
+                                }));
+                            }
+                            if(v.search(/^vs1\.vert$/i) > -1){
+                                flags.vs1.exists = true;
+                                openPromises.push(new Promise((openResolve) => {
+                                    fs.readFile(filePath, 'utf-8', (err, data) => {
+                                        flags.vs1.data = data;
+                                        openResolve();
+                                    });
+                                }));
+                            }
+                            if(v.search(/^fs1\.frag$/i) > -1){
+                                flags.fs1.exists = true;
+                                openPromises.push(new Promise((openResolve) => {
+                                    fs.readFile(filePath, 'utf-8', (err, data) => {
+                                        flags.fs1.data = data;
+                                        openResolve();
+                                    });
+                                }));
+                            }
+                            if(v.search(/^vs2\.vert$/i) > -1){
+                                flags.vs2.exists = true;
+                                openPromises.push(new Promise((openResolve) => {
+                                    fs.readFile(filePath, 'utf-8', (err, data) => {
+                                        flags.vs2.data = data;
+                                        openResolve();
+                                    });
+                                }));
+                            }
+                            if(v.search(/^fs2\.frag$/i) > -1){
+                                flags.fs2.exists = true;
+                                openPromises.push(new Promise((openResolve) => {
+                                    fs.readFile(filePath, 'utf-8', (err, data) => {
+                                        flags.fs2.data = data;
+                                        openResolve();
+                                    });
+                                }));
+                            }
                             res();
                         });
                     }));
@@ -78,10 +132,19 @@ export default class Util {
                 .then(() => {
                     let flag = true;
                     for(let f in flags){
-                        flag = flag && flags[f];
+                        flag = flag && flags[f].exists;
                     }
                     if(flag === true){
-                        resolve(dirname);
+                        Promise.all(openPromises)
+                        .then(() => {
+                            // ここで返したものが配列になって
+                            // 最終的なクライアントへのレスポンスになる
+                            resolve({
+                                fullPath: target,
+                                dirName: dirname,
+                                data: flags,
+                            });
+                        });
                     }else{
                         reject('invalid files');
                     }
