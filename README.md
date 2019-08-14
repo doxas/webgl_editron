@@ -4,10 +4,18 @@ webgl and GLSL live editor app for electron.
 
 ## TODO
 
-* [] canvas
-* [] explorer
-* [] syntax change
-* [] run webgl
-* [] status bar
+* [x] canvas
+* [x] explorer
+* [x] syntax change
+* [x] run webgl
+* [x] status bar
+* [ ] build for mac
+* [ ] save and run
+* [ ] stop
+* [ ] indicate changes
+* [ ] full screen mode
+* [ ] menus
+* [ ] local settings
+* [ ] release v2
 
 
