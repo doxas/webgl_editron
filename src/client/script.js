@@ -301,6 +301,11 @@ function eventSetting(){
         ipcRenderer.once('localserverrunning', (arg, res) => {
             if(res === false){
                 setStatusBarMessage('cancel on project open dialog');
+            }else if(res.hasOwnProperty('err') === true){
+                setStatusBarMessage(`Error: ${res.err}`);
+                setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
+                setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
+                setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
             }else{
                 setStatusBarMessage(`open project: [ ${res.pwd} ]`)
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
