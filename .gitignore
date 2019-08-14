@@ -1,8 +1,10 @@
-
+node_modules/
+app/client/script.js
+app/server/main.js
+app/*.json
+dist/*
 release/
-editron-darwin-x64
-webgl_editron.icns
-editron-win32-x64
-editron-win32-ia32
-icon_win_256x256.ico
+!dist/icon.png
+coverage/
+old/
 

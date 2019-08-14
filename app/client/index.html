@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';" /> -->
+        <script src="./ace/ace.js"></script>
+        <script src="./ace/ext-language_tools.js"></script>
+        <script src="./ace/ext-searchbox.js"></script>
+        <script src="./ace/ext-prompt.js"></script>
+        <script src="./ace/keybinding-vim.js"></script>
+        <script src="./ace/mode-html.js"></script>
+        <script src="./ace/mode-css.js"></script>
+        <script src="./ace/mode-javascript.js"></script>
+        <script src="./ace/mode-json.js"></script>
+        <script src="./ace/mode-glsl.js"></script>
+        <script src="./ace/snip/html.js"></script>
+        <script src="./ace/snip/css.js"></script>
+        <script src="./ace/snip/javascript.js"></script>
+        <script src="./ace/snip/json.js"></script>
+        <script src="./ace/snip/glsl.js"></script>
+        <link rel="stylesheet" href="./style.css">
+        <title>editron</title>
+    </head>
+    <body>
+        <div id="windowinterfacewrapper">
+            <div id="windowinterfaceheader">
+                <div id="windowinterfacemenuicon"></div>
+                <div id="windowinterfacetitle">editron</div>
+                <div id="windowinterfacecontroller">
+                    <div id="windowinterfacecontrollermin">－</div>
+                    <div id="windowinterfacecontrollermax">◻</div>
+                    <div id="windowinterfacecontrollerclose">✕</div>
+                </div>
+            </div>
+            <div id="root">
+                <div id="container"></div>
+                <div id="floating">
+                </div>
+            </div>
+            <div id="windowinterfacefooter">
+                <div id="windowinterfacestatusmessage">
+                    message
+                </div>
+                <div id="windowinterfacestatusicon">
+                    <div id="windowinterfacestatuseditron" class="footericon" title="editron not initialize"></div>
+                    <div id="windowinterfacestatuslocalserver" class="footericon"></div>
+                    <div id="windowinterfacestatusfilestatus" class="footericon"></div>
+                </div>
+            </div>
+        </div>
+        <script src="./script.js"></script>
+    </body>
+</html>
