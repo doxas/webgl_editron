@@ -6,6 +6,7 @@ import {app, ipcMain, dialog, BrowserWindow} from 'electron';
 import connect from 'electron-connect';
 import local from 'connect';
 import serveStatic from 'serve-static';
+import util from './lib/util.js';
 
 // constant variable ==========================================================
 const LOCAL_PORT = 56565;
@@ -90,14 +91,20 @@ function createMainWindow(){
             if(res == null || Array.isArray(res) !== true || res.length === 0){
                 evt.sender.send('localserverrunning', false);
             }else{
-                if(server != null){
-                    server.close();
-                }
-                connectApp.use(serveStatic(res[0]));
-                server = http.createServer(connectApp);
-                server.listen(LOCAL_PORT);
-                console.log('run local server');
-                evt.sender.send('localserverrunning', {pwd: res[0], port: LOCAL_PORT});
+                util.checkDirectories(res[0])
+                .then(() => {
+                    if(server != null){
+                        server.close();
+                    }
+                    connectApp.use(serveStatic(res[0]));
+                    server = http.createServer(connectApp);
+                    server.listen(LOCAL_PORT);
+                    console.log('run local server');
+                    evt.sender.send('localserverrunning', {pwd: res[0], port: LOCAL_PORT});
+                })
+                .catch((err) => {
+                    evt.sender.send('localserverrunning', {err: 'invalid project'});
+                });
             }
         });
     });
