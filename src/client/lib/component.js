@@ -33,7 +33,7 @@ class Emitter {
 }
 
 class Splitter extends Emitter {
-    constructor(parentDOM, horizontal = true){
+    constructor(parentDOM, horizontal = true, ratio){
         super();
         this.parentDOM = parentDOM;
         this.horizontal = horizontal;
@@ -42,7 +42,6 @@ class Splitter extends Emitter {
         this.split  = document.createElement('div');
         this.second = document.createElement('div');
         this.isDown = false;
-        this.prev = [0, 0];
 
         // styling
         appendStyle(this.wrap, {
@@ -66,8 +65,6 @@ class Splitter extends Emitter {
         // event setting
         const DOWN = (evt) => {
             this.isDown = true;
-            // let bound = this.parentDOM.getBoundingClientRect();
-            // this.prev = [evt.clientX - bound.left, evt.clientY - bound.top];
             window.addEventListener('mousemove', MOVE, false);
             window.addEventListener('mouseup', UP, false);
         };
@@ -90,7 +87,7 @@ class Splitter extends Emitter {
         };
         this.split.addEventListener('mousedown', DOWN, false);
 
-        this.update();
+        this.update(ratio);
     }
     update(ratio = 0.5){
         let first = `calc(${ratio * 100}% - ${SPLITTER_WIDTH / 2}px)`;
