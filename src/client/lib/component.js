@@ -17,6 +17,9 @@ export default class Component {
     static get TabStrip(){
         return TabStrip;
     }
+    static get Item(){
+        return Item;
+    }
 }
 
 class Emitter {
@@ -295,6 +298,80 @@ class TabStrip extends Emitter {
             return v.wrap;
         });
         return pages;
+    }
+}
+
+class Item extends Emitter {
+    constructor(parentDOM, index, title, isActive){
+        super();
+        this.parentDOM = parentDOM;
+        this.index = index;
+        this.title = title;
+        this.active = isActive;
+        this.wrap = document.createElement('div');
+        this.icon = document.createElement('div');
+        this.label = document.createElement('div');
+        this.label.textContent = title;
+
+        // styling
+        util.appendStyle(this.wrap, {
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            lineHeight: '24px',
+            width: '100%',
+            height: '24px',
+            display: 'flex',
+            flexDirection: 'row',
+            userSelect: 'none',
+            cursor: 'pointer',
+        });
+        util.appendStyle(this.icon, {
+            width: '8px',
+            height: '8px',
+            margin: '8px',
+        });
+        util.appendStyle(this.label, {
+            color: 'silver',
+        });
+
+        // appending
+        this.parentDOM.appendChild(this.wrap);
+        this.wrap.appendChild(this.icon);
+        this.wrap.appendChild(this.label);
+
+        // event setting
+        this.wrap.addEventListener('mouseenter', () => {
+            util.appendStyle(this.wrap, {
+                backgroundColor: 'rgba(240, 240, 240, 0.25)',
+            });
+            util.appendStyle(this.label, {
+                color: `rgb(${TABSTRIP_COLOR.join(',')})`,
+            });
+        }, false);
+        this.wrap.addEventListener('mouseleave', () => {
+            util.appendStyle(this.wrap, {
+                backgroundColor: 'transparent',
+            });
+            util.appendStyle(this.label, {
+                color: this.active === true ? `rgb(${TABSTRIP_COLOR.join(',')})` : 'silver',
+            });
+        }, false);
+        this.wrap.addEventListener('click', () => {
+            this.emit('click', this.index);
+        }, false);
+
+        this.update();
+    }
+    setActive(isActive){
+        if(isActive == null){return;}
+        this.active = isActive;
+    }
+    update(isActive){
+        this.setActive(isActive);
+        util.appendStyle(this.icon, {
+            backgroundColor: this.active === true ? 'deeppink' : 'gray',
+        });
     }
 }
 
