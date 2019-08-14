@@ -8,10 +8,10 @@ let editors = [];
 let editorMode = [
     {mode: 'html',       title: 'HTML'},
     {mode: 'javascript', title: 'js'},
-    {mode: 'glsl',       title: 'vs(1)'},
-    {mode: 'glsl',       title: 'fs(1)'},
-    {mode: 'glsl',       title: 'vs(2)'},
-    {mode: 'glsl',       title: 'fs(2)'},
+    {mode: 'glsl',       title: 'vert(1)'},
+    {mode: 'glsl',       title: 'frag(1)'},
+    {mode: 'glsl',       title: 'vert(2)'},
+    {mode: 'glsl',       title: 'frag(2)'},
 ];
 
 const FONT_SIZE = 16;
@@ -19,7 +19,7 @@ const LIGHT_THEME = 'ace/theme/tomorrow';
 const DARK_THEME = 'ace/theme/tomorrow_night_bright';
 const BUTTON_BLOCK_HEIGHT = 32;
 const ICON_SIZE = 16;
-const ICON_MARGIN = '8px 6px';
+const ICON_MARGIN = '8px 7px';
 const EDITOR_OPTION = {
     highlightActiveLine: true,
     highlightSelectedWord: true,
@@ -70,6 +70,7 @@ function initialSetting(){
         vsplit.on('change', (arg) => {console.log(arg);});
 
         let frame = document.createElement('iframe');
+        frame.setAttribute('id', 'frame');
         vsplit.second.appendChild(frame);
 
         let leftBlock = document.createElement('div');
@@ -86,9 +87,11 @@ function initialSetting(){
             maxHeight: `${BUTTON_BLOCK_HEIGHT}px`,
             display: 'flex',
             flexDirection: 'row',
+            overflow: 'hidden',
             userSelect: 'none',
         });
         let openFolderIcon = document.createElement('img');
+        openFolderIcon.setAttribute('id', 'open');
         openFolderIcon.src = './image/folder_plus.svg';
         util.appendStyle(openFolderIcon, {
             width: `${ICON_SIZE}px`,
@@ -105,6 +108,7 @@ function initialSetting(){
             openFolderIcon.style.filter = 'invert(0.5)';
         });
         let closeFolderIcon = document.createElement('img');
+        closeFolderIcon.setAttribute('id', 'close');
         closeFolderIcon.src = './image/folder_minus.svg';
         util.appendStyle(closeFolderIcon, {
             width: `${ICON_SIZE}px`,
@@ -120,10 +124,46 @@ function initialSetting(){
         closeFolderIcon.addEventListener('mouseleave', () => {
             closeFolderIcon.style.filter = 'invert(0.5)';
         });
+        let playIcon = document.createElement('img');
+        playIcon.setAttribute('id', 'play');
+        playIcon.src = './image/play.svg';
+        util.appendStyle(playIcon, {
+            width: `${ICON_SIZE}px`,
+            height: `${ICON_SIZE}px`,
+            margin: ICON_MARGIN,
+            cursor: 'pointer',
+            filter: 'invert(0.5)',
+            userSelect: 'none',
+        });
+        playIcon.addEventListener('mouseenter', () => {
+            playIcon.style.filter = 'invert(1)';
+        });
+        playIcon.addEventListener('mouseleave', () => {
+            playIcon.style.filter = 'invert(0.5)';
+        });
+        let stopIcon = document.createElement('img');
+        stopIcon.setAttribute('id', 'stop');
+        stopIcon.src = './image/stop.svg';
+        util.appendStyle(stopIcon, {
+            width: `${ICON_SIZE}px`,
+            height: `${ICON_SIZE}px`,
+            margin: ICON_MARGIN,
+            cursor: 'pointer',
+            filter: 'invert(0.5)',
+            userSelect: 'none',
+        });
+        stopIcon.addEventListener('mouseenter', () => {
+            stopIcon.style.filter = 'invert(1)';
+        });
+        stopIcon.addEventListener('mouseleave', () => {
+            stopIcon.style.filter = 'invert(0.5)';
+        });
         vsplit.first.appendChild(leftBlock);
         leftBlock.appendChild(buttonBlock);
         buttonBlock.appendChild(openFolderIcon);
         buttonBlock.appendChild(closeFolderIcon);
+        buttonBlock.appendChild(playIcon);
+        buttonBlock.appendChild(stopIcon);
 
         resolve();
     });
@@ -166,6 +206,17 @@ function editorSetting(){
 }
 
 function eventSetting(){
+    let open  = document.querySelector('#open');
+    let close = document.querySelector('#close');
+    let play  = document.querySelector('#play');
+    let stop  = document.querySelector('#stop');
+
+    open.addEventListener('click', () => {
+        ipcRenderer.once('directories', (arg, res) => {
+            console.log(res);
+        });
+        ipcRenderer.send('opendirectory');
+    }, false);
 }
 
 function windowSetting(){
