@@ -212,8 +212,11 @@ function eventSetting(){
     let stop  = document.querySelector('#stop');
 
     open.addEventListener('click', () => {
-        ipcRenderer.once('directories', (arg, res) => {
+        ipcRenderer.once('localserverrunning', (arg, res) => {
             console.log(res);
+            setTimeout(() => {
+                ipcRenderer.send('localserverclose');
+            }, 5000);
         });
         ipcRenderer.send('opendirectory');
     }, false);

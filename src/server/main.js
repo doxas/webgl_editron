@@ -1,9 +1,14 @@
 
+import http from 'http';
+import fs from 'fs';
 import path from 'path';
 import {app, ipcMain, dialog, BrowserWindow} from 'electron';
 import connect from 'electron-connect';
+import local from 'connect';
+import serveStatic from 'serve-static';
 
 // constant variable ==========================================================
+const LOCAL_PORT = 56565;
 const IS_DEVELOPMENT = __MODE__ === 'development';
 const INDEX_HTML_PATH = IS_DEVELOPMENT ? './app/client/index.html' : './client/index.html';
 const MAIN_WINDOW_PARAMETER = {
@@ -18,6 +23,8 @@ const MAIN_WINDOW_PARAMETER = {
 // variables ==================================================================
 let mainWindow;    // main window
 let connectClient; // connector from electron-connect for client
+let connectApp = local();
+let server = null;
 
 // app events =================================================================
 let isLockable = app.requestSingleInstanceLock();
@@ -76,8 +83,24 @@ function createMainWindow(){
             title: 'open editron project',
             properties: ['openDirectory']
         }, (res) => {
-            evt.sender.send('directories', res);
+            if(res == null || Array.isArray(res) !== true || res.length === 0){
+                evt.sender.send('localserverrunning', false);
+            }else{
+                if(server != null){
+                    server.close();
+                }
+                connectApp.use(serveStatic(res[0]));
+                server = http.createServer(connectApp);
+                server.listen(LOCAL_PORT);
+                evt.sender.send('localserverrunning', {pwd: res[0], port: LOCAL_PORT});
+            }
         });
+    });
+    ipcMain.on('localserverclose', (evt, arg) => {
+        if(server != null){
+            server.close();
+            console.log('local server closed');
+        }
     });
 
     if(IS_DEVELOPMENT === true){
