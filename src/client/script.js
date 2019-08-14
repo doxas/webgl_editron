@@ -48,9 +48,95 @@ window.addEventListener('DOMContentLoaded', () => {
     })
     .then(() => {
         eventSetting();
-        console.log('📐: welcome editron');
+
+        setStatusBarMessage('📐: welcome editron');
+        setStatusBarIcon(
+            '#windowinterfacestatuseditron',
+            'green', true,
+            'editron initialize success'
+        );
     });
 }, false);
+
+function setStatusBarMessage(text){
+    let message = document.querySelector('#windowinterfacestatusmessage');
+    message.textContent = text;
+}
+
+function setStatusBarIcon(targetId, stat, add, title){
+    let icon = document.querySelector(targetId);
+    if(add === true){
+        icon.classList.add(stat);
+    }else{
+        icon.classList.remove(stat);
+    }
+    icon.setAttribute('title', title);
+}
+
+function windowSetting(){
+    let fontSize = FONT_SIZE;
+    let dark = true;
+    return new Promise((resolve) => {
+        // header
+        let ttl = document.body.querySelector('#windowinterfacetitle');
+        let min = document.body.querySelector('#windowinterfacecontrollermin');
+        let max = document.body.querySelector('#windowinterfacecontrollermax');
+        let cls = document.body.querySelector('#windowinterfacecontrollerclose');
+        min.addEventListener('click', () => {ipcRenderer.send('minimize', true);}, false)
+        max.addEventListener('click', () => {ipcRenderer.send('maximize', true);}, false)
+        cls.addEventListener('click', () => {ipcRenderer.send('close', true);}, false)
+        // footer
+        let footer = document.body.querySelector('#windowinterfacefooter');
+        window.addEventListener('keydown', (evt) => {
+            switch(evt.key){
+                case 'I':
+                    if(evt.ctrlKey === true || evt.metaKey === true){
+                        ipcRenderer.send('opendevtools', {});
+                    }
+                    break;
+                case 'b':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        dark = !dark;
+                        editors.forEach((v, index) => {
+                            if(dark === true){
+                                v.setTheme(DARK_THEME);
+                            }else{
+                                v.setTheme(LIGHT_THEME);
+                            }
+                        });
+                    }
+                    break;
+                case ',':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        --fontSize;
+                        pages.forEach((v, index) => {
+                            v.style.fontSize = `${fontSize}px`;
+                        });
+                    }
+                    break;
+                case '.':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        ++fontSize;
+                        pages.forEach((v, index) => {
+                            v.style.fontSize = `${fontSize}px`;
+                        });
+                    }
+                    break;
+                case 'F12':
+                    ipcRenderer.send('opendevtools', {});
+                    break;
+                default:
+                    break;
+            }
+        }, false);
+        ipcRenderer.on('settitledom', (evt, arg) => {
+            ttl.textContent = arg;
+            resolve();
+        });
+        let title = 'webgl - editron';
+        ipcRenderer.send('settitle', title);
+    });
+}
 
 function initialSetting(){
     return new Promise((resolve) => {
@@ -213,74 +299,23 @@ function eventSetting(){
 
     open.addEventListener('click', () => {
         ipcRenderer.once('localserverrunning', (arg, res) => {
-            console.log(res);
-            setTimeout(() => {
-                ipcRenderer.send('localserverclose');
-            }, 5000);
+            if(res === false){
+                setStatusBarMessage('cancel on project open dialog');
+            }else{
+                setStatusBarMessage(`open project: [ ${res.pwd} ]`)
+                setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
+                setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
+                setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');
+            }
         });
         ipcRenderer.send('opendirectory');
     }, false);
-}
-
-function windowSetting(){
-    let fontSize = FONT_SIZE;
-    let dark = true;
-    return new Promise((resolve) => {
-        let ttl = document.body.querySelector('#windowinterfacetitle');
-        let min = document.body.querySelector('#windowinterfacecontrollermin');
-        let max = document.body.querySelector('#windowinterfacecontrollermax');
-        let cls = document.body.querySelector('#windowinterfacecontrollerclose');
-        min.addEventListener('click', () => {ipcRenderer.send('minimize', true);}, false)
-        max.addEventListener('click', () => {ipcRenderer.send('maximize', true);}, false)
-        cls.addEventListener('click', () => {ipcRenderer.send('close', true);}, false)
-        window.addEventListener('keydown', (evt) => {
-            switch(evt.key){
-                case 'I':
-                    if(evt.ctrlKey === true || evt.metaKey === true){
-                        ipcRenderer.send('opendevtools', {});
-                    }
-                    break;
-                case 'b':
-                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
-                        dark = !dark;
-                        editors.forEach((v, index) => {
-                            if(dark === true){
-                                v.setTheme(DARK_THEME);
-                            }else{
-                                v.setTheme(LIGHT_THEME);
-                            }
-                        });
-                    }
-                    break;
-                case ',':
-                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
-                        --fontSize;
-                        pages.forEach((v, index) => {
-                            v.style.fontSize = `${fontSize}px`;
-                        });
-                    }
-                    break;
-                case '.':
-                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
-                        ++fontSize;
-                        pages.forEach((v, index) => {
-                            v.style.fontSize = `${fontSize}px`;
-                        });
-                    }
-                    break;
-                case 'F12':
-                    ipcRenderer.send('opendevtools', {});
-                    break;
-                default:
-                    break;
-            }
-        }, false);
-        ipcRenderer.on('settitledom', (evt, arg) => {
-            ttl.textContent = arg;
-            resolve();
+    close.addEventListener('click', () => {
+        ipcRenderer.once('localserverclosed', (arg, res) => {
+            setStatusBarMessage(`local server closed`)
+            setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
         });
-        let title = 'webgl - editron';
-        ipcRenderer.send('settitle', title);
-    });
+        ipcRenderer.send('closelocalserver');
+    }, false);
 }
 

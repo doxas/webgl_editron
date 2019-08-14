@@ -45,6 +45,10 @@ app.on('ready', () => {
 
 app.on('window-all-closed', () => {
     mainWindow = null;
+    if(server != null){
+        server.close();
+        console.log('local server closed');
+    }
     app.quit();
 });
 
@@ -92,14 +96,18 @@ function createMainWindow(){
                 connectApp.use(serveStatic(res[0]));
                 server = http.createServer(connectApp);
                 server.listen(LOCAL_PORT);
+                console.log('run local server');
                 evt.sender.send('localserverrunning', {pwd: res[0], port: LOCAL_PORT});
             }
         });
     });
-    ipcMain.on('localserverclose', (evt, arg) => {
+    ipcMain.on('closelocalserver', (evt, arg) => {
         if(server != null){
             server.close();
             console.log('local server closed');
+            evt.sender.send('localserverclosed', 'success');
+        }else{
+            evt.sender.send('localserverclosed', 'not running server');
         }
     });
 
