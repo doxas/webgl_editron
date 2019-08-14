@@ -297,6 +297,12 @@ function editorSetting(){
                     vimMode = !vimMode;
                 },
             });
+            editor.session.on('change', () => {
+                if(latestResponse != null && latestActive != null && latestResponse.dirs[latestActive] != null){
+                    latestResponse.dirs[latestActive].data[editorMode[index].name].changes = true;
+                    items[latestActive].update(null, true)
+                }
+            });
 
             editors.push(editor);
         });
@@ -341,18 +347,18 @@ function eventSetting(){
                 latestResponse = res;
                 latestResponse.dirs.forEach((v, index) => {
                     let item = new Component.Item(left, index, v.dirName, false);
+                    items[index] = item;
                     item.on('click', (idx) => {
-                        items.forEach((w, i) => {
-                            w.update(false);
-                        });
-                        item.update(true);
                         latestActive = idx;
                         setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
                         setEditorSource(latestResponse.dirs[idx].data);
+                        items.forEach((w, i) => {
+                            w.update(false);
+                        });
+                        item.update(true, false);
                         let frame = document.querySelector('#frame');
                         frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[idx].dirName}`;
                     });
-                    items[index] = item;
                 });
             }
         });
@@ -387,6 +393,8 @@ function clearList(){
 }
 
 function clearEditor(){
+    latestResponse = null;
+    latestActive = null;
     editors.forEach((v, index) => {
         v.setValue('', -1);
     });

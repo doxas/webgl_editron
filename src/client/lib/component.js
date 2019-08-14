@@ -308,8 +308,11 @@ class Item extends Emitter {
         this.index = index;
         this.title = title;
         this.active = isActive;
+        this.changes = false;
         this.wrap = document.createElement('div');
         this.icon = document.createElement('div');
+        this.change = document.createElement('div');
+        this.change.textContent = '*';
         this.label = document.createElement('div');
         this.label.textContent = title;
 
@@ -331,6 +334,14 @@ class Item extends Emitter {
             height: '8px',
             margin: '8px',
         });
+        util.appendStyle(this.change, {
+            color: 'transparent',
+            fontSize: 'x-small',
+            lineHeight: '8px',
+            width: '8px',
+            height: '8px',
+            margin: '8px',
+        });
         util.appendStyle(this.label, {
             color: 'silver',
         });
@@ -339,6 +350,7 @@ class Item extends Emitter {
         this.parentDOM.appendChild(this.wrap);
         this.wrap.appendChild(this.icon);
         this.wrap.appendChild(this.label);
+        this.wrap.appendChild(this.change);
 
         // event setting
         this.wrap.addEventListener('mouseenter', () => {
@@ -367,10 +379,18 @@ class Item extends Emitter {
         if(isActive == null){return;}
         this.active = isActive;
     }
-    update(isActive){
+    setChange(isChange){
+        if(isChange == null){return;}
+        this.changes = isChange;
+    }
+    update(isActive, isChange){
         this.setActive(isActive);
+        this.setChange(isChange);
         util.appendStyle(this.icon, {
             backgroundColor: this.active === true ? 'deeppink' : 'gray',
+        });
+        util.appendStyle(this.change, {
+            color: this.changes === true ? 'silver' : 'transparent',
         });
     }
 }
