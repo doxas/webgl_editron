@@ -3,15 +3,17 @@ import {ipcRenderer} from 'electron';
 import util from './lib/util.js';
 import Component from './lib/component.js';
 
+let latestResponse = null;
+let items = [];
 let pages = [];
 let editors = [];
 let editorMode = [
-    {mode: 'html',       title: 'HTML'},
-    {mode: 'javascript', title: 'js'},
-    {mode: 'glsl',       title: 'vert(1)'},
-    {mode: 'glsl',       title: 'frag(1)'},
-    {mode: 'glsl',       title: 'vert(2)'},
-    {mode: 'glsl',       title: 'frag(2)'},
+    {mode: 'html',       name: 'html',  title: 'HTML'},
+    {mode: 'javascript', name: 'js',    title: 'js'},
+    {mode: 'glsl',       name: 'vs1', title: 'vert(1)'},
+    {mode: 'glsl',       name: 'fs1', title: 'frag(1)'},
+    {mode: 'glsl',       name: 'vs2', title: 'vert(2)'},
+    {mode: 'glsl',       name: 'fs2', title: 'frag(2)'},
 ];
 
 const FONT_SIZE = 16;
@@ -244,8 +246,18 @@ function initialSetting(){
         stopIcon.addEventListener('mouseleave', () => {
             stopIcon.style.filter = 'invert(0.5)';
         });
+        let listBlock = document.createElement('div');
+        listBlock.setAttribute('id', 'listblock');
+        util.appendStyle(listBlock, {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+        });
+
         vsplit.first.appendChild(leftBlock);
         leftBlock.appendChild(buttonBlock);
+        leftBlock.appendChild(listBlock);
         buttonBlock.appendChild(openFolderIcon);
         buttonBlock.appendChild(closeFolderIcon);
         buttonBlock.appendChild(playIcon);
@@ -307,11 +319,35 @@ function eventSetting(){
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
             }else{
-                console.log(res.dirs); // TODO: ここまで来たら左サイドバーをリセット及びリストを新規作成する
+                if(Array.isArray(res.dirs) !== true || res.dirs.length === 0){
+                    setStatusBarMessage(`Error: ${res.err}`);
+                    setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
+                    setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
+                    setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
+                    return;
+                }
                 setStatusBarMessage(`open project: [ ${res.pwd} ]`)
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');
+                let left = document.querySelector('#listblock');
+                while(left.children.length > 0){
+                    left.removeChild(left.children[0]);
+                }
+                items = [];
+                latestResponse = res;
+                latestResponse.dirs.forEach((v, index) => {
+                    let item = new Component.Item(left, index, v.dirName, false);
+                    item.on('click', (idx) => {
+                        items.forEach((w, i) => {
+                            w.update(false);
+                        });
+                        item.update(true);
+                        setStatusBarMessage(`open: [ ${latestResponse.dirs[idx].dirName} ]`);
+                        setEditorSource(latestResponse.dirs[idx].data);
+                    });
+                    items[index] = item;
+                });
             }
         });
         ipcRenderer.send('opendirectory');
@@ -323,5 +359,16 @@ function eventSetting(){
         });
         ipcRenderer.send('closelocalserver');
     }, false);
+}
+
+function setEditorSource(data){
+    editorMode.forEach((v, index) => {
+        for(let name in data){
+            if(v.name === name){
+                editors[index].setValue(data[name].data, -1);
+                continue;
+            }
+        }
+    });
 }
 
