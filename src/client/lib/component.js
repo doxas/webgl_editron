@@ -1,4 +1,6 @@
 
+const HEADER_HEIGHT = 36;
+const FOOTER_HEIGHT = 20;
 const SPLITTER_COLOR = [255, 20, 147];
 const SPLITTER_WIDTH = 4;
 const TABSTRIP_COLOR = [240, 240, 240];
@@ -33,7 +35,7 @@ class Emitter {
 }
 
 class Splitter extends Emitter {
-    constructor(parentDOM, horizontal = true, ratio){
+    constructor(parentDOM, horizontal = true, ratio = 0.5){
         super();
         this.parentDOM = parentDOM;
         this.horizontal = horizontal;
@@ -41,6 +43,7 @@ class Splitter extends Emitter {
         this.first  = document.createElement('div');
         this.split  = document.createElement('div');
         this.second = document.createElement('div');
+        this.layer  = document.createElement('div');
         this.isDown = false;
 
         // styling
@@ -55,6 +58,15 @@ class Splitter extends Emitter {
             backgroundColor: `rgb(${SPLITTER_COLOR.join(',')})`,
             userSelect: 'none',
         });
+        appendStyle(this.layer, {
+            backgroundColor: `rgba(36, 32, 34, 0.8)`,
+            width: '100%',
+            height: `calc(100% - ${HEADER_HEIGHT + FOOTER_HEIGHT}px)`,
+            display: 'none',
+            position: 'absolute',
+            top: `${HEADER_HEIGHT}px`,
+            left: '0px',
+        });
 
         // appending
         this.wrap.appendChild(this.first);
@@ -65,8 +77,11 @@ class Splitter extends Emitter {
         // event setting
         const DOWN = (evt) => {
             this.isDown = true;
-            window.addEventListener('mousemove', MOVE, false);
-            window.addEventListener('mouseup', UP, false);
+            this.split.style.zIndex = 1;
+            document.querySelector('#root').appendChild(this.layer);
+            this.layer.style.display = 'block';
+            this.layer.addEventListener('mousemove', MOVE, false);
+            this.layer.addEventListener('mouseup', UP, false);
         };
         const MOVE = (evt) => {
             if(this.isDown !== true){return;}
@@ -82,10 +97,14 @@ class Splitter extends Emitter {
         };
         const UP = (evt) => {
             this.isDown = false;
-            window.removeEventListener('mousemove', MOVE);
-            window.removeEventListener('mouseup', UP);
+            this.split.style.zIndex = '';
+            document.querySelector('#root').removeChild(this.layer);
+            this.layer.style.display = 'none';
+            this.layer.removeEventListener('mousemove', MOVE);
+            this.layer.removeEventListener('mouseup', UP);
         };
         this.split.addEventListener('mousedown', DOWN, false);
+        this.split.addEventListener('mouseup', UP, false);
 
         this.update(ratio);
     }
