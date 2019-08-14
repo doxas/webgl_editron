@@ -299,7 +299,7 @@ function editorSetting(){
             });
             editor.session.on('change', () => {
                 if(latestResponse != null && latestActive != null && latestResponse.dirs[latestActive] != null){
-                    latestResponse.dirs[latestActive].data[editorMode[index].name].changes = true;
+                    latestResponse.dirs[latestActive].changes = true;
                     items[latestActive].update(null, true)
                 }
             });
@@ -318,8 +318,10 @@ function eventSetting(){
 
     open.addEventListener('click', () => {
         if(latestResponse != null){
-            let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを開きますか？');
-            if(res !== true){return;}
+            if(latestActive != null && items[latestActive].changes === true){
+                let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを開いてよろしいですか？');
+                if(res !== true){return;}
+            }
         }
         ipcRenderer.once('localserverrunning', (arg, res) => {
             if(res === false){
@@ -341,7 +343,9 @@ function eventSetting(){
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');
+                clearFrame();
                 clearList();
+                clearEditor();
                 let left = document.querySelector('#listblock');
                 items = [];
                 latestResponse = res;
@@ -349,15 +353,18 @@ function eventSetting(){
                     let item = new Component.Item(left, index, v.dirName, false);
                     items[index] = item;
                     item.on('click', (idx) => {
+                        if(latestActive != null && idx !== latestActive && items[latestActive].changes === true){
+                            let cfm = confirm(`現在のソースコード[ ${latestResponse.dirs[latestActive].dirName} ]に変更が加えられています。\n[ ${latestResponse.dirs[idx].dirName} ] を読み込むとその変更は破棄されます。読み込みを開始してよろしいですか？`);
+                            if(cfm !== true){return;}
+                        }
                         latestActive = idx;
                         setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
                         setEditorSource(latestResponse.dirs[idx].data);
                         items.forEach((w, i) => {
-                            w.update(false);
+                            w.update(false, false);
                         });
                         item.update(true, false);
-                        let frame = document.querySelector('#frame');
-                        frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[idx].dirName}`;
+                        setFrameSource(idx);
                     });
                 });
             }
@@ -366,8 +373,10 @@ function eventSetting(){
     }, false);
     close.addEventListener('click', () => {
         if(latestResponse != null){
-            let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを閉じてよろしいですか？');
-            if(res !== true){return;}
+            if(latestActive != null && items[latestActive].changes === true){
+                let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n現在のプロジェクトを閉じてよろしいですか？');
+                if(res !== true){return;}
+            }
         }
         ipcRenderer.once('localserverclosed', (arg, res) => {
             clearFrame();
@@ -409,5 +418,10 @@ function setEditorSource(data){
             }
         }
     });
+}
+
+function setFrameSource(index){
+    let frame = document.querySelector('#frame');
+    frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[index].dirName}`;
 }
 
