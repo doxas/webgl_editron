@@ -4,6 +4,7 @@ import util from './lib/util.js';
 import Component from './lib/component.js';
 
 let latestResponse = null;
+let latestActive = null;
 let items = [];
 let pages = [];
 let editors = [];
@@ -310,6 +311,10 @@ function eventSetting(){
     let stop  = document.querySelector('#stop');
 
     open.addEventListener('click', () => {
+        if(latestResponse != null){
+            let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを開きますか？');
+            if(res !== true){return;}
+        }
         ipcRenderer.once('localserverrunning', (arg, res) => {
             if(res === false){
                 setStatusBarMessage('cancel on project open dialog');
@@ -341,6 +346,7 @@ function eventSetting(){
                             w.update(false);
                         });
                         item.update(true);
+                        latestActive = idx;
                         setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
                         setEditorSource(latestResponse.dirs[idx].data);
                         let frame = document.querySelector('#frame');
@@ -353,6 +359,10 @@ function eventSetting(){
         ipcRenderer.send('opendirectory');
     }, false);
     close.addEventListener('click', () => {
+        if(latestResponse != null){
+            let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを閉じてよろしいですか？');
+            if(res !== true){return;}
+        }
         ipcRenderer.once('localserverclosed', (arg, res) => {
             clearFrame();
             clearList();
