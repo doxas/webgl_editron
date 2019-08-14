@@ -10,6 +10,43 @@ export default class Util {
                     reject(err);
                     return;
                 }
+                let statPromises = [];
+                let promises = [];
+                files.forEach((v, index) => {
+                    let dirPath = path.join(target, v);
+                    statPromises.push(new Promise((res) => {
+                        fs.stat(dirPath, (err, stat) => {
+                            if(err == null && stat.isDirectory() === true){
+                                promises.push(Util.checkFiles(dirPath, v));
+                            }
+                            res();
+                        });
+                    }));
+                });
+                Promise.all(statPromises)
+                .then(() => {
+                    if(promises.length === 0){
+                        reject('invalid directory');
+                    }else{
+                        Promise.all(promises)
+                        .then((res) => {
+                            resolve(res);
+                        })
+                        .catch((err) => {
+                            reject(err);
+                        });
+                    }
+                })
+            });
+        });
+    }
+    static checkFiles(target, dirname){
+        return new Promise((resolve, reject) => {
+            fs.readdir(target, (err, files) => {
+                if(err != null || Array.isArray(files) !== true || files.length === 0){
+                    reject(err);
+                    return;
+                }
                 let promises = [];
                 let flags = {
                     html: false,
@@ -44,7 +81,7 @@ export default class Util {
                         flag = flag && flags[f];
                     }
                     if(flag === true){
-                        resolve();
+                        resolve(dirname);
                     }else{
                         reject('invalid files');
                     }

@@ -92,7 +92,7 @@ function createMainWindow(){
                 evt.sender.send('localserverrunning', false);
             }else{
                 util.checkDirectories(res[0])
-                .then(() => {
+                .then((dirnames) => {
                     if(server != null){
                         server.close();
                     }
@@ -100,7 +100,11 @@ function createMainWindow(){
                     server = http.createServer(connectApp);
                     server.listen(LOCAL_PORT);
                     console.log('run local server');
-                    evt.sender.send('localserverrunning', {pwd: res[0], port: LOCAL_PORT});
+                    evt.sender.send('localserverrunning', {
+                        dirs: dirnames,
+                        pwd: res[0],
+                        port: LOCAL_PORT,
+                    });
                 })
                 .catch((err) => {
                     evt.sender.send('localserverrunning', {err: 'invalid project'});
