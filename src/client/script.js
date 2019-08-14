@@ -1,5 +1,6 @@
 
 import {ipcRenderer} from 'electron';
+import util from './lib/util.js';
 import Component from './lib/component.js';
 
 let pages = [];
@@ -16,6 +17,9 @@ let editorMode = [
 const FONT_SIZE = 16;
 const LIGHT_THEME = 'ace/theme/tomorrow';
 const DARK_THEME = 'ace/theme/tomorrow_night_bright';
+const BUTTON_BLOCK_HEIGHT = 32;
+const ICON_SIZE = 16;
+const ICON_MARGIN = '8px 6px';
 const EDITOR_OPTION = {
     highlightActiveLine: true,
     highlightSelectedWord: true,
@@ -67,6 +71,59 @@ function initialSetting(){
 
         let frame = document.createElement('iframe');
         vsplit.second.appendChild(frame);
+
+        let leftBlock = document.createElement('div');
+        util.appendStyle(leftBlock, {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+        });
+        let buttonBlock = document.createElement('div');
+        util.appendStyle(buttonBlock, {
+            width: '100%',
+            minHeight: `${BUTTON_BLOCK_HEIGHT}px`,
+            maxHeight: `${BUTTON_BLOCK_HEIGHT}px`,
+            display: 'flex',
+            flexDirection: 'row',
+            userSelect: 'none',
+        });
+        let openFolderIcon = document.createElement('img');
+        openFolderIcon.src = './image/folder_plus.svg';
+        util.appendStyle(openFolderIcon, {
+            width: `${ICON_SIZE}px`,
+            height: `${ICON_SIZE}px`,
+            margin: ICON_MARGIN,
+            cursor: 'pointer',
+            filter: 'invert(0.5)',
+            userSelect: 'none',
+        });
+        openFolderIcon.addEventListener('mouseenter', () => {
+            openFolderIcon.style.filter = 'invert(1)';
+        });
+        openFolderIcon.addEventListener('mouseleave', () => {
+            openFolderIcon.style.filter = 'invert(0.5)';
+        });
+        let closeFolderIcon = document.createElement('img');
+        closeFolderIcon.src = './image/folder_minus.svg';
+        util.appendStyle(closeFolderIcon, {
+            width: `${ICON_SIZE}px`,
+            height: `${ICON_SIZE}px`,
+            margin: ICON_MARGIN,
+            cursor: 'pointer',
+            filter: 'invert(0.5)',
+            userSelect: 'none',
+        });
+        closeFolderIcon.addEventListener('mouseenter', () => {
+            closeFolderIcon.style.filter = 'invert(1)';
+        });
+        closeFolderIcon.addEventListener('mouseleave', () => {
+            closeFolderIcon.style.filter = 'invert(0.5)';
+        });
+        vsplit.first.appendChild(leftBlock);
+        leftBlock.appendChild(buttonBlock);
+        buttonBlock.appendChild(openFolderIcon);
+        buttonBlock.appendChild(closeFolderIcon);
 
         resolve();
     });
