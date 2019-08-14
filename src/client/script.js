@@ -5,12 +5,12 @@ import Component from './lib/component.js';
 let pages = [];
 let editors = [];
 let editorMode = [
-    {mode: 'html', title: 'HTML'},
+    {mode: 'html',       title: 'HTML'},
     {mode: 'javascript', title: 'js'},
-    {mode: 'glsl', title: 'vs(1)'},
-    {mode: 'glsl', title: 'fs(1)'},
-    {mode: 'glsl', title: 'vs(2)'},
-    {mode: 'glsl', title: 'fs(2)'},
+    {mode: 'glsl',       title: 'vs(1)'},
+    {mode: 'glsl',       title: 'fs(1)'},
+    {mode: 'glsl',       title: 'vs(2)'},
+    {mode: 'glsl',       title: 'fs(2)'},
 ];
 
 const FONT_SIZE = 16;
@@ -55,9 +55,19 @@ function initialSetting(){
         split.first.setAttribute('id', 'first');
         split.second.setAttribute('id', 'second');
         split.on('change', (arg) => {console.log(arg);});
+
         let titles = editorMode.map((v) => {return v.title});
         let tabStrip = new Component.TabStrip(split.second, titles, 0);
         pages = tabStrip.getAllPage();
+
+        let vsplit = new Component.Splitter(split.first, false, 0.2);
+        vsplit.first.setAttribute('id', 'vfirst');
+        vsplit.second.setAttribute('id', 'vsecond');
+        vsplit.on('change', (arg) => {console.log(arg);});
+
+        let frame = document.createElement('iframe');
+        vsplit.second.appendChild(frame);
+
         resolve();
     });
 }
