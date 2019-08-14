@@ -9,6 +9,7 @@ webgl and GLSL live editor app for electron.
 * [x] syntax change
 * [x] run webgl
 * [x] status bar
+* [ ] modal dialog
 * [ ] build for mac
 * [ ] save and run
 * [ ] stop
