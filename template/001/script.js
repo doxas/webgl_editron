@@ -1,6 +1,6 @@
 (() => {
-    const WIDTH  = 256;
-    const HEIGHT = 256;
+    const WIDTH  = 64;
+    const HEIGHT = 64;
 
     // variables
     let run;          // 実行フラグ
