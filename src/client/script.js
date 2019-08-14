@@ -92,6 +92,11 @@ function windowSetting(){
         let footer = document.body.querySelector('#windowinterfacefooter');
         window.addEventListener('keydown', (evt) => {
             switch(evt.key){
+                case 's':
+                    if(evt.ctrlKey === true || evt.metaKey === true){
+                        saveEditorSource();
+                    }
+                    break;
                 case 'I':
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         ipcRenderer.send('opendevtools', {});
@@ -358,13 +363,13 @@ function eventSetting(){
                             if(cfm !== true){return;}
                         }
                         latestActive = idx;
-                        setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
                         setEditorSource(latestResponse.dirs[idx].data);
                         items.forEach((w, i) => {
                             w.update(false, false);
                         });
                         item.update(true, false);
                         setFrameSource(idx);
+                        setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
                     });
                 });
             }
@@ -387,6 +392,9 @@ function eventSetting(){
         });
         ipcRenderer.send('closelocalserver');
     }, false);
+    play.addEventListener('click', () => {
+        saveEditorSource();
+    });
 }
 
 function clearFrame(){
@@ -418,6 +426,34 @@ function setEditorSource(data){
             }
         }
     });
+}
+
+function saveEditorSource(){
+    if(latestResponse == null || latestActive == null){return;}
+    editorMode.forEach((v, index) => {
+        for(let name in latestResponse.dirs[latestActive].data){
+            if(v.name === name){
+                latestResponse.dirs[latestActive].data[name] = editors[index].getValue();
+                continue;
+            }
+        }
+    });
+    ipcRenderer.once('savefile', (res) => {
+        if(res.hasOwnProperty('err') === true){
+            setStatusBarMessage(`Error: ${res.err}`);
+            setStatusBarIcon('#windowinterfacestatusfile', 'green', false, '');
+            setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
+            setStatusBarIcon('#windowinterfacestatusfile', 'red', true, 'save file failed');
+        }else{
+            setStatusBarMessage(`save project: [ ${latestResponse.dirs[latestActive].dirName} ]`);
+            setStatusBarIcon('#windowinterfacestatusfile', 'red', false, '');
+            setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
+            setStatusBarIcon('#windowinterfacestatusfile', 'green', true, 'save file success');
+            items[latestActive].update(null, false);
+            setFrameSource(latestActive);
+        }
+    });
+    ipcRenderer.send('saveproject', latestResponse.dirs[latestActive]);
 }
 
 function setFrameSource(index){
