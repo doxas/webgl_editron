@@ -1,6 +1,6 @@
 
 import path from 'path';
-import {app, ipcMain, BrowserWindow} from 'electron';
+import {app, ipcMain, dialog, BrowserWindow} from 'electron';
 import connect from 'electron-connect';
 
 // constant variable ==========================================================
@@ -69,6 +69,15 @@ function createMainWindow(){
     ipcMain.on('settitle', (evt, arg) => {
         mainWindow.setTitle(arg);
         evt.sender.send('settitledom', arg);
+    });
+
+    ipcMain.on('opendirectory', (evt, arg) => {
+        dialog.showOpenDialog(mainWindow, {
+            title: 'open editron project',
+            properties: ['openDirectory']
+        }, (res) => {
+            evt.sender.send('directories', res);
+        });
     });
 
     if(IS_DEVELOPMENT === true){
