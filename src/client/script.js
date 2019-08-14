@@ -307,6 +307,7 @@ function eventSetting(){
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
             }else{
+                console.log(res.dirs); // TODO: ここまで来たら左サイドバーをリセット及びリストを新規作成する
                 setStatusBarMessage(`open project: [ ${res.pwd} ]`)
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
