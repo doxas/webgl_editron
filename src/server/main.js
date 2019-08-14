@@ -121,6 +121,19 @@ function createMainWindow(){
             evt.sender.send('localserverclosed', 'not running server');
         }
     });
+    ipcMain.on('saveproject', (evt, arg) => {
+        if(arg == null || arg.hasOwnProperty('fullPath') !== true || arg.hasOwnProperty('data') !== true){
+            evt.sender.send('savefile', {err: 'invalid data'});
+        }else{
+            util.saveFiles(arg.fullPath, arg.data)
+            .then(() => {
+                evt.sender.send('savefile', 'success');
+            })
+            .catch((err) => {
+                evt.sender.send('savefile', {err: 'save file failed'});
+            });
+        }
+    });
 
     if(IS_DEVELOPMENT === true){
         connectClient = connect.client.create(mainWindow);

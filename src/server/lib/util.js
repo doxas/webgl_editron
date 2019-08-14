@@ -155,5 +155,52 @@ export default class Util {
             });
         });
     }
+
+    // target 以下に data をファイルとして保存する。
+    static saveFiles(target, data){
+        let files = [
+            {name: 'html', file: 'index.html'},
+            {name: 'js',   file: 'script.js'},
+            {name: 'vs1',  file: 'vs1.vert'},
+            {name: 'fs1',  file: 'fs1.frag'},
+            {name: 'vs2',  file: 'vs2.vert'},
+            {name: 'fs2',  file: 'fs2.frag'},
+        ];
+        let promises = [];
+        let writePromises = [];
+        return new Promise((resolve, reject) => {
+            files.forEach((v, index) => {
+                promises.push(new Promise((res, rej) => {
+                    let filePath = path.join(target, v.file);
+                    fs.stat(filePath, (err, stat) => {
+                        if(err != null || stat.isFile() !== true){
+                            rej(err);
+                        }else{
+                            writePromises.push(new Promise((writeResolve, writeReject) => {
+                                fs.writeFile(filePath, data[v.name], (err) => {
+                                    if(err != null){
+                                        writeReject(err);
+                                    }else{
+                                        writeResolve();
+                                    }
+                                });
+                            }));
+                            res();
+                        }
+                    });
+                }));
+                Promise.all(promises)
+                .then(() => {
+                    return Promise.all(writePromises);
+                })
+                .then(() => {
+                    resolve();
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+            });
+        });
+    }
 }
 
