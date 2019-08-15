@@ -137,18 +137,18 @@ function windowSetting(){
                         });
                     }
                     break;
-                case ',':
-                case '≤':
-                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                case '-':
+                case '_':
+                    if(evt.ctrlKey === true || evt.metaKey === true){
                         --fontSize;
                         pages.forEach((v, index) => {
                             v.style.fontSize = `${fontSize}px`;
                         });
                     }
                     break;
-                case '.':
-                case '≥':
-                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                case '=':
+                case '+':
+                    if(evt.ctrlKey === true || evt.metaKey === true){
                         ++fontSize;
                         pages.forEach((v, index) => {
                             v.style.fontSize = `${fontSize}px`;
