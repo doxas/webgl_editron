@@ -177,7 +177,7 @@ export default class Util {
                             rej(err);
                         }else{
                             writePromises.push(new Promise((writeResolve, writeReject) => {
-                                fs.writeFile(filePath, data[v.name], (err) => {
+                                fs.writeFile(filePath, data[v.name].data, (err) => {
                                     if(err != null){
                                         writeReject(err);
                                     }else{
