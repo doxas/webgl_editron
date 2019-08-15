@@ -29,6 +29,7 @@ const EDITOR_OPTION = {
     useSoftTabs: true,
     navigateWithinSoftTabs: true,
     vScrollBarAlwaysVisible: true,
+    autoScrollEditorIntoView: true,
     highlightGutterLine: true,
     showPrintMargin: false,
     printMargin: false,
@@ -152,10 +153,19 @@ function initialSetting(){
         let split = new Component.Splitter(container, true);
         split.first.setAttribute('id', 'first');
         split.second.setAttribute('id', 'second');
-        split.on('change', (arg) => {console.log(arg);});
+        split.on('change', (arg) => {
+            editors.forEach((v) => {
+                v.resize();
+            });
+        });
 
         let titles = editorMode.map((v) => {return v.title});
         let tabStrip = new Component.TabStrip(split.second, titles, 0);
+        tabStrip.on('change', () => {
+            editors.forEach((v) => {
+                v.resize();
+            });
+        });
         pages = tabStrip.getAllPage();
 
         let vsplit = new Component.Splitter(split.first, false, 0.2);

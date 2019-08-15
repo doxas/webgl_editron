@@ -282,6 +282,7 @@ class TabStrip extends Emitter {
                     this.tabs[i].update(idx === i);
                     this.inners[i].update(idx === i);
                 });
+                this.emit('change', idx);
             });
             this.tabs.push(item);
             let block = new Block(this.innerBlock, index, this.index === index);
