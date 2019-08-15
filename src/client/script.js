@@ -257,6 +257,7 @@ function initialSetting(){
         });
         let openFolderIcon = document.createElement('img');
         openFolderIcon.setAttribute('id', 'open');
+        openFolderIcon.setAttribute('title', 'プロジェクトを開く');
         openFolderIcon.src = './image/folder_plus.svg';
         util.appendStyle(openFolderIcon, {
             width: `${ICON_SIZE}px`,
@@ -274,6 +275,7 @@ function initialSetting(){
         });
         let closeFolderIcon = document.createElement('img');
         closeFolderIcon.setAttribute('id', 'close');
+        closeFolderIcon.setAttribute('title', 'プロジェクトを閉じる');
         closeFolderIcon.src = './image/folder_minus.svg';
         util.appendStyle(closeFolderIcon, {
             width: `${ICON_SIZE}px`,
@@ -291,6 +293,7 @@ function initialSetting(){
         });
         let playIcon = document.createElement('img');
         playIcon.setAttribute('id', 'play');
+        playIcon.setAttribute('title', 'ソースコードを保存しプレビューを更新 (Ctrl+s or Command+s)');
         playIcon.src = './image/play.svg';
         util.appendStyle(playIcon, {
             width: `${ICON_SIZE}px`,
@@ -308,6 +311,7 @@ function initialSetting(){
         });
         let stopIcon = document.createElement('img');
         stopIcon.setAttribute('id', 'stop');
+        stopIcon.setAttribute('title', 'プレビューを停止');
         stopIcon.src = './image/stop.svg';
         util.appendStyle(stopIcon, {
             width: `${ICON_SIZE}px`,
