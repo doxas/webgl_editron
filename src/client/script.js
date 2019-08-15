@@ -1,5 +1,5 @@
 
-import {ipcRenderer} from 'electron';
+import {ipcRenderer, webFrame} from 'electron';
 import util from './lib/util.js';
 import Component from './lib/component.js';
 
@@ -115,12 +115,14 @@ function windowSetting(){
                         saveEditorSource();
                     }
                     break;
+                case 'i':
                 case 'I':
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         ipcRenderer.send('opendevtools', {});
                     }
                     break;
                 case 'b':
+                case '∫':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
                         dark = !dark;
                         editors.forEach((v, index) => {
@@ -133,6 +135,7 @@ function windowSetting(){
                     }
                     break;
                 case ',':
+                case '≤':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
                         --fontSize;
                         pages.forEach((v, index) => {
@@ -141,6 +144,7 @@ function windowSetting(){
                     }
                     break;
                 case '.':
+                case '≥':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
                         ++fontSize;
                         pages.forEach((v, index) => {
