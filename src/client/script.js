@@ -387,9 +387,7 @@ function eventSetting(){
     stop.addEventListener('click', () => {
         clearFrame();
         setStatusBarMessage('clear');
-        setStatusBarIcon('#windowinterfacestatusfile', 'red', false, '');
-        setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
-        setStatusBarIcon('#windowinterfacestatusfile', 'green', true, 'clear frame');
+        setStatusBarIcon('#windowinterfacestatusfile', 'green', false, 'clear frame');
     });
 }
 
@@ -545,6 +543,7 @@ function saveEditorSource(){
 }
 
 function setFrameSource(index){
+    clearFrame();
     let frame = document.querySelector('#frame');
     frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[index].dirName}`;
 }
