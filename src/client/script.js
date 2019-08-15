@@ -322,46 +322,77 @@ function eventSetting(){
     let stop  = document.querySelector('#stop');
 
     open.addEventListener('click', () => {
-        if(latestResponse != null){
-            if(latestActive != null && items[latestActive].changes === true){
-                let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを開いてよろしいですか？');
-                if(res !== true){return;}
-            }
+        if(latestResponse != null && latestActive != null && items[latestActive].changes === true){
+            let message = 'ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを開いてよろしいですか？';
+            nativeDialog('info', message)
+            .then((res) => {
+                if(res > 0){
+                    nativeOpenDirectory();
+                }
+            });
+        }else{
+            nativeOpenDirectory();
         }
-        ipcRenderer.once('localserverrunning', (arg, res) => {
-            if(res === false){
-                setStatusBarMessage('cancel on project open dialog');
-            }else if(res.hasOwnProperty('err') === true){
+    }, false);
+    close.addEventListener('click', () => {
+        if(latestResponse != null && latestActive != null && items[latestActive].changes === true){
+            let message = 'ソースコードの変更後、一度も実行していない変更は破棄されます。\n現在のプロジェクトを閉じてよろしいですか？';
+            nativeDialog('info', message)
+            .then((res) => {
+                if(res > 0){
+                    nativeCloseServer();
+                }
+            });
+        }else{
+            nativeCloseServer();
+        }
+    }, false);
+    play.addEventListener('click', () => {
+        saveEditorSource();
+    });
+}
+
+function nativeDialog(title, message, buttons){
+    return new Promise((resolve) => {
+        ipcRenderer.once('nativedialog', (arg, res) => {
+            resolve(res);
+        });
+        ipcRenderer.send('nativedialog', {title: title, message: message, buttons: buttons});
+    });
+}
+
+function nativeOpenDirectory(){
+    ipcRenderer.once('localserverrunning', (arg, res) => {
+        if(res === false){
+            setStatusBarMessage('cancel on project open dialog');
+        }else if(res.hasOwnProperty('err') === true){
+            setStatusBarMessage(`Error: ${res.err}`);
+            setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
+            setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
+            setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
+        }else{
+            if(Array.isArray(res.dirs) !== true || res.dirs.length === 0){
                 setStatusBarMessage(`Error: ${res.err}`);
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
-            }else{
-                if(Array.isArray(res.dirs) !== true || res.dirs.length === 0){
-                    setStatusBarMessage(`Error: ${res.err}`);
-                    setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
-                    setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
-                    setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
-                    return;
-                }
-                setStatusBarMessage(`open project: [ ${res.pwd} ]`)
-                setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
-                setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
-                setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');
-                clearFrame();
-                clearList();
-                clearEditor();
-                let left = document.querySelector('#listblock');
-                items = [];
-                latestResponse = res;
-                latestResponse.dirs.forEach((v, index) => {
-                    let item = new Component.Item(left, index, v.dirName, false);
-                    items[index] = item;
-                    item.on('click', (idx) => {
-                        if(latestActive != null && idx !== latestActive && items[latestActive].changes === true){
-                            let cfm = confirm(`現在のソースコード[ ${latestResponse.dirs[latestActive].dirName} ]に変更が加えられています。\n[ ${latestResponse.dirs[idx].dirName} ] を読み込むとその変更は破棄されます。読み込みを開始してよろしいですか？`);
-                            if(cfm !== true){return;}
-                        }
+                return;
+            }
+            setStatusBarMessage(`open project: [ ${res.pwd} ]`)
+            setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
+            setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
+            setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');
+            clearFrame();
+            clearList();
+            clearEditor();
+            let left = document.querySelector('#listblock');
+            items = [];
+            latestResponse = res;
+            latestResponse.dirs.forEach((v, index) => {
+                let item = new Component.Item(left, index, v.dirName, false);
+                items[index] = item;
+                item.on('click', (idx) => {
+                    const update = () => {
                         latestActive = idx;
                         setEditorSource(latestResponse.dirs[idx].data);
                         items.forEach((w, i) => {
@@ -370,31 +401,34 @@ function eventSetting(){
                         item.update(true, false);
                         setFrameSource(idx);
                         setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
-                    });
+                    };
+                    if(latestActive != null && idx !== latestActive && items[latestActive].changes === true){
+                        let message = `現在のソースコード[ ${latestResponse.dirs[latestActive].dirName} ]に変更が加えられています。\n[ ${latestResponse.dirs[idx].dirName} ] を読み込むとその変更は破棄されます。読み込みを開始してよろしいですか？`;
+                        nativeDialog('info', message)
+                        .then((res) => {
+                            if(res > 0){
+                                update();
+                            }
+                        });
+                    }else{
+                        update();
+                    }
                 });
-            }
-        });
-        ipcRenderer.send('opendirectory');
-    }, false);
-    close.addEventListener('click', () => {
-        if(latestResponse != null){
-            if(latestActive != null && items[latestActive].changes === true){
-                let res = confirm('ソースコードの変更後、一度も実行していない変更は破棄されます。\n現在のプロジェクトを閉じてよろしいですか？');
-                if(res !== true){return;}
-            }
+            });
         }
-        ipcRenderer.once('localserverclosed', (arg, res) => {
-            clearFrame();
-            clearList();
-            clearEditor();
-            setStatusBarMessage(`local server closed`)
-            setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
-        });
-        ipcRenderer.send('closelocalserver');
-    }, false);
-    play.addEventListener('click', () => {
-        saveEditorSource();
     });
+    ipcRenderer.send('opendirectory');
+}
+
+function nativeCloseServer(){
+    ipcRenderer.once('localserverclosed', (arg, res) => {
+        clearFrame();
+        clearList();
+        clearEditor();
+        setStatusBarMessage(`local server closed`)
+        setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
+    });
+    ipcRenderer.send('closelocalserver');
 }
 
 function clearFrame(){
