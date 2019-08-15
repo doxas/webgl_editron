@@ -23,6 +23,9 @@ export default class Component {
     }
 }
 
+/**
+ * 簡易的なイベントエミッタ
+ */
 class Emitter {
     constructor(){
         this.listeners = {};
@@ -40,7 +43,15 @@ class Emitter {
     }
 }
 
+/**
+ * DOM を分割するスプリッタ
+ */
 class Splitter extends Emitter {
+    /**
+     * @param {HTMLElement} parentDOM - スプリッタを包含する親要素
+     * @param {boolean} [horizontal=true] - 水平分割かどうか
+     * @param {number} [ratio=0.5] - 分割時の最初の領域の割合い（0.0 ~ 1.0）
+     */
     constructor(parentDOM, horizontal = true, ratio = 0.5){
         super();
         this.parentDOM = parentDOM;
@@ -155,6 +166,9 @@ class Splitter extends Emitter {
     }
 }
 
+/**
+ * タブのタイトル部分
+ */
 class Tab extends Emitter {
     static get ACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgb(${TABSTRIP_COLOR.join(',')})`;}
     static get DEACTIVE(){return `${TABSTRIP_TAB_LINE_WIDTH}px solid rgba(${TABSTRIP_COLOR.join(',')},0.3)`;}
@@ -209,6 +223,9 @@ class Tab extends Emitter {
     }
 }
 
+/**
+ * タブのページ部分
+ */
 class Block extends Emitter {
     constructor(parentDOM, index, isActive = false){
         super();
@@ -239,7 +256,15 @@ class Block extends Emitter {
     }
 }
 
+/**
+ * タブストリップ
+ */
 class TabStrip extends Emitter {
+    /**
+     * @param {HTMLElement} parentDOM - スプリッタを包含する親要素
+     * @param {Array.<string>} tabs - タブのタイトル部分に設定する文字列の配列
+     * @param {number} selectedIndex - アクティブにするタブのインデックス
+     */
     constructor(parentDOM, tabs, selectedIndex){
         super();
         this.parentDOM = parentDOM;
@@ -303,7 +328,16 @@ class TabStrip extends Emitter {
     }
 }
 
+/**
+ * サイドバーにあるソースコードリストのアイテム
+ */
 class Item extends Emitter {
+    /**
+     * @param {HTMLElement} parentDOM - スプリッタを包含する親要素
+     * @param {number} index - 該当アイテムのインデックス
+     * @param {string} title - 該当アイテムに表記する文字列
+     * @param {boolean} isActive - 該当アイテムがアクティブかどうか
+     */
     constructor(parentDOM, index, title, isActive){
         super();
         this.parentDOM = parentDOM;

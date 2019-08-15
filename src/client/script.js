@@ -4,11 +4,12 @@ import util from './lib/util.js';
 import Component from './lib/component.js';
 
 let macos = process.platform === 'darwin';
-let latestResponse = null;
-let latestActive = null;
-let items = [];
-let pages = [];
-let editors = [];
+let latestResponse = null; // サーバからのレスポンス（ファイル情報などを含む）
+let latestActive   = null; // ユーザーがアクティブにしたソースコードのインデックス
+let items          = [];   // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
+let pages          = [];   // エディタを格納するページ DOM
+let editors        = [];   // エディタ
+// mode: Ace に設定するモード, name: サーバからのレスポンスとのマッチに使う名前, title: タブの表記
 let editorMode = [
     {mode: 'html',       name: 'html', title: 'HTML'},
     {mode: 'javascript', name: 'js',   title: 'js'},
@@ -18,12 +19,13 @@ let editorMode = [
     {mode: 'glsl',       name: 'fs2',  title: 'frag(2)'},
 ];
 
-const FONT_SIZE = 16;
-const LIGHT_THEME = 'ace/theme/tomorrow';
-const DARK_THEME = 'ace/theme/tomorrow_night_bright';
-const BUTTON_BLOCK_HEIGHT = 32;
-const ICON_SIZE = 16;
-const ICON_MARGIN = '8px 7px';
+const FONT_SIZE           = 16;                                // 基本のフォントサイズ
+const LIGHT_THEME         = 'ace/theme/tomorrow';              // ライト・テーマ
+const DARK_THEME          = 'ace/theme/tomorrow_night_bright'; // ダーク・テーマ
+const BUTTON_BLOCK_HEIGHT = 32;                                // ボタン領域の高さ
+const ICON_SIZE           = 16;                                // ボタンの大きさ
+const ICON_MARGIN         = '8px 7px';                         // ボタンの余白
+// Ace に設定するオプション
 const EDITOR_OPTION = {
     highlightActiveLine: true,
     highlightSelectedWord: true,
@@ -44,17 +46,22 @@ const EDITOR_OPTION = {
     enableLiveAutocompletion: true,
 };
 
+// DOM Content Loaded でフロント側の設定等を開始する
 window.addEventListener('DOMContentLoaded', () => {
+    // このウィンドウに関する全体の設定
     windowSetting()
     .then(() => {
+        // 初期化（主に DOM の生成）
         return initialSetting();
     })
     .then(() => {
+        // Ace の設定関連
         return editorSetting();
     })
     .then(() => {
+        // イベント処理
         eventSetting();
-
+        // ステータスバーを更新して準備完了
         setStatusBarMessage('📐: welcome editron');
         setStatusBarIcon(
             '#windowinterfacestatuseditron',
@@ -64,11 +71,21 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 }, false);
 
+/**
+ * @param {string} text - 設定するテキスト
+ */
 function setStatusBarMessage(text){
     let message = document.querySelector('#windowinterfacestatusmessage');
     message.textContent = text;
 }
 
+/**
+ * ステータスバーの右側にあるアイコンの更新を行う
+ * @param {string} targetId - 対象となる DOM の ID
+ * @param {string} stat - green, yellow, red
+ * @param {boolean} add - stat で指定された色を設定するか、解除するか
+ * @param {string} title - title 属性に設定する文字列
+ */
 function setStatusBarIcon(targetId, stat, add, title){
     let icon = document.querySelector(targetId);
     if(add === true){
@@ -79,9 +96,13 @@ function setStatusBarIcon(targetId, stat, add, title){
     icon.setAttribute('title', title);
 }
 
+/**
+ * @return {Promise}
+ */
 function windowSetting(){
     let fontSize = FONT_SIZE;
     let dark = true;
+    // Electron 自体のズームは行われないように設定する
     webFrame.setZoomFactor(1);
     webFrame.setVisualZoomLevelLimits(1, 1);
     webFrame.setLayoutZoomLevelLimits(0, 0);
@@ -111,6 +132,7 @@ function windowSetting(){
         }
         // footer
         let footer = document.body.querySelector('#windowinterfacefooter');
+        // window level event
         window.addEventListener('resize', () => {
             if(editors == null || Array.isArray(editors) !== true){return;}
             editors.forEach((v) => {
@@ -119,17 +141,23 @@ function windowSetting(){
         }, false);
         window.addEventListener('keydown', (evt) => {
             switch(evt.key){
+                // 保存および更新
                 case 's':
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         saveEditorSource();
                     }
                     break;
+                // 開発者ツール
                 case 'i':
                 case 'I':
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         ipcRenderer.send('opendevtools', {});
                     }
                     break;
+                case 'F12':
+                    ipcRenderer.send('opendevtools', {});
+                    break;
+                // テーマの反転
                 case 'b':
                 case '∫':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
@@ -143,6 +171,7 @@ function windowSetting(){
                         });
                     }
                     break;
+                // フォントサイズ減
                 case '-':
                 case '_':
                     if(evt.ctrlKey === true || evt.metaKey === true){
@@ -152,6 +181,7 @@ function windowSetting(){
                         });
                     }
                     break;
+                // フォントサイズ増
                 case '=':
                 case '+':
                     if(evt.ctrlKey === true || evt.metaKey === true){
@@ -161,13 +191,11 @@ function windowSetting(){
                         });
                     }
                     break;
-                case 'F12':
-                    ipcRenderer.send('opendevtools', {});
-                    break;
                 default:
                     break;
             }
         }, false);
+        // 最後にタイトルを更新
         ipcRenderer.on('settitledom', (evt, arg) => {
             ttl.textContent = arg;
             resolve();
@@ -177,8 +205,12 @@ function windowSetting(){
     });
 }
 
+/**
+ * @return {Promise}
+ */
 function initialSetting(){
     return new Promise((resolve) => {
+        // 上下を分けるスプリッタ
         let container = document.querySelector('#container');
         let split = new Component.Splitter(container, true);
         split.first.setAttribute('id', 'first');
@@ -188,7 +220,7 @@ function initialSetting(){
                 v.resize();
             });
         });
-
+        // タブストリップ
         let titles = editorMode.map((v) => {return v.title});
         let tabStrip = new Component.TabStrip(split.second, titles, 0);
         tabStrip.on('change', () => {
@@ -197,16 +229,15 @@ function initialSetting(){
             });
         });
         pages = tabStrip.getAllPage();
-
+        // 上段を左右に分けるスプリッタ
         let vsplit = new Component.Splitter(split.first, false, 0.2);
         vsplit.first.setAttribute('id', 'vfirst');
         vsplit.second.setAttribute('id', 'vsecond');
-        vsplit.on('change', (arg) => {console.log(arg);});
-
+        // プレビュー用の iframe
         let frame = document.createElement('iframe');
         frame.setAttribute('id', 'frame');
         vsplit.second.appendChild(frame);
-
+        // 上段左サイドバー
         let leftBlock = document.createElement('div');
         util.appendStyle(leftBlock, {
             width: '100%',
@@ -300,7 +331,7 @@ function initialSetting(){
             display: 'flex',
             flexDirection: 'column',
         });
-
+        // appending
         vsplit.first.appendChild(leftBlock);
         leftBlock.appendChild(buttonBlock);
         leftBlock.appendChild(listBlock);
@@ -313,8 +344,12 @@ function initialSetting(){
     });
 }
 
+/**
+ * @return {Promise}
+ */
 function editorSetting(){
     return new Promise((resolve) => {
+        // タブの各ページにエディタを配置し初期化する
         pages.forEach((v, index) => {
             let editor = ace.edit(v.id);
             editor.$blockScrolling = Infinity;
@@ -325,11 +360,13 @@ function editorSetting(){
 
             // event setting
             let vimMode = false;
+            // 諸事情により Command + L は封印する
             editor.commands.addCommand({
                 name: 'disableCtrl-L',
                 bindKey: {win: 'Ctrl-L', mac: 'Command-L'},
                 exec: () => {},
             });
+            // vim のキーバインドに変更
             editor.commands.addCommand({
                 name: 'toggleVimMode',
                 bindKey: {win: 'Ctrl-Alt-V', mac: 'Command-Alt-V'},
@@ -342,6 +379,8 @@ function editorSetting(){
                     vimMode = !vimMode;
                 },
             });
+
+            // 変更があったことを検出して左サイドバーのリスト上にインジケータを出すための処理
             editor.session.on('change', () => {
                 if(latestResponse != null && latestActive != null && latestResponse.dirs[latestActive] != null){
                     latestResponse.dirs[latestActive].changes = true;
@@ -351,17 +390,20 @@ function editorSetting(){
 
             editors.push(editor);
         });
+
         resolve();
     });
 }
 
 function eventSetting(){
+    // 左サイドバー上のボタン類に対するイベントを設定する
     let open  = document.querySelector('#open');
     let close = document.querySelector('#close');
     let play  = document.querySelector('#play');
     let stop  = document.querySelector('#stop');
 
     open.addEventListener('click', () => {
+        // 変更済みのソースコードがある場合、開く前に尋ねる
         if(latestResponse != null && latestActive != null && items[latestActive].changes === true){
             let message = 'ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを開いてよろしいですか？';
             nativeDialog('info', message)
@@ -375,6 +417,7 @@ function eventSetting(){
         }
     }, false);
     close.addEventListener('click', () => {
+        // 変更済みのソースコードがある場合、閉じてしまう前に尋ねる
         if(latestResponse != null && latestActive != null && items[latestActive].changes === true){
             let message = 'ソースコードの変更後、一度も実行していない変更は破棄されます。\n現在のプロジェクトを閉じてよろしいですか？';
             nativeDialog('info', message)
@@ -388,15 +431,24 @@ function eventSetting(){
         }
     }, false);
     play.addEventListener('click', () => {
+        // Command + s と同等
         saveEditorSource();
     });
     stop.addEventListener('click', () => {
+        // iframe の中身だけをリセットする
         clearFrame();
         setStatusBarMessage('clear');
         setStatusBarIcon('#windowinterfacestatusfile', 'green', false, 'clear frame');
     });
 }
 
+/**
+ * Electron を経由してネイティブ（かつモーダル）なダイアログを出す
+ * @param {string} title - タイトル
+ * @param {string} message - ダイアログのメッセージ本文
+ * @param {Array.<string>} [buttons] - 省略時は OK, cancel になる
+ *
+ */
 function nativeDialog(title, message, buttons){
     return new Promise((resolve) => {
         ipcRenderer.once('nativedialog', (arg, res) => {
@@ -406,16 +458,26 @@ function nativeDialog(title, message, buttons){
     });
 }
 
+/**
+ * ローカルのディレクトリを開くダイアログを出し、結果によってはそれを開いたあと
+ * 読み込んだファイルの情報一覧と共に情報が返される。このとき、ファイルの情報が
+ * 得られた場合はサーバ実装側でローカルサーバを起動している。
+ * ポート番号はレスポンスに含まれるため、iframe には `http://localhost:port/dirname`
+ * のように URL を指定することができる。
+ */
 function nativeOpenDirectory(){
     ipcRenderer.once('localserverrunning', (arg, res) => {
         if(res === false){
+            // キャンセルされた場合
             setStatusBarMessage('cancel on project open dialog');
         }else if(res.hasOwnProperty('err') === true){
+            // 何かしらのエラー
             setStatusBarMessage(`Error: ${res.err}`);
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
         }else{
+            // レスポンスの内容を確認
             if(Array.isArray(res.dirs) !== true || res.dirs.length === 0){
                 setStatusBarMessage(`Error: ${res.err}`);
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
@@ -427,6 +489,7 @@ function nativeOpenDirectory(){
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');
+            // 開く前にすべてをリセット
             clearFrame();
             clearList();
             clearEditor();
@@ -450,6 +513,7 @@ function nativeOpenDirectory(){
                         setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
                         setStatusBarIcon('#windowinterfacestatusfile', 'green', true, 'start success');
                     };
+                    // ソースコードに変更が加えられているかどうかなどにより分岐する
                     if(latestActive != null && idx !== latestActive && items[latestActive].changes === true){
                         let message = `現在のソースコード[ ${latestResponse.dirs[latestActive].dirName} ]に変更が加えられています。\n[ ${latestResponse.dirs[idx].dirName} ] を読み込むとその変更は破棄されます。読み込みを開始してよろしいですか？`;
                         nativeDialog('info', message)
@@ -478,6 +542,9 @@ function nativeOpenDirectory(){
     ipcRenderer.send('opendirectory');
 }
 
+/**
+ * サーバ実装側で起動したローカルサーバを停止する
+ */
 function nativeCloseServer(){
     ipcRenderer.once('localserverclosed', (arg, res) => {
         clearFrame();
@@ -489,11 +556,17 @@ function nativeCloseServer(){
     ipcRenderer.send('closelocalserver');
 }
 
+/**
+ * iframe の中身をクリアする
+ */
 function clearFrame(){
     let frame = document.querySelector('#frame');
     frame.src = 'about:blank';
 }
 
+/**
+ * 左サイドバー上のディレクトリ名一覧を削除する
+ */
 function clearList(){
     let left = document.querySelector('#listblock');
     while(left.children.length > 0){
@@ -501,6 +574,9 @@ function clearList(){
     }
 }
 
+/**
+ * エディタの中身をすべてクリアする
+ */
 function clearEditor(){
     latestResponse = null;
     latestActive = null;
@@ -509,6 +585,9 @@ function clearEditor(){
     });
 }
 
+/**
+ * レスポンスの情報をエディタに反映する
+ */
 function setEditorSource(data){
     editorMode.forEach((v, index) => {
         for(let name in data){
@@ -520,6 +599,9 @@ function setEditorSource(data){
     });
 }
 
+/**
+ * エディタの情報をレスポンスに反映したのちサーバにプッシュし物理的にファイルを保存する
+ */
 function saveEditorSource(){
     if(latestResponse == null || latestActive == null){return;}
     editorMode.forEach((v, index) => {
@@ -548,6 +630,9 @@ function saveEditorSource(){
     ipcRenderer.send('saveproject', latestResponse.dirs[latestActive]);
 }
 
+/**
+ * iframe に URL を設定しロードする
+ */
 function setFrameSource(index){
     clearFrame();
     let frame = document.querySelector('#frame');

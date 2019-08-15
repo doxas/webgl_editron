@@ -3,11 +3,14 @@ import fs from 'fs';
 import path from 'path';
 
 export default class Util {
-    // target に指定されたパスを開き、ディレクトリが見つかったらその中身をチェックするため
-    // Util.checkFiles を実行する。このとき resolve が受け取っている res には対象となる
-    // 子ディレクトリの名前や、各ファイルの中身の文字列が含まれる。
+    /**
+     * target に指定されたパスを開き、ディレクトリが見つかったらその中身をチェックするため
+     * Util.checkFiles を実行する。このとき resolve が受け取っている res には対象となる
+     * 子ディレクトリの名前や、各ファイルの中身の文字列が含まれる。
+     */
     static checkDirectories(target){
         return new Promise((resolve, reject) => {
+            // 該当ディレクトリをすべて走査
             fs.readdir(target, (err, files) => {
                 if(err != null || Array.isArray(files) !== true || files.length === 0){
                     reject(err);
@@ -20,6 +23,7 @@ export default class Util {
                     statPromises.push(new Promise((res) => {
                         fs.stat(dirPath, (err, stat) => {
                             if(err == null && stat.isDirectory() === true){
+                                // ディレクトリが見つかった場合中身を調べる
                                 promises.push(Util.checkFiles(dirPath, v));
                             }
                             res();
@@ -33,6 +37,8 @@ export default class Util {
                     }else{
                         Promise.all(promises)
                         .then((res) => {
+                            // 取得した対象ディレクトリは非同期で処理されるので
+                            // 必ずしも名前順に並んでいないためソートしてから返す
                             res.sort((a, b) => {
                                 if(a.dirName < b.dirName){
                                     return -1;
@@ -52,8 +58,10 @@ export default class Util {
             });
         });
     }
-    // target に指定されたパスを開き、その中身が必要なファイル構成になっているかをチェックする。
-    // このとき正しいファイル構成である場合は各ファイルを開いて一覧にしてから解決する。
+    /**
+     * target に指定されたパスを開き、その中身が必要なファイル構成になっているかをチェックする。
+     * このとき正しいファイル構成である場合は各ファイルを開いて一覧にしてから解決する。
+     */
     static checkFiles(target, dirname){
         return new Promise((resolve, reject) => {
             fs.readdir(target, (err, files) => {
@@ -165,7 +173,9 @@ export default class Util {
         });
     }
 
-    // target 以下に data をファイルとして保存する。
+    /**
+     * target 以下に data をファイルとして保存する。
+     */
     static saveFiles(target, data){
         let files = [
             {name: 'html', file: 'index.html'},

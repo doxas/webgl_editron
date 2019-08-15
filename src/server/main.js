@@ -24,9 +24,9 @@ const MAIN_WINDOW_PARAMETER = {
 if(macos === true){MAIN_WINDOW_PARAMETER.titleBarStyle = 'hidden';}
 
 // variables ==================================================================
-let mainWindow;    // main window
-let connectClient; // connector from electron-connect for client
-let connectApp = local();
+let mainWindow;           // main window
+let connectClient;        // connector from electron-connect for client
+let connectApp = local(); // connect package
 let server = null;
 
 // app events =================================================================
@@ -50,6 +50,7 @@ app.on('window-all-closed', () => {
     mainWindow = null;
     if(server != null){
         server.close();
+        server = null;
         console.log('local server closed');
     }
     app.quit();
@@ -106,6 +107,7 @@ function createMainWindow(){
                 .then((dirnames) => {
                     if(server != null){
                         server.close();
+                        server = null;
                     }
                     connectApp.use(serveStatic(res[0]));
                     server = http.createServer(connectApp);
@@ -126,6 +128,7 @@ function createMainWindow(){
     ipcMain.on('closelocalserver', (evt, arg) => {
         if(server != null){
             server.close();
+            server = null;
             console.log('local server closed');
             evt.sender.send('localserverclosed', 'success');
         }else{
