@@ -33,7 +33,6 @@ export default class Util {
                     }else{
                         Promise.all(promises)
                         .then((res) => {
-                            console.log(res);
                             res.sort((a, b) => {
                                 if(a.dirName < b.dirName){
                                     return -1;
