@@ -83,6 +83,15 @@ function createMainWindow(){
         evt.sender.send('settitledom', arg);
     });
 
+    ipcMain.on('nativedialog', (evt, arg) => {
+        dialog.showMessageBox(mainWindow, {
+            title: arg.title,
+            message: arg.message,
+            buttons: arg.buttons || ['cancel', 'ok']
+        }, (res) => {
+            evt.sender.send('nativedialog', res);
+        });
+    });
     ipcMain.on('opendirectory', (evt, arg) => {
         dialog.showOpenDialog(mainWindow, {
             title: 'open editron project',
