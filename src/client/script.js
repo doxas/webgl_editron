@@ -82,6 +82,9 @@ function setStatusBarIcon(targetId, stat, add, title){
 function windowSetting(){
     let fontSize = FONT_SIZE;
     let dark = true;
+    webFrame.setZoomFactor(1);
+    webFrame.setVisualZoomLevelLimits(1, 1);
+    webFrame.setLayoutZoomLevelLimits(0, 0);
     return new Promise((resolve) => {
         // header
         let ttl = document.body.querySelector('#windowinterfacetitle');
