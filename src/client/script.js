@@ -30,6 +30,7 @@ const EDITOR_OPTION = {
     navigateWithinSoftTabs: true,
     vScrollBarAlwaysVisible: true,
     autoScrollEditorIntoView: true,
+    scrollPastEnd: 1.0,
     highlightGutterLine: true,
     showPrintMargin: false,
     printMargin: false,
