@@ -350,6 +350,13 @@ function eventSetting(){
     play.addEventListener('click', () => {
         saveEditorSource();
     });
+    stop.addEventListener('click', () => {
+        clearFrame();
+        setStatusBarMessage('clear');
+        setStatusBarIcon('#windowinterfacestatusfile', 'red', false, '');
+        setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
+        setStatusBarIcon('#windowinterfacestatusfile', 'green', true, 'clear frame');
+    });
 }
 
 function nativeDialog(title, message, buttons){
@@ -401,6 +408,9 @@ function nativeOpenDirectory(){
                         item.update(true, false);
                         setFrameSource(idx);
                         setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
+                        setStatusBarIcon('#windowinterfacestatusfile', 'red', false, '');
+                        setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
+                        setStatusBarIcon('#windowinterfacestatusfile', 'green', true, 'start success');
                     };
                     if(latestActive != null && idx !== latestActive && items[latestActive].changes === true){
                         let message = `現在のソースコード[ ${latestResponse.dirs[latestActive].dirName} ]に変更が加えられています。\n[ ${latestResponse.dirs[idx].dirName} ] を読み込むとその変更は破棄されます。読み込みを開始してよろしいですか？`;
@@ -411,7 +421,17 @@ function nativeOpenDirectory(){
                             }
                         });
                     }else{
-                        update();
+                        if(idx === latestActive && items[latestActive].changes === true){
+                            // 現在のソースに変更が加えられているときに現在のソースを選択した場合
+                            // フレームだけを更新してリスト等は操作しない
+                            setFrameSource(idx);
+                            setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
+                            setStatusBarIcon('#windowinterfacestatusfile', 'red', false, '');
+                            setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
+                            setStatusBarIcon('#windowinterfacestatusfile', 'green', true, 'start success');
+                        }else{
+                            update();
+                        }
                     }
                 });
             });
@@ -467,7 +487,7 @@ function saveEditorSource(){
     editorMode.forEach((v, index) => {
         for(let name in latestResponse.dirs[latestActive].data){
             if(v.name === name){
-                latestResponse.dirs[latestActive].data[name] = editors[index].getValue();
+                latestResponse.dirs[latestActive].data[name] = {data: editors[index].getValue(), exists: true};
                 continue;
             }
         }
