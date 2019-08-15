@@ -219,6 +219,7 @@ function initialSetting(){
             editors.forEach((v) => {
                 v.resize();
             });
+            setFrameSize();
         });
         // タブストリップ
         let titles = editorMode.map((v) => {return v.title});
@@ -231,6 +232,9 @@ function initialSetting(){
         pages = tabStrip.getAllPage();
         // 上段を左右に分けるスプリッタ
         let vsplit = new Component.Splitter(split.first, false, 0.2);
+        vsplit.on('change', (arg) => {
+            setFrameSize();
+        });
         vsplit.first.setAttribute('id', 'vfirst');
         vsplit.second.setAttribute('id', 'vsecond');
         // プレビュー用の iframe
@@ -644,5 +648,15 @@ function setFrameSource(index){
     clearFrame();
     let frame = document.querySelector('#frame');
     frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[index].dirName}`;
+}
+
+/**
+ * iframe のサイズを設定する
+ */
+function setFrameSize(){
+    let frame = document.querySelector('#frame');
+    let bound = frame.parentElement.getBoundingClientRect();
+    frame.width = bound.width;
+    frame.height = bound.height;
 }
 
