@@ -159,10 +159,6 @@
         vMatrix      = mat4.identity(mat4.create());
         pMatrix      = mat4.identity(mat4.create());
         vpMatrix     = mat4.identity(mat4.create());
-        let aspect = canvasWidth / canvasHeight;
-        mat4.lookAt([0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], vMatrix);
-        mat4.perspective(60, aspect, 0.1, 20.0, pMatrix);
-        mat4.multiply(pMatrix, vMatrix, vpMatrix);
 
         // flags
         gl.enable(gl.BLEND);
@@ -215,6 +211,10 @@
         // draw
         gl3.sceneView(0, 0, canvasWidth, canvasHeight);
         gl3.sceneClear([0.1, 0.1, 0.1, 1.0], 1.0);
+        let aspect = canvasWidth / canvasHeight;
+        mat4.lookAt([0.0, 0.0, 5.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], vMatrix);
+        mat4.perspective(60, aspect, 0.1, 20.0, pMatrix);
+        mat4.multiply(pMatrix, vMatrix, vpMatrix);
         mainPrg.useProgram();
         mainPrg.setAttribute(VBOArray[invertIndex]);
         mainPrg.pushShader([
