@@ -111,6 +111,12 @@ function windowSetting(){
         }
         // footer
         let footer = document.body.querySelector('#windowinterfacefooter');
+        window.addEventListener('resize', () => {
+            if(editors == null || Array.isArray(editors) !== true){return;}
+            editors.forEach((v) => {
+                v.resize();
+            });
+        }, false);
         window.addEventListener('keydown', (evt) => {
             switch(evt.key){
                 case 's':
