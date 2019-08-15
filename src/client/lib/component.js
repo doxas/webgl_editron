@@ -2,7 +2,7 @@
 import util from './util.js';
 
 let macos = process.platform === 'darwin';
-const HEADER_HEIGHT = macos === true ? 0 : 36;
+const HEADER_HEIGHT = macos === true ? 22 : 36;
 const FOOTER_HEIGHT = 20;
 const SPLITTER_COLOR = [255, 20, 147];
 const SPLITTER_WIDTH = 4;
