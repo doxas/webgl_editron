@@ -65,7 +65,7 @@ class Splitter extends Emitter {
             userSelect: 'none',
         });
         util.appendStyle(this.layer, {
-            backgroundColor: `rgba(36, 32, 34, 0.8)`,
+            backgroundColor: `rgba(36, 32, 34, 0.6)`,
             width: '100%',
             height: `calc(100% - ${HEADER_HEIGHT + FOOTER_HEIGHT}px)`,
             display: 'none',
