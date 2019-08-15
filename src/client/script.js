@@ -480,6 +480,7 @@ function nativeOpenDirectory(){
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
+            nativeDialog('error', 'ソースコードの構成が正しくないためプロジェクトを開けませんでした。', ['OK']);
         }else{
             // レスポンスの内容を確認
             if(Array.isArray(res.dirs) !== true || res.dirs.length === 0){
@@ -487,6 +488,7 @@ function nativeOpenDirectory(){
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
                 setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', true, 'project open failed');
+                nativeDialog('error', 'ソースコードの構成が正しくないか不正なプロジェクトです。', ['OK']);
                 return;
             }
             setStatusBarMessage(`open project: [ ${res.pwd} ]`)
@@ -622,6 +624,7 @@ function saveEditorSource(){
             setStatusBarIcon('#windowinterfacestatusfile', 'green', false, '');
             setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
             setStatusBarIcon('#windowinterfacestatusfile', 'red', true, 'save file failed');
+            nativeDialog('error', 'ファイルを保存できませんでした。', ['OK']);
         }else{
             setStatusBarMessage(`save project: [ ${latestResponse.dirs[latestActive].dirName} ]`);
             setStatusBarIcon('#windowinterfacestatusfile', 'red', false, '');
