@@ -3,6 +3,7 @@ import {ipcRenderer} from 'electron';
 import util from './lib/util.js';
 import Component from './lib/component.js';
 
+let macos = process.platform === 'darwin';
 let latestResponse = null;
 let latestActive = null;
 let items = [];
@@ -90,6 +91,9 @@ function windowSetting(){
         min.addEventListener('click', () => {ipcRenderer.send('minimize', true);}, false)
         max.addEventListener('click', () => {ipcRenderer.send('maximize', true);}, false)
         cls.addEventListener('click', () => {ipcRenderer.send('close', true);}, false)
+        if(macos === true){
+            document.body.querySelector('#windowinterfaceheader').style.display = 'none';
+        }
         // footer
         let footer = document.body.querySelector('#windowinterfacefooter');
         window.addEventListener('keydown', (evt) => {
