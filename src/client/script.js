@@ -10,12 +10,12 @@ let items = [];
 let pages = [];
 let editors = [];
 let editorMode = [
-    {mode: 'html',       name: 'html',  title: 'HTML'},
-    {mode: 'javascript', name: 'js',    title: 'js'},
-    {mode: 'glsl',       name: 'vs1', title: 'vert(1)'},
-    {mode: 'glsl',       name: 'fs1', title: 'frag(1)'},
-    {mode: 'glsl',       name: 'vs2', title: 'vert(2)'},
-    {mode: 'glsl',       name: 'fs2', title: 'frag(2)'},
+    {mode: 'html',       name: 'html', title: 'HTML'},
+    {mode: 'javascript', name: 'js',   title: 'js'},
+    {mode: 'glsl',       name: 'vs1',  title: 'vert(1)'},
+    {mode: 'glsl',       name: 'fs1',  title: 'frag(1)'},
+    {mode: 'glsl',       name: 'vs2',  title: 'vert(2)'},
+    {mode: 'glsl',       name: 'fs2',  title: 'frag(2)'},
 ];
 
 const FONT_SIZE = 16;
@@ -88,11 +88,23 @@ function windowSetting(){
         let min = document.body.querySelector('#windowinterfacecontrollermin');
         let max = document.body.querySelector('#windowinterfacecontrollermax');
         let cls = document.body.querySelector('#windowinterfacecontrollerclose');
-        min.addEventListener('click', () => {ipcRenderer.send('minimize', true);}, false)
-        max.addEventListener('click', () => {ipcRenderer.send('maximize', true);}, false)
-        cls.addEventListener('click', () => {ipcRenderer.send('close', true);}, false)
         if(macos === true){
-            document.body.querySelector('#windowinterfaceheader').style.display = 'none';
+            let head = document.body.querySelector('#windowinterfaceheader');
+            let menu = document.body.querySelector('#windowinterfacemenuicon');
+            let ctrl = document.body.querySelector('#windowinterfacecontroller');
+            head.style.lineHeight = '22px';
+            head.style.minHeight  = '22px';
+            head.style.maxHeight  = '22px';
+            menu.style.minWidth = '4px';
+            menu.style.maxWidth = '4px';
+            ttl.style.fontSize = 'smaller';
+            ttl.style.textAlign = 'center';
+            ttl.style.padding = '0px 8px 0px 64px';
+            ctrl.style.display = 'none';
+        }else{
+            min.addEventListener('click', () => {ipcRenderer.send('minimize', true);}, false);
+            max.addEventListener('click', () => {ipcRenderer.send('maximize', true);}, false);
+            cls.addEventListener('click', () => {ipcRenderer.send('close', true);}, false);
         }
         // footer
         let footer = document.body.querySelector('#windowinterfacefooter');
