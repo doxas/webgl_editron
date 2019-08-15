@@ -9,17 +9,19 @@ import serveStatic from 'serve-static';
 import util from './lib/util.js';
 
 // constant variable ==========================================================
+let macos = process.platform === 'darwin';
 const LOCAL_PORT = 56565;
 const IS_DEVELOPMENT = __MODE__ === 'development';
 const INDEX_HTML_PATH = IS_DEVELOPMENT ? './app/client/index.html' : './client/index.html';
 const MAIN_WINDOW_PARAMETER = {
-    width: 1500,
-    height: 800,
-    frame: false,
+    width: 1400,
+    height: 750,
+    frame: macos,
     webPreferences: {
         nodeIntegration: true
     }
 };
+if(macos === true){MAIN_WINDOW_PARAMETER.titleBarStyle = 'hidden';}
 
 // variables ==================================================================
 let mainWindow;    // main window
