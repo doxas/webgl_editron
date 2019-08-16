@@ -394,7 +394,8 @@ class Item extends Emitter {
             cursor: 'pointer',
         });
         util.appendStyle(this.icon, {
-            width: '8px',
+            minWidth: '8px',
+            maxWidth: '8px',
             height: '8px',
             margin: '8px',
         });
@@ -402,7 +403,8 @@ class Item extends Emitter {
             color: 'transparent',
             fontSize: 'x-small',
             lineHeight: '8px',
-            width: '8px',
+            minWidth: '8px',
+            maxWidth: '8px',
             height: '8px',
             margin: '8px',
         });
