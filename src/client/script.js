@@ -10,6 +10,8 @@ let items          = [];    // 読み込んだプロジェクトに含まれる�
 let pages          = [];    // エディタを格納するページ DOM
 let editors        = [];    // エディタ
 let kiosk          = false; // kiosk mode
+let split          = null;  // 上下分割の Splitter
+let vsplit         = null;  // 上段の左右分割の Splitter
 // mode: Ace に設定するモード, name: サーバからのレスポンスとのマッチに使う名前, title: タブの表記
 let editorMode = [
     {mode: 'html',       name: 'html', title: 'HTML'},
@@ -217,7 +219,7 @@ function initialSetting(){
     return new Promise((resolve) => {
         // 上下を分けるスプリッタ
         let container = document.querySelector('#container');
-        let split = new Component.Splitter(container, true);
+        split = new Component.Splitter(container, true);
         split.first.setAttribute('id', 'first');
         split.second.setAttribute('id', 'second');
         split.on('change', (arg) => {
@@ -236,7 +238,7 @@ function initialSetting(){
         });
         pages = tabStrip.getAllPage();
         // 上段を左右に分けるスプリッタ
-        let vsplit = new Component.Splitter(split.first, false, 0.2);
+        vsplit = new Component.Splitter(split.first, false, 0.2);
         vsplit.on('change', (arg) => {
             setFrameSize();
         });
@@ -653,6 +655,14 @@ function setFrameSource(index){
     clearFrame();
     let frame = document.querySelector('#frame');
     frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[index].dirName}`;
+    setTimeout(() => {
+        frame.contentWindow.addEventListener('keydown', (evt) => {
+            if(evt.key === 'F11'){
+                evt.preventDefault();
+                toggleFullScreen();
+            }
+        }, false);
+    }, 1000);
 }
 
 /**
@@ -669,11 +679,10 @@ function setFrameSize(){
  * フルスクリーンモード
  */
 function toggleFullScreen(flag){
-    return new Promise((resolve) => {
+    let header = document.querySelector('#windowinterfaceheader');
+    let footer = document.querySelector('#windowinterfacefooter');
+    new Promise((resolve) => {
         ipcRenderer.once('setkiosk', (evt, arg) => {
-            if(latestResponse != null && latestActive != null){
-                setFrameSource(latestActive);
-            }
             resolve();
         });
         if(flag == null){
@@ -682,5 +691,23 @@ function toggleFullScreen(flag){
             kiosk = flag;
         }
         ipcRenderer.send('kioskmode', kiosk);
+    })
+    .then(() => {
+        if(kiosk === true){
+            header.style.display = 'none';
+            footer.style.display = 'none';
+            // 上下分割は前者を表示
+            split.show(false, true);
+            // 上段の左右分割は後者を表示
+            vsplit.show(false, false);
+        }else{
+            header.style.display = '';
+            footer.style.display = '';
+            split.show(true);
+            vsplit.show(true);
+        }
+        if(latestResponse != null && latestActive != null){
+            setFrameSource(latestActive);
+        }
     });
 }
