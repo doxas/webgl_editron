@@ -61,6 +61,7 @@ class Splitter extends Emitter {
         this.split  = document.createElement('div');
         this.second = document.createElement('div');
         this.layer  = document.createElement('div');
+        this.ratio = ratio;
         this.isDown = false;
 
         // styling
@@ -126,6 +127,7 @@ class Splitter extends Emitter {
         this.update(ratio);
     }
     update(ratio = 0.5){
+        this.ratio = ratio;
         let first = `calc(${ratio * 100}% - ${SPLITTER_WIDTH / 2}px)`;
         let second = `calc(${100 - ratio * 100}% - ${SPLITTER_WIDTH / 2}px)`;
         if(this.horizontal === true){
@@ -162,6 +164,32 @@ class Splitter extends Emitter {
                 width: second,
                 height: '100%',
             });
+        }
+    }
+    show(visible, isFirst = true){
+        if(visible === true){
+            this.first.style.display = 'block';
+            this.split.style.display = 'block';
+            this.second.style.display = 'block';
+            this.update(this.ratio);
+        }else{
+            if(isFirst === true){
+                this.split.style.display = 'none';
+                this.second.style.display = 'none';
+                if(this.horizontal === true){
+                    this.first.style.height = '100%';
+                }else{
+                    this.first.style.width = '100%';
+                }
+            }else{
+                this.first.style.display = 'none';
+                this.split.style.display = 'none';
+                if(this.horizontal === true){
+                    this.second.style.height = '100%';
+                }else{
+                    this.second.style.width = '100%';
+                }
+            }
         }
     }
 }
