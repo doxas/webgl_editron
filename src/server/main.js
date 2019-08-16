@@ -148,6 +148,11 @@ function createMainWindow(){
             });
         }
     });
+    ipcMain.on('kioskmode', (evt, arg) => {
+        let flag = arg === true;
+        mainWindow.setKiosk(flag);
+        evt.sender.send('setkiosk', flag);
+    });
 
     if(IS_DEVELOPMENT === true){
         connectClient = connect.client.create(mainWindow);
