@@ -15,8 +15,9 @@ webgl and GLSL live editor app for electron.
 * [x] save and run
 * [x] stop
 * [x] indicate changes
-* [ ] resize
-* [ ] full screen mode
+* [x] resize
+* [x] full screen mode
+* [ ] editor generation with glsl file count
 * [ ] local settings
 * [ ] release v2
 
