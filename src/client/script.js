@@ -4,11 +4,12 @@ import util from './lib/util.js';
 import Component from './lib/component.js';
 
 let macos = process.platform === 'darwin';
-let latestResponse = null; // サーバからのレスポンス（ファイル情報などを含む）
-let latestActive   = null; // ユーザーがアクティブにしたソースコードのインデックス
-let items          = [];   // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
-let pages          = [];   // エディタを格納するページ DOM
-let editors        = [];   // エディタ
+let latestResponse = null;  // サーバからのレスポンス（ファイル情報などを含む）
+let latestActive   = null;  // ユーザーがアクティブにしたソースコードのインデックス
+let items          = [];    // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
+let pages          = [];    // エディタを格納するページ DOM
+let editors        = [];    // エディタ
+let kiosk          = false; // kiosk mode
 // mode: Ace に設定するモード, name: サーバからのレスポンスとのマッチに使う名前, title: タブの表記
 let editorMode = [
     {mode: 'html',       name: 'html', title: 'HTML'},
@@ -153,6 +154,10 @@ function windowSetting(){
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         ipcRenderer.send('opendevtools', {});
                     }
+                    break;
+                case 'F11':
+                    evt.preventDefault();
+                    toggleFullScreen();
                     break;
                 case 'F12':
                     ipcRenderer.send('opendevtools', {});
@@ -660,3 +665,22 @@ function setFrameSize(){
     frame.height = bound.height;
 }
 
+/**
+ * フルスクリーンモード
+ */
+function toggleFullScreen(flag){
+    return new Promise((resolve) => {
+        ipcRenderer.once('setkiosk', (evt, arg) => {
+            if(latestResponse != null && latestActive != null){
+                setFrameSource(latestActive);
+            }
+            resolve();
+        });
+        if(flag == null){
+            kiosk = !kiosk;
+        }else{
+            kiosk = flag;
+        }
+        ipcRenderer.send('kioskmode', kiosk);
+    });
+}
