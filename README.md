@@ -53,5 +53,6 @@ MIT.
 * [ ] editor generation with glsl file count
 * [ ] local settings
 * [ ] release v2
+* [ ] 
 
 
