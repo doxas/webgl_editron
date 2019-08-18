@@ -1,10 +1,9 @@
 {
   "name": "webgl_editron",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "main": "./app/server/main.js",
   "scripts": {
-    "electron": ".\\node_modules\\electron\\dist\\electron.exe .\\app\\server\\main.js",
     "debug": "node index.js --development",
     "build": "node index.js --production",
     "package:win": "npm-run-all build package:windows",
