@@ -448,7 +448,7 @@ function eventSetting(){
     stop.addEventListener('click', () => {
         // iframe の中身だけをリセットする
         clearFrame();
-        setStatusBarMessage('clear');
+        setStatusBarMessage('clear frame');
         setStatusBarIcon('#windowinterfacestatusfile', 'green', false, 'clear frame');
     });
 }
