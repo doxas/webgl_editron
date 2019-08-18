@@ -688,6 +688,7 @@ function setFrameSource(index){
         }
     };
     setTimeout(() => {
+        if(frame.contentWindow == null){return;}
         frame.contentWindow.addEventListener('keydown', frameListener, false);
     }, 500);
 }
