@@ -9,18 +9,10 @@ let latestActive   = null;  // ユーザーがアクティブにしたソース�
 let items          = [];    // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
 let pages          = [];    // エディタを格納するページ DOM
 let editors        = [];    // エディタ
+let isGeneration   = false; // エディタの生成中かどうか（生成中は onChange を無効化したいためのフラグ）
 let kiosk          = false; // kiosk mode
 let split          = null;  // 上下分割の Splitter
 let vsplit         = null;  // 上段の左右分割の Splitter
-// mode: Ace に設定するモード, name: サーバからのレスポンスとのマッチに使う名前, title: タブの表記
-let editorMode = [
-    {mode: 'html',       name: 'html', title: 'HTML'},
-    {mode: 'javascript', name: 'js',   title: 'js'},
-    {mode: 'glsl',       name: 'vs1',  title: 'vert(1)'},
-    {mode: 'glsl',       name: 'fs1',  title: 'frag(1)'},
-    {mode: 'glsl',       name: 'vs2',  title: 'vert(2)'},
-    {mode: 'glsl',       name: 'fs2',  title: 'frag(2)'},
-];
 
 const FONT_SIZE           = 16;                                // 基本のフォントサイズ
 const LIGHT_THEME         = 'ace/theme/tomorrow';              // ライト・テーマ
@@ -56,10 +48,6 @@ window.addEventListener('DOMContentLoaded', () => {
     .then(() => {
         // 初期化（主に DOM の生成）
         return initialSetting();
-    })
-    .then(() => {
-        // Ace の設定関連
-        return editorSetting();
     })
     .then(() => {
         // イベント処理
@@ -228,15 +216,6 @@ function initialSetting(){
             });
             setFrameSize();
         });
-        // タブストリップ
-        let titles = editorMode.map((v) => {return v.title});
-        let tabStrip = new Component.TabStrip(split.second, titles, 0);
-        tabStrip.on('change', () => {
-            editors.forEach((v) => {
-                v.resize();
-            });
-        });
-        pages = tabStrip.getAllPage();
         // 上段を左右に分けるスプリッタ
         vsplit = new Component.Splitter(split.first, false, 0.2);
         vsplit.on('change', (arg) => {
@@ -362,14 +341,38 @@ function initialSetting(){
 /**
  * @return {Promise}
  */
-function editorSetting(){
-    return new Promise((resolve) => {
+function editorSetting(data){
+    let titles = Object.keys(data);
+    titles.sort();
+    if(editors != null){
+        editors.forEach((v) => {
+            v = null;
+        });
+    }
+    editors = [];
+    return new Promise((resolve, reject) => {
         // タブの各ページにエディタを配置し初期化する
         pages.forEach((v, index) => {
+            let type = '';
+            switch(true){
+                case titles[index].includes('html'):
+                    type = 'html';
+                    break;
+                case titles[index].includes('js'):
+                    type = 'javascript';
+                    break;
+                case titles[index].includes('vs'):
+                case titles[index].includes('fs'):
+                    type = 'glsl';
+                    break;
+                default:
+                    reject('invalid type');
+                    return;
+            }
             let editor = ace.edit(v.id);
             editor.$blockScrolling = Infinity;
             editor.setOptions(EDITOR_OPTION);
-            editor.session.setMode(`ace/mode/${editorMode[index].mode}`);
+            editor.session.setMode(`ace/mode/${type}`);
             editor.session.setUseWrapMode(true);
             editor.session.setTabSize(4);
 
@@ -397,6 +400,7 @@ function editorSetting(){
 
             // 変更があったことを検出して左サイドバーのリスト上にインジケータを出すための処理
             editor.session.on('change', () => {
+                if(isGeneration === true){return;}
                 if(latestResponse != null && latestActive != null && latestResponse.dirs[latestActive] != null){
                     latestResponse.dirs[latestActive].changes = true;
                     items[latestActive].update(null, true)
@@ -518,8 +522,8 @@ function nativeOpenDirectory(){
                 items[index] = item;
                 item.on('click', (idx) => {
                     const update = () => {
+                        generateEditor(latestResponse.dirs[idx].data);
                         latestActive = idx;
-                        setEditorSource(latestResponse.dirs[idx].data);
                         items.forEach((w, i) => {
                             w.update(false, false);
                         });
@@ -603,16 +607,41 @@ function clearEditor(){
 }
 
 /**
+ * エディタを生成する
+ */
+function generateEditor(data){
+    return new Promise((resolve) => {
+        if(split == null || split.second == null || data == null){return;}
+        while(split.second.children.length > 0){
+            let c = split.second.removeChild(split.second.firstChild);
+            c = null;
+        }
+        let titles = Object.keys(data);
+        titles.sort();
+        let tabStrip = new Component.TabStrip(split.second, titles, 0);
+        tabStrip.on('change', () => {
+            editors.forEach((v) => {
+                v.resize();
+            });
+        });
+        isGeneration = true;
+        pages = tabStrip.getAllPage();
+        editorSetting(data)
+        .then(() => {
+            setEditorSource(data);
+            isGeneration = false;
+            resolve();
+        });
+    });
+}
+
+/**
  * レスポンスの情報をエディタに反映する
  */
 function setEditorSource(data){
-    editorMode.forEach((v, index) => {
-        for(let name in data){
-            if(v.name === name){
-                editors[index].setValue(data[name].data, -1);
-                continue;
-            }
-        }
+    let titles = Object.keys(data);
+    titles.forEach((v, index) => {
+        editors[index].setValue(data[v].data, -1);
     });
 }
 
@@ -621,13 +650,9 @@ function setEditorSource(data){
  */
 function saveEditorSource(){
     if(latestResponse == null || latestActive == null){return;}
-    editorMode.forEach((v, index) => {
-        for(let name in latestResponse.dirs[latestActive].data){
-            if(v.name === name){
-                latestResponse.dirs[latestActive].data[name] = {data: editors[index].getValue(), exists: true};
-                continue;
-            }
-        }
+    let titles = Object.keys(latestResponse.dirs[latestActive].data);
+    titles.forEach((v, index) => {
+        latestResponse.dirs[latestActive].data[v] = {data: editors[index].getValue(), exists: true};
     });
     ipcRenderer.once('savefile', (res) => {
         if(res.hasOwnProperty('err') === true){
