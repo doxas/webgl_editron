@@ -11,6 +11,7 @@ const TABSTRIP_TAB_WIDTH = 80;
 const TABSTRIP_TAB_HEIGHT = 20;
 const TABSTRIP_TAB_LINE_WIDTH = 4;
 const TABSTRIP_ARROW_WIDTH = 60;
+const TABSTRIP_ARROW_STRIDE = 30;
 
 export default class Component {
     static get Splitter(){
@@ -388,12 +389,17 @@ class TabStrip extends Emitter {
         });
 
         // event setting
-        // this.tabArrowLeft
+        this.tabArrowLeft.addEventListener('click', () => {
+            this.tabWrapper.scrollTo(this.tabWrapper.scrollLeft - TABSTRIP_ARROW_STRIDE, 0);
+        }, false);
+        this.tabArrowRight.addEventListener('click', () => {
+            this.tabWrapper.scrollTo(this.tabWrapper.scrollLeft + TABSTRIP_ARROW_STRIDE, 0);
+        }, false);
 
         this.update();
     }
     update(){
-        let w = this.wrap.getBoundingClientRect().width - TABSTRIP_ARROW_WIDTH;
+        let w = this.tabBlock.getBoundingClientRect().width - TABSTRIP_ARROW_WIDTH;
         let tw = this.tabs.length * TABSTRIP_TAB_WIDTH;
         if(w < tw){
             // show arrow
