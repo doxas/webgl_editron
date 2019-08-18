@@ -74,17 +74,12 @@ export default class Util {
                 let flags = {
                     html: {data: '', exists: false},
                     js:   {data: '', exists: false},
-                    vs1:  {data: '', exists: false},
-                    fs1:  {data: '', exists: false},
-                    vs2:  {data: '', exists: false},
-                    fs2:  {data: '', exists: false},
                 };
                 files.forEach((v, index) => {
                     promises.push(new Promise((res, rej) => {
                         let filePath = path.join(target, v);
                         fs.stat(filePath, (err, stat) => {
                             if(err != null || stat.isFile() !== true){
-                                rej(err);
                                 return;
                             }
                             if(v.search(/^index\.html$/i) > -1){
@@ -105,41 +100,31 @@ export default class Util {
                                     });
                                 }));
                             }
-                            if(v.search(/^vs1\.vert$/i) > -1){
-                                flags.vs1.exists = true;
-                                openPromises.push(new Promise((openResolve) => {
-                                    fs.readFile(filePath, 'utf-8', (err, data) => {
-                                        flags.vs1.data = data;
-                                        openResolve();
-                                    });
-                                }));
+                            if(v.search(/^vs\d+\.vert$/i) > -1){
+                                let num = v.match(/\d+);
+                                if(num != null && num[0] != null && isNaN(parseInt(num[0], 10)) !== true){
+                                    let prop = `vs${parseInt(num[0], 10)}`;
+                                    flags[prop] = {exists: true, data: ``};
+                                    openPromises.push(new Promise((openResolve) => {
+                                        fs.readFile(filePath, 'utf-8', (err, data) => {
+                                            flags[prop].data = data;
+                                            openResolve();
+                                        });
+                                    }));
+                                }
                             }
-                            if(v.search(/^fs1\.frag$/i) > -1){
-                                flags.fs1.exists = true;
-                                openPromises.push(new Promise((openResolve) => {
-                                    fs.readFile(filePath, 'utf-8', (err, data) => {
-                                        flags.fs1.data = data;
-                                        openResolve();
-                                    });
-                                }));
-                            }
-                            if(v.search(/^vs2\.vert$/i) > -1){
-                                flags.vs2.exists = true;
-                                openPromises.push(new Promise((openResolve) => {
-                                    fs.readFile(filePath, 'utf-8', (err, data) => {
-                                        flags.vs2.data = data;
-                                        openResolve();
-                                    });
-                                }));
-                            }
-                            if(v.search(/^fs2\.frag$/i) > -1){
-                                flags.fs2.exists = true;
-                                openPromises.push(new Promise((openResolve) => {
-                                    fs.readFile(filePath, 'utf-8', (err, data) => {
-                                        flags.fs2.data = data;
-                                        openResolve();
-                                    });
-                                }));
+                            if(v.search(/^fs\d+\.frag$/i) > -1){
+                                let num = v.match(/\d+);
+                                if(num != null && num[0] != null && isNaN(parseInt(num[0], 10)) !== true){
+                                    let prop = `fs${parseInt(num[0], 10)}`;
+                                    flags[prop] = {exists: true, data: ``};
+                                    openPromises.push(new Promise((openResolve) => {
+                                        fs.readFile(filePath, 'utf-8', (err, data) => {
+                                            flags[prop].data = data;
+                                            openResolve();
+                                        });
+                                    }));
+                                }
                             }
                             res();
                         });
@@ -177,26 +162,39 @@ export default class Util {
      * target 以下に data をファイルとして保存する。
      */
     static saveFiles(target, data){
-        let files = [
-            {name: 'html', file: 'index.html'},
-            {name: 'js',   file: 'script.js'},
-            {name: 'vs1',  file: 'vs1.vert'},
-            {name: 'fs1',  file: 'fs1.frag'},
-            {name: 'vs2',  file: 'vs2.vert'},
-            {name: 'fs2',  file: 'fs2.frag'},
-        ];
         let promises = [];
         let writePromises = [];
         return new Promise((resolve, reject) => {
-            files.forEach((v, index) => {
+            let names = Object.keys(data);
+            names.forEach((v, index) => {
                 promises.push(new Promise((res, rej) => {
-                    let filePath = path.join(target, v.file);
+                    let filePath = '';
+                    switch(v){
+                        case 'html':
+                            filePath = path.join(target, 'index.html');
+                            break;
+                        case 'js':
+                            filePath = path.join(target, 'script.js');
+                            break;
+                        default:
+                            if(v.search(/^(vs|fs)\d+$/) > -1){
+                                if(v.includes('vs') === true){
+                                    filePath = path.join(target, `${v}.vert`);
+                                }else{
+                                    filePath = path.join(target, `${v}.frag`);
+                                }
+                            }
+                    }
+                    if(filePath === ''){
+                        rej(`invalid member [${v}]`);
+                        return;
+                    }
                     fs.stat(filePath, (err, stat) => {
                         if(err != null || stat.isFile() !== true){
                             rej(err);
                         }else{
                             writePromises.push(new Promise((writeResolve, writeReject) => {
-                                fs.writeFile(filePath, data[v.name].data, (err) => {
+                                fs.writeFile(filePath, data[v].data, (err) => {
                                     if(err != null){
                                         writeReject(err);
                                     }else{
@@ -208,16 +206,16 @@ export default class Util {
                         }
                     });
                 }));
-                Promise.all(promises)
-                .then(() => {
-                    return Promise.all(writePromises);
-                })
-                .then(() => {
-                    resolve();
-                })
-                .catch((err) => {
-                    reject(err);
-                });
+            }
+            Promise.all(promises)
+            .then(() => {
+                return Promise.all(writePromises);
+            })
+            .then(() => {
+                resolve();
+            })
+            .catch((err) => {
+                reject(err);
             });
         });
     }
