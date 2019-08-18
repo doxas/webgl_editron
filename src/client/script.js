@@ -13,6 +13,7 @@ let isGeneration   = false; // エディタの生成中かどうか（生成中�
 let kiosk          = false; // kiosk mode
 let split          = null;  // 上下分割の Splitter
 let vsplit         = null;  // 上段の左右分割の Splitter
+let tabStrip       = null;  // TabStrip
 let frameListener  = null;  // frame 内で keydown を監視し F11 を禁止するためのリスナ
 
 const FONT_SIZE           = 16;                                // 基本のフォントサイズ
@@ -130,6 +131,9 @@ function windowSetting(){
             editors.forEach((v) => {
                 v.resize();
             });
+            if(tabStrip != null){
+                tabStrip.update();
+            }
         }, false);
         window.addEventListener('keydown', (evt) => {
             switch(evt.key){
@@ -347,6 +351,7 @@ function getTitleArray(data){
             frag.push(v);
         }
     });
+    // fs 系を vs の後ろに insert する
     if(frag.length > 0){
         titles.splice(0, frag.length);
         frag.forEach((v, index) => {
@@ -644,7 +649,8 @@ function generateEditor(data){
             c = null;
         }
         let titles = getTitleArray(data);
-        let tabStrip = new Component.TabStrip(split.second, titles, 0);
+        tabStrip = null;
+        tabStrip = new Component.TabStrip(split.second, titles, 0);
         tabStrip.on('change', () => {
             editors.forEach((v) => {
                 v.resize();
