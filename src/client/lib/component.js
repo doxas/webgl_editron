@@ -10,6 +10,7 @@ const TABSTRIP_COLOR = [240, 240, 240];
 const TABSTRIP_TAB_WIDTH = 80;
 const TABSTRIP_TAB_HEIGHT = 20;
 const TABSTRIP_TAB_LINE_WIDTH = 4;
+const TABSTRIP_ARROW_WIDTH = 60;
 
 export default class Component {
     static get Splitter(){
@@ -300,9 +301,15 @@ class TabStrip extends Emitter {
         this.index = Math.min(this.count - 1, selectedIndex);
         this.tabs = [];
         this.inners = [];
-        this.wrap = document.createElement('div');
-        this.tabBlock = document.createElement('div');
-        this.innerBlock = document.createElement('div');
+        this.wrap            = document.createElement('div');
+        this.tabBlock        = document.createElement('div');
+        this.innerBlock      = document.createElement('div');
+        this.tabWrapper      = document.createElement('div');
+        this.tabArrowWrapper = document.createElement('div');
+        this.tabArrowLeft    = document.createElement('div');
+        this.tabArrowRight   = document.createElement('div');
+        this.tabArrowLeft.textContent = '◀';
+        this.tabArrowRight.textContent = '▶';
 
         // styling
         util.appendStyle(this.wrap, {
@@ -320,6 +327,39 @@ class TabStrip extends Emitter {
             flexDirection: 'row',
             userSelect: 'none',
         });
+        util.appendStyle(this.tabWrapper, {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            overflow: 'hidden',
+            userSelect: 'none',
+        });
+        util.appendStyle(this.tabArrowWrapper, {
+            color: 'silver',
+            textAlign: 'center',
+            lineHeight: '24px',
+            minWidth: '61px',
+            maxWidth: '61px',
+            height: '24px',
+            display: 'none',
+            flexDirection: 'row',
+            overflow: 'hidden',
+            userSelect: 'none',
+        });
+        util.appendStyle(this.tabArrowLeft, {
+            backgroundColor: '#242226',
+            minWidth: '30px',
+            maxWidth: '30px',
+            height: '100%',
+        });
+        util.appendStyle(this.tabArrowRight, {
+            backgroundColor: '#242226',
+            borderLeft: '1px solid #444',
+            minWidth: '30px',
+            maxWidth: '30px',
+            height: '100%',
+        });
         util.appendStyle(this.innerBlock, {
             width: '100%',
             height: `calc(100% - ${TABSTRIP_TAB_HEIGHT + TABSTRIP_TAB_LINE_WIDTH}px)`,
@@ -329,8 +369,12 @@ class TabStrip extends Emitter {
         this.parentDOM.appendChild(this.wrap);
         this.wrap.appendChild(this.tabBlock);
         this.wrap.appendChild(this.innerBlock);
+        this.tabBlock.appendChild(this.tabWrapper);
+        this.tabBlock.appendChild(this.tabArrowWrapper);
+        this.tabArrowWrapper.appendChild(this.tabArrowLeft);
+        this.tabArrowWrapper.appendChild(this.tabArrowRight);
         tabs.forEach((v, index) => {
-            let item = new Tab(this.tabBlock, index, v, this.index === index);
+            let item = new Tab(this.tabWrapper, index, v, this.index === index);
             item.on('click', (idx) => {
                 this.tabs.forEach((tab, i) => {
                     this.tabs[i].update(idx === i);
@@ -344,6 +388,20 @@ class TabStrip extends Emitter {
         });
 
         // event setting
+        // this.tabArrowLeft
+
+        this.update();
+    }
+    update(){
+        let w = this.wrap.getBoundingClientRect().width - TABSTRIP_ARROW_WIDTH;
+        let tw = this.tabs.length * TABSTRIP_TAB_WIDTH;
+        if(w < tw){
+            // show arrow
+            this.tabArrowWrapper.style.display = 'flex';
+        }else{
+            // disable arrow
+            this.tabArrowWrapper.style.display = 'none';
+        }
     }
     getPage(index){
         return this.inners[index].wrap;
