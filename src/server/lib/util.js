@@ -79,7 +79,12 @@ export default class Util {
                     promises.push(new Promise((res, rej) => {
                         let filePath = path.join(target, v);
                         fs.stat(filePath, (err, stat) => {
-                            if(err != null || stat.isFile() !== true){
+                            if(err != null){
+                                rej(err);
+                                return;
+                            }
+                            if(stat.isFile() !== true){
+                                res();
                                 return;
                             }
                             if(v.search(/^index\.html$/i) > -1){
