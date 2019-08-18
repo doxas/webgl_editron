@@ -251,7 +251,8 @@ function initialSetting(){
         openFolderIcon.setAttribute('title', 'プロジェクトを開く');
         openFolderIcon.src = './image/folder_plus.svg';
         util.appendStyle(openFolderIcon, {
-            width: `${ICON_SIZE}px`,
+            minWidth: `${ICON_SIZE}px`,
+            maxWidth: `${ICON_SIZE}px`,
             height: `${ICON_SIZE}px`,
             margin: ICON_MARGIN,
             cursor: 'pointer',
@@ -269,6 +270,8 @@ function initialSetting(){
         closeFolderIcon.setAttribute('title', 'プロジェクトを閉じる');
         closeFolderIcon.src = './image/folder_minus.svg';
         util.appendStyle(closeFolderIcon, {
+            minWidth: `${ICON_SIZE}px`,
+            maxWidth: `${ICON_SIZE}px`,
             width: `${ICON_SIZE}px`,
             height: `${ICON_SIZE}px`,
             margin: ICON_MARGIN,
@@ -287,7 +290,8 @@ function initialSetting(){
         playIcon.setAttribute('title', 'ソースコードを保存しプレビューを更新 (Ctrl+s or Command+s)');
         playIcon.src = './image/play.svg';
         util.appendStyle(playIcon, {
-            width: `${ICON_SIZE}px`,
+            minWidth: `${ICON_SIZE}px`,
+            maxWidth: `${ICON_SIZE}px`,
             height: `${ICON_SIZE}px`,
             margin: ICON_MARGIN,
             cursor: 'pointer',
@@ -305,7 +309,8 @@ function initialSetting(){
         stopIcon.setAttribute('title', 'プレビューを停止');
         stopIcon.src = './image/stop.svg';
         util.appendStyle(stopIcon, {
-            width: `${ICON_SIZE}px`,
+            minWidth: `${ICON_SIZE}px`,
+            maxWidth: `${ICON_SIZE}px`,
             height: `${ICON_SIZE}px`,
             margin: ICON_MARGIN,
             cursor: 'pointer',
