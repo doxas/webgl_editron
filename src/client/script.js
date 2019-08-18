@@ -13,6 +13,7 @@ let isGeneration   = false; // エディタの生成中かどうか（生成中�
 let kiosk          = false; // kiosk mode
 let split          = null;  // 上下分割の Splitter
 let vsplit         = null;  // 上段の左右分割の Splitter
+let frameListener  = null;  // frame 内で keydown を監視し F11 を禁止するためのリスナ
 
 const FONT_SIZE           = 16;                                // 基本のフォントサイズ
 const LIGHT_THEME         = 'ace/theme/tomorrow';              // ライト・テーマ
@@ -223,10 +224,6 @@ function initialSetting(){
         });
         vsplit.first.setAttribute('id', 'vfirst');
         vsplit.second.setAttribute('id', 'vsecond');
-        // プレビュー用の iframe
-        let frame = document.createElement('iframe');
-        frame.setAttribute('id', 'frame');
-        vsplit.second.appendChild(frame);
         // 上段左サイドバー
         let leftBlock = document.createElement('div');
         util.appendStyle(leftBlock, {
@@ -339,11 +336,32 @@ function initialSetting(){
 }
 
 /**
+ * エディタのタイトル文字列となる配列を生成して返す
+ */
+function getTitleArray(data){
+    let titles = Object.keys(data);
+    titles.sort();
+    let frag = [];
+    titles.forEach((v, index) => {
+        if(v.includes('fs') === true){
+            frag.push(v);
+        }
+    });
+    if(frag.length > 0){
+        titles.splice(0, frag.length);
+        frag.forEach((v, index) => {
+            let i = 2 + index * 2 + 1;
+            titles.splice(i, 0, v);
+        });
+    }
+    return titles;
+}
+
+/**
  * @return {Promise}
  */
 function editorSetting(data){
-    let titles = Object.keys(data);
-    titles.sort();
+    let titles = getTitleArray(data);
     if(editors != null){
         editors.forEach((v) => {
             v = null;
@@ -582,7 +600,16 @@ function nativeCloseServer(){
  */
 function clearFrame(){
     let frame = document.querySelector('#frame');
-    frame.src = 'about:blank';
+    if(frame != null){
+        frame.contentWindow.removeEventListener('keydown', frameListener);
+        frameListener = null;
+        frame.src = 'about:blank';
+        vsplit.second.removeChild(frame);
+        frame = null;
+    }
+    frame = document.createElement('iframe');
+    frame.setAttribute('id', 'frame');
+    vsplit.second.appendChild(frame);
 }
 
 /**
@@ -616,8 +643,7 @@ function generateEditor(data){
             let c = split.second.removeChild(split.second.firstChild);
             c = null;
         }
-        let titles = Object.keys(data);
-        titles.sort();
+        let titles = getTitleArray(data);
         let tabStrip = new Component.TabStrip(split.second, titles, 0);
         tabStrip.on('change', () => {
             editors.forEach((v) => {
@@ -639,7 +665,7 @@ function generateEditor(data){
  * レスポンスの情報をエディタに反映する
  */
 function setEditorSource(data){
-    let titles = Object.keys(data);
+    let titles = getTitleArray(data);
     titles.forEach((v, index) => {
         editors[index].setValue(data[v].data, -1);
     });
@@ -650,7 +676,7 @@ function setEditorSource(data){
  */
 function saveEditorSource(){
     if(latestResponse == null || latestActive == null){return;}
-    let titles = Object.keys(latestResponse.dirs[latestActive].data);
+    let titles = getTitleArray(latestResponse.dirs[latestActive].data);
     titles.forEach((v, index) => {
         latestResponse.dirs[latestActive].data[v] = {data: editors[index].getValue(), exists: true};
     });
@@ -680,14 +706,15 @@ function setFrameSource(index){
     clearFrame();
     let frame = document.querySelector('#frame');
     frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[index].dirName}`;
+    frameListener = (evt) => {
+        if(evt.key === 'F11'){
+            evt.preventDefault();
+            toggleFullScreen();
+        }
+    };
     setTimeout(() => {
-        frame.contentWindow.addEventListener('keydown', (evt) => {
-            if(evt.key === 'F11'){
-                evt.preventDefault();
-                toggleFullScreen();
-            }
-        }, false);
-    }, 1000);
+        frame.contentWindow.addEventListener('keydown', frameListener, false);
+    }, 500);
 }
 
 /**
