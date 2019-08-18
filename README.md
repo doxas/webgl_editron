@@ -1,6 +1,6 @@
 # webgl editron
 
-webgl and GLSL live editor app for electron.
+WebGL and GLSL live editor app for electron.
 
 ## development
 
@@ -31,15 +31,15 @@ $ npm run package:mac
 
 内部的には Electron のメインプロセス側でローカルサーバを起動してファイルを iframe で開いている形になっており、Chrome と同様の開発者ツールでのデバッグ作業などを行うこともできます。
 
-![preview](./doc/01.jpg)
+![](./doc/01.jpg)
 
 画面左上にある、フォルダ＋プラス記号のアイコンをクリックすると、ディレクトリを開くためのダイアログが表示されます。
 
 ディレクトリには、後述する「ファイル構成」に沿って、あらかじめ HTML ファイルや JavaScript のファイル、シェーダを記述したファイルなどを配置しておきます。
 
-![](./doc/02.jpg)
-
 ![](./doc/03.jpg)
+
+![](./doc/02.jpg)
 
 基本的に、プロジェクト内のディレクトリ名は任意ですが、文字列としてソートされてからエディタに並ぶことになるため、順番に意味を持たせたい場合はディレクトリ名の冒頭に数値を入れるなどする必要があります。
 
