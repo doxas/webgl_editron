@@ -728,6 +728,7 @@ function setFrameSource(index){
  */
 function setFrameSize(){
     let frame = document.querySelector('#frame');
+    if(frame == null){return;}
     let bound = frame.parentElement.getBoundingClientRect();
     frame.width = bound.width;
     frame.height = bound.height;
