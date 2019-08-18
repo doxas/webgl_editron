@@ -101,7 +101,7 @@ export default class Util {
                                 }));
                             }
                             if(v.search(/^vs\d+\.vert$/i) > -1){
-                                let num = v.match(/\d+);
+                                let num = v.match(/\d+/);
                                 if(num != null && num[0] != null && isNaN(parseInt(num[0], 10)) !== true){
                                     let prop = `vs${parseInt(num[0], 10)}`;
                                     flags[prop] = {exists: true, data: ``};
@@ -114,7 +114,7 @@ export default class Util {
                                 }
                             }
                             if(v.search(/^fs\d+\.frag$/i) > -1){
-                                let num = v.match(/\d+);
+                                let num = v.match(/\d+/);
                                 if(num != null && num[0] != null && isNaN(parseInt(num[0], 10)) !== true){
                                     let prop = `fs${parseInt(num[0], 10)}`;
                                     flags[prop] = {exists: true, data: ``};
@@ -206,7 +206,7 @@ export default class Util {
                         }
                     });
                 }));
-            }
+            });
             Promise.all(promises)
             .then(() => {
                 return Promise.all(writePromises);
