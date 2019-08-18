@@ -265,26 +265,6 @@ function initialSetting(){
         openFolderIcon.addEventListener('mouseleave', () => {
             openFolderIcon.style.filter = 'invert(0.5)';
         });
-        let closeFolderIcon = document.createElement('img');
-        closeFolderIcon.setAttribute('id', 'close');
-        closeFolderIcon.setAttribute('title', 'プロジェクトを閉じる');
-        closeFolderIcon.src = './image/folder_minus.svg';
-        util.appendStyle(closeFolderIcon, {
-            minWidth: `${ICON_SIZE}px`,
-            maxWidth: `${ICON_SIZE}px`,
-            width: `${ICON_SIZE}px`,
-            height: `${ICON_SIZE}px`,
-            margin: ICON_MARGIN,
-            cursor: 'pointer',
-            filter: 'invert(0.5)',
-            userSelect: 'none',
-        });
-        closeFolderIcon.addEventListener('mouseenter', () => {
-            closeFolderIcon.style.filter = 'invert(1)';
-        });
-        closeFolderIcon.addEventListener('mouseleave', () => {
-            closeFolderIcon.style.filter = 'invert(0.5)';
-        });
         let playIcon = document.createElement('img');
         playIcon.setAttribute('id', 'play');
         playIcon.setAttribute('title', 'ソースコードを保存しプレビューを更新 (Ctrl+s or Command+s)');
@@ -336,7 +316,6 @@ function initialSetting(){
         leftBlock.appendChild(buttonBlock);
         leftBlock.appendChild(listBlock);
         buttonBlock.appendChild(openFolderIcon);
-        buttonBlock.appendChild(closeFolderIcon);
         buttonBlock.appendChild(playIcon);
         buttonBlock.appendChild(stopIcon);
 
@@ -445,7 +424,6 @@ function editorSetting(data){
 function eventSetting(){
     // 左サイドバー上のボタン類に対するイベントを設定する
     let open  = document.querySelector('#open');
-    let close = document.querySelector('#close');
     let play  = document.querySelector('#play');
     let stop  = document.querySelector('#stop');
 
@@ -461,20 +439,6 @@ function eventSetting(){
             });
         }else{
             nativeOpenDirectory();
-        }
-    }, false);
-    close.addEventListener('click', () => {
-        // 変更済みのソースコードがある場合、閉じてしまう前に尋ねる
-        if(latestResponse != null && latestActive != null && items[latestActive].changes === true){
-            let message = 'ソースコードの変更後、一度も実行していない変更は破棄されます。\n現在のプロジェクトを閉じてよろしいですか？';
-            nativeDialog('info', message)
-            .then((res) => {
-                if(res > 0){
-                    nativeCloseServer();
-                }
-            });
-        }else{
-            nativeCloseServer();
         }
     }, false);
     play.addEventListener('click', () => {
