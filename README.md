@@ -1,6 +1,6 @@
 # webgl editron
 
-WebGL and GLSL live editor app for electron.
+Live editor app for WebGL and GLSL with electron.
 
 ## development
 
