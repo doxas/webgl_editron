@@ -4,6 +4,7 @@ import util from './lib/util.js';
 import Component from './lib/component.js';
 
 let macos = process.platform === 'darwin';
+let vimMode = false;        // vim keybind
 let latestResponse = null;  // サーバからのレスポンス（ファイル情報などを含む）
 let latestActive   = null;  // ユーザーがアクティブにしたソースコードのインデックス
 let items          = [];    // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
@@ -188,6 +189,20 @@ function windowSetting(){
                         ++fontSize;
                         pages.forEach((v, index) => {
                             v.style.fontSize = `${fontSize}px`;
+                        });
+                    }
+                    break;
+                // vim mode
+                case 'v':
+                case 'V':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        vimMode = !vimMode;
+                        editors.forEach((v, index) => {
+                            if(vimMode === true){
+                                v.setKeyboardHandler('ace/keyboard/vim');
+                            }else{
+                                v.setKeyboardHandler(null);
+                            }
                         });
                     }
                     break;
@@ -384,25 +399,11 @@ function editorSetting(data){
             editor.session.setTabSize(4);
 
             // event setting
-            let vimMode = false;
             // 諸事情により Command + L は封印する
             editor.commands.addCommand({
                 name: 'disableCtrl-L',
                 bindKey: {win: 'Ctrl-L', mac: 'Command-L'},
                 exec: () => {},
-            });
-            // vim のキーバインドに変更
-            editor.commands.addCommand({
-                name: 'toggleVimMode',
-                bindKey: {win: 'Ctrl-Alt-V', mac: 'Command-Alt-V'},
-                exec: () => {
-                    if(vimMode !== true){
-                        editor.setKeyboardHandler('ace/keyboard/vim');
-                    }else{
-                        editor.setKeyboardHandler(null);
-                    }
-                    vimMode = !vimMode;
-                },
             });
 
             // 変更があったことを検出して左サイドバーのリスト上にインジケータを出すための処理
