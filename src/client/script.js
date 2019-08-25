@@ -7,6 +7,7 @@ let macos = process.platform === 'darwin';
 let vimMode = false;        // vim keybind
 let latestResponse = null;  // サーバからのレスポンス（ファイル情報などを含む）
 let latestActive   = null;  // ユーザーがアクティブにしたソースコードのインデックス
+let activeTabIndex = 0;     // タブのなかで現在アクティブなインデックス
 let items          = [];    // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
 let pages          = [];    // エディタを格納するページ DOM
 let editors        = [];    // エディタ
@@ -190,6 +191,17 @@ function windowSetting(){
                         pages.forEach((v, index) => {
                             v.style.fontSize = `${fontSize}px`;
                         });
+                    }
+                    break;
+                // tab change
+                case 'Tab':
+                    if(evt.ctrlKey === true || evt.metaKey === true){
+                        if(evt.shiftKey === true){
+                            activeTabIndex = (pages.length + activeTabIndex - 1) % pages.length;
+                        }else{
+                            activeTabIndex = (activeTabIndex + 1) % pages.length;
+                        }
+                        tabStrip.setPage(activeTabIndex);
                     }
                     break;
                 // vim mode
@@ -619,9 +631,11 @@ function generateEditor(data){
             c = null;
         }
         let titles = getTitleArray(data);
+        activeTabIndex = 0;
         tabStrip = null;
         tabStrip = new Component.TabStrip(split.second, titles, 0);
-        tabStrip.on('change', () => {
+        tabStrip.on('change', (activeIndex) => {
+            activeTabIndex = activeIndex;
             editors.forEach((v) => {
                 v.resize();
             });
