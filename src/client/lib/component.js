@@ -409,6 +409,12 @@ class TabStrip extends Emitter {
             this.tabArrowWrapper.style.display = 'none';
         }
     }
+    setPage(index){
+        this.tabs.forEach((tab, i) => {
+            this.tabs[i].update(index === i);
+            this.inners[i].update(index === i);
+        });
+    }
     getPage(index){
         return this.inners[index].wrap;
     }
