@@ -1,12 +1,9 @@
 precision mediump float;
-uniform vec2      mouse;
-uniform sampler2D colorTexture;
-uniform sampler2D heightTexture;
-varying vec2      vTexCoord;
-const   float     focus = 0.5;
+uniform sampler2D textureUnit;
+varying vec4 vColor;
+varying vec2 vTexCoord;
 
 void main(){
-    float height = texture2D(heightTexture, vTexCoord).r - focus;
-    vec2 mouseVec = -mouse * 0.025 * height;
-    gl_FragColor = texture2D(colorTexture, vTexCoord + mouseVec);
+    vec4 samplerColor = texture2D(textureUnit, vTexCoord);
+    gl_FragColor = samplerColor * vColor;
 }

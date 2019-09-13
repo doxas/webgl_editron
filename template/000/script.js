@@ -52,7 +52,7 @@
         );
     }, false);
 
-    function init(texture){
+    function init(){
         scenePrg.attLocation[0] = gl.getAttribLocation(scenePrg.program, 'position');
         scenePrg.attLocation[1] = gl.getAttribLocation(scenePrg.program, 'color');
         scenePrg.attStride[0]   = 3;

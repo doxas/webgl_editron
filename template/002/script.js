@@ -1,8 +1,8 @@
 
 (() => {
     // constant variables
-    const WIDTH  = 512;
-    const HEIGHT = 512;
+    const WIDTH  = 256;
+    const HEIGHT = 256;
     const SCALE  = 2.0;
 
     // variables

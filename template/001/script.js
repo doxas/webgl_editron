@@ -10,7 +10,7 @@
     let qtn;
     let startTime;
     let nowTime;
-    let mouse;
+    let camera;
 
     let scenePrg;
 
@@ -28,74 +28,71 @@
         ext = getWebGLExtensions();
         mat = new matIV();
         qtn = new qtnIV();
-        mouse = [0, 0];
+        camera = new InteractionCamera();
+        camera.update();
         window.addEventListener('keydown', (eve) => {
             run = eve.keyCode !== 27;
         }, false);
-        window.addEventListener('mousemove', (eve) => {
-            let w = canvasWidth / 2;
-            let h = canvasHeight / 2;
-            let x = (eve.pageX - w) / w;
-            let y = (eve.pageY - h) / h;
-            mouse = [x, y];
-        }, false);
+        canvas.addEventListener('mousedown', camera.startEvent, false);
+        canvas.addEventListener('mousemove', camera.moveEvent, false);
+        canvas.addEventListener('mouseup', camera.endEvent, false);
+        canvas.addEventListener('wheel', camera.wheelEvent, false);
 
-        createTexture('./color.png', (texture0) => {
-            createTexture('./height.png', (texture1) => {
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, texture0);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.activeTexture(gl.TEXTURE1);
-                gl.bindTexture(gl.TEXTURE_2D, texture1);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                loadShaderSource(
-                    './vs1.vert',
-                    './fs1.frag',
-                    (shader) => {
-                        let vs = createShader(shader.vs, gl.VERTEX_SHADER);
-                        let fs = createShader(shader.fs, gl.FRAGMENT_SHADER);
-                        let prg = createProgram(vs, fs);
-                        if(prg == null){return;}
-                        scenePrg = new ProgramParameter(prg);
-                        init();
-                    }
-                );
-            });
+        createTexture('./sample.jpg', (texture) => {
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+
+            loadShaderSource(
+                './vs1.vert',
+                './fs1.frag',
+                (shader) => {
+                    let vs = createShader(shader.vs, gl.VERTEX_SHADER);
+                    let fs = createShader(shader.fs, gl.FRAGMENT_SHADER);
+                    let prg = createProgram(vs, fs);
+                    if(prg == null){return;}
+                    scenePrg = new ProgramParameter(prg);
+                    init();
+                }
+            );
         });
     }, false);
 
-    function init(texture){
+    function init(){
         scenePrg.attLocation[0] = gl.getAttribLocation(scenePrg.program, 'position');
-        scenePrg.attLocation[1] = gl.getAttribLocation(scenePrg.program, 'texCoord');
+        scenePrg.attLocation[1] = gl.getAttribLocation(scenePrg.program, 'color');
+        scenePrg.attLocation[2] = gl.getAttribLocation(scenePrg.program, 'texCoord');
         scenePrg.attStride[0]   = 3;
-        scenePrg.attStride[1]   = 2;
+        scenePrg.attStride[1]   = 4;
+        scenePrg.attStride[2]   = 2;
         scenePrg.uniLocation[0] = gl.getUniformLocation(scenePrg.program, 'mvpMatrix');
-        scenePrg.uniLocation[1] = gl.getUniformLocation(scenePrg.program, 'mouse');
-        scenePrg.uniLocation[2] = gl.getUniformLocation(scenePrg.program, 'colorTexture');
-        scenePrg.uniLocation[3] = gl.getUniformLocation(scenePrg.program, 'heightTexture');
+        scenePrg.uniLocation[1] = gl.getUniformLocation(scenePrg.program, 'textureUnit');
         scenePrg.uniType[0]     = 'uniformMatrix4fv';
-        scenePrg.uniType[1]     = 'uniform2fv';
-        scenePrg.uniType[2]     = 'uniform1i';
-        scenePrg.uniType[3]     = 'uniform1i';
-
+        scenePrg.uniType[1]     = 'uniform1i';
         let position = [
             -1.0,  1.0,  0.0,
              1.0,  1.0,  0.0,
             -1.0, -1.0,  0.0,
              1.0, -1.0,  0.0
         ];
+        let color = [
+            1.0, 0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0
+        ];
         let texCoord = [
             0.0, 0.0,
             1.0, 0.0,
             0.0, 1.0,
-            1.0, 1.0
+            1.0, 1.0,
         ];
-        let index = [0, 2, 1, 1, 2, 3];
         let VBO = [
             createVbo(position),
+            createVbo(color),
             createVbo(texCoord)
+        ];
+        let index = [
+            0, 2, 1, 1, 2, 3
         ];
         let IBO = createIbo(index);
 
@@ -106,12 +103,10 @@
         let mvpMatrix = mat.identity(mat.create());
         let qtnMatrix = mat.identity(mat.create());
 
-        gl.clearColor(0.1, 0.1, 0.1, 1.0);
+        gl.clearColor(0.3, 0.3, 0.3, 1.0);
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.useProgram(scenePrg.program);
-        gl[scenePrg.uniType[2]](scenePrg.uniLocation[2], 0);
-        gl[scenePrg.uniType[3]](scenePrg.uniLocation[3], 1);
 
         startTime = Date.now();
         nowTime = 0;
@@ -132,7 +127,7 @@
             let cameraPosition    = [0.0, 0.0, 3.0];
             let centerPoint       = [0.0, 0.0, 0.0];
             let cameraUpDirection = [0.0, 1.0, 0.0];
-            let fovy   = 60;
+            let fovy   = 60 * camera.scale;
             let aspect = canvasWidth / canvasHeight;
             let near   = 0.1;
             let far    = 10.0;
@@ -140,14 +135,17 @@
             mat.lookAt(cameraPosition, centerPoint, cameraUpDirection, vMatrix);
             mat.perspective(fovy, aspect, near, far, pMatrix);
             mat.multiply(pMatrix, vMatrix, vpMatrix);
+            camera.update();
+            mat.identity(qtnMatrix);
+            qtn.toMatIV(camera.qtn, qtnMatrix);
+            mat.multiply(vpMatrix, qtnMatrix, vpMatrix);
 
             setAttribute(VBO, scenePrg.attLocation, scenePrg.attStride, IBO);
-            let mouseLength = Math.min(1.0, Math.sqrt(mouse[0] * mouse[0] + mouse[1] * mouse[1]));
             mat.identity(mMatrix);
-            mat.rotate(mMatrix, mouseLength * 0.25, [mouse[1] * 0.5, mouse[0], 0.0], mMatrix);
+            mat.rotate(mMatrix, nowTime * 0.1, [0.0, 1.0, 0.0], mMatrix);
             mat.multiply(vpMatrix, mMatrix, mvpMatrix);
             gl[scenePrg.uniType[0]](scenePrg.uniLocation[0], false, mvpMatrix);
-            gl[scenePrg.uniType[1]](scenePrg.uniLocation[1], mouse);
+            gl[scenePrg.uniType[1]](scenePrg.uniLocation[1], 0);
             gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
             gl.flush();
@@ -156,6 +154,86 @@
     }
 
     // utility ================================================================
+    /**
+     * マウスでドラッグ操作を行うための簡易な実装例
+     * @class
+     */
+    class InteractionCamera {
+        /**
+         * @constructor
+         */
+        constructor(){
+            this.qtn               = qtn.identity(qtn.create());
+            this.dragging          = false;
+            this.prevMouse         = [0, 0];
+            this.rotationScale     = Math.min(window.innerWidth, window.innerHeight);
+            this.rotation          = 0.0;
+            this.rotateAxis        = [0.0, 0.0, 0.0];
+            this.rotatePower       = 1.5;
+            this.rotateAttenuation = 0.9;
+            this.scale             = 1.0;
+            this.scalePower        = 0.0;
+            this.scaleAttenuation  = 0.8;
+            this.scaleMin          = 0.5;
+            this.scaleMax          = 1.5;
+            this.startEvent        = this.startEvent.bind(this);
+            this.moveEvent         = this.moveEvent.bind(this);
+            this.endEvent          = this.endEvent.bind(this);
+            this.wheelEvent        = this.wheelEvent.bind(this);
+        }
+        /**
+         * mouse down event
+         * @param {Event} eve - event object
+         */
+        startEvent(eve){
+            this.dragging = true;
+            this.prevMouse = [eve.clientX, eve.clientY];
+        }
+        /**
+         * mouse move event
+         * @param {Event} eve - event object
+         */
+        moveEvent(eve){
+            if(this.dragging !== true){return;}
+            let x = this.prevMouse[0] - eve.clientX;
+            let y = this.prevMouse[1] - eve.clientY;
+            this.rotation = Math.sqrt(x * x + y * y) / this.rotationScale * this.rotatePower;
+            this.rotateAxis[0] = y;
+            this.rotateAxis[1] = x;
+            this.prevMouse = [eve.clientX, eve.clientY];
+        }
+        /**
+         * mouse up event
+         */
+        endEvent(){
+            this.dragging = false;
+        }
+        /**
+         * wheel event
+         * @param {Event} eve - event object
+         */
+        wheelEvent(eve){
+            let w = eve.wheelDelta;
+            if(w > 0){
+                this.scalePower = -0.05;
+            }else if(w < 0){
+                this.scalePower =  0.05;
+            }
+        }
+        /**
+         * quaternion update
+         */
+        update(){
+            this.scalePower *= this.scaleAttenuation;
+            this.scale = Math.max(this.scaleMin, Math.min(this.scaleMax, this.scale + this.scalePower));
+            if(this.rotation === 0.0){return;}
+            this.rotation *= this.rotateAttenuation;
+            let q = qtn.identity(qtn.create());
+            qtn.rotate(this.rotation, this.rotateAxis, q);
+            qtn.multiply(this.qtn, q, this.qtn);
+        }
+    }
+
     /**
      * プログラムオブジェクトやシェーダに関するパラメータを格納するためのクラス
      * @class
