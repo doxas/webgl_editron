@@ -335,8 +335,7 @@ function initialSetting(){
         util.appendStyle(listBlock, {
             width: '100%',
             height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
+            overflow: 'auto',
         });
         // appending
         vsplit.first.appendChild(leftBlock);
