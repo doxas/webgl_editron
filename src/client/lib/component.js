@@ -194,6 +194,16 @@ class Splitter extends Emitter {
             }
         }
     }
+    release(){
+        if(this.wrap.parentNode != null){
+            this.parentDOM.removeChild(this.wrap);
+        }
+        this.wrap   = null;
+        this.first  = null;
+        this.split  = null;
+        this.second = null;
+        this.layer  = null;
+    }
 }
 
 /**
