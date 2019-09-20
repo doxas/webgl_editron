@@ -48,6 +48,28 @@ const EDITOR_OPTION = {
 
 // DOM Content Loaded でフロント側の設定等を開始する
 window.addEventListener('DOMContentLoaded', () => {
+    // ドラッグアンドドロップ
+    document.addEventListener('dragover', (evt) => {
+        evt.preventDefault();
+        return false;
+    }, false);
+    document.addEventListener('drop', (evt) => {
+        evt.preventDefault();
+        return false;
+    }, false);
+    document.body.addEventListener('drop', (evt) => {
+        let target = evt.dataTransfer.files[0];
+        isDirectory(target)
+        .then((flag) => {
+            if(flag === true){
+                nativeSendPath(target.path);
+            }else{
+                let message = 'プロジェクトのフォルダをドロップしてください。';
+                nativeDialog('info', message, ['OK']);
+            }
+        });
+    }, false);
+
     // このウィンドウに関する全体の設定
     windowSetting()
     .then(() => {
@@ -569,13 +591,33 @@ function nativeDialog(title, message, buttons){
 }
 
 /**
- * ローカルのディレクトリを開くダイアログを出し、結果によってはそれを開いたあと
- * 読み込んだファイルの情報一覧と共に情報が返される。このとき、ファイルの情報が
- * 得られた場合はサーバ実装側でローカルサーバを起動している。
+ * メインプロセスにプロジェクトのパスを送信する
+ * @param {string} path - ドロップなどでクライアント側で発生した開きたいプロジェクトのパス
+ */
+function nativeSendPath(path){
+    setServerRunningListener();
+    ipcRenderer.send('sendpath', {targetPath: path});
+}
+
+/**
+ * ローカルのディレクトリを開くダイアログを出す。
+ * メインプロセス側でファイル構成のチェックなどを行ってくれるので、クライアント
+ * 側では localserverrunning をリッスンして待機する。
+ */
+function nativeOpenDirectory(){
+    setServerRunningListener();
+    ipcRenderer.send('opendirectory');
+}
+
+/**
+ * ローカルサーバが起動した際に発火する localserverrunning を once でリッスンす
+ * るリスナーを設定する。このとき、読み込んだファイルの情報一覧と共に情報が返さ
+ * れるのでこれを参照し、ファイルの情報が得られた場合はサーバ実装側でローカルサ
+ * ーバが起動しているはずである。
  * ポート番号はレスポンスに含まれるため、iframe には `http://localhost:port/dirname`
  * のように URL を指定することができる。
  */
-function nativeOpenDirectory(){
+function setServerRunningListener(){
     ipcRenderer.once('localserverrunning', (arg, res) => {
         if(res === false){
             // キャンセルされた場合
@@ -651,7 +693,6 @@ function nativeOpenDirectory(){
             });
         }
     });
-    ipcRenderer.send('opendirectory');
 }
 
 /**
@@ -838,6 +879,27 @@ function toggleFullScreen(flag){
         }
         if(latestResponse != null && latestActive != null){
             setFrameSource(latestActive);
+        }
+    });
+}
+
+/**
+ * FileAPI と FileReaderAPI でディレクトリ判定
+ */
+function isDirectory(target){
+    return new Promise((resolve) => {
+        if(target.type !== ''){
+            resolve(false);
+        }else{
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if(reader.error != null){
+                    resolve(true);
+                }else{
+                    resolve(false);
+                }
+            };
+            reader.readAsBinaryString(target);
         }
     });
 }
