@@ -95,6 +95,31 @@ function createMainWindow(){
             evt.sender.send('nativedialog', res);
         });
     });
+    ipcMain.on('sendpath', (evt, arg) => {
+        if(arg == null || arg.hasOwnProperty('targetPath') !== true || arg.targetPath === ''){
+            evt.sender.send('localserverrunning', false);
+        }else{
+            util.checkDirectories(arg.targetPath)
+            .then((dirnames) => {
+                if(server != null){
+                    server.close();
+                    server = null;
+                }
+                connectApp.use(serveStatic(arg.targetPath));
+                server = http.createServer(connectApp);
+                server.listen(LOCAL_PORT);
+                console.log('run local server');
+                evt.sender.send('localserverrunning', {
+                    dirs: dirnames,
+                    pwd: arg.targetPath,
+                    port: LOCAL_PORT,
+                });
+            })
+            .catch((err) => {
+                evt.sender.send('localserverrunning', {err: 'invalid project'});
+            });
+        }
+    });
     ipcMain.on('opendirectory', (evt, arg) => {
         dialog.showOpenDialog(mainWindow, {
             title: 'open editron project',
