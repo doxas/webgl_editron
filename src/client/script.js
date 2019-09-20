@@ -411,7 +411,9 @@ function swapLayout(){
         editors.forEach((v) => {
             v.resize();
         });
-        console.log('setframesize');
+        if(tabStrip != null){
+            tabStrip.update();
+        }
         setFrameSize();
     });
     vsplit = new Component.Splitter(split.first, !horizonSplit, r);
