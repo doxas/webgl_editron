@@ -488,7 +488,6 @@ function editorSetting(data){
             editor.$blockScrolling = Infinity;
             editor.setOptions(EDITOR_OPTION);
             editor.session.setMode(`ace/mode/${type}`);
-            editor.session.setUseWrapMode(true);
             editor.session.setTabSize(4);
 
             // event setting
