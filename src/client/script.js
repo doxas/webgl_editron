@@ -62,7 +62,18 @@ window.addEventListener('DOMContentLoaded', () => {
         isDirectory(target)
         .then((flag) => {
             if(flag === true){
-                nativeSendPath(target.path);
+                // 変更済みのソースコードがある場合、開く前に尋ねる
+                if(latestResponse != null && latestActive != null && items[latestActive].changes === true){
+                    let message = 'ソースコードの変更後、一度も実行していない変更は破棄されます。\n新規プロジェクトを開いてよろしいですか？';
+                    nativeDialog('info', message)
+                    .then((res) => {
+                        if(res > 0){
+                            nativeSendPath(target.path);
+                        }
+                    });
+                }else{
+                    nativeSendPath(target.path);
+                }
             }else{
                 let message = 'プロジェクトのフォルダをドロップしてください。';
                 nativeDialog('info', message, ['OK']);
