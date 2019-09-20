@@ -86,6 +86,7 @@ class Splitter extends Emitter {
             position: 'absolute',
             top: `${HEADER_HEIGHT}px`,
             left: '0px',
+            zIndex: 9999,
         });
 
         // appending
