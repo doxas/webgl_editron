@@ -4,7 +4,8 @@ import util from './lib/util.js';
 import Component from './lib/component.js';
 
 let macos = process.platform === 'darwin';
-let vimMode = false;        // vim keybind
+let horizonSplit   = true;  // 水平方向に分割されたビュー
+let vimMode        = false; // vim keybind
 let latestResponse = null;  // サーバからのレスポンス（ファイル情報などを含む）
 let latestActive   = null;  // ユーザーがアクティブにしたソースコードのインデックス
 let activeTabIndex = 0;     // タブのなかで現在アクティブなインデックス
@@ -171,6 +172,12 @@ function windowSetting(){
                                 v.setTheme(LIGHT_THEME);
                             }
                         });
+                    }
+                    break;
+                // レイアウト変更
+                case 'c':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        swapLayout();
                     }
                     break;
                 // フォントサイズ減
@@ -347,6 +354,61 @@ function initialSetting(){
 
         resolve();
     });
+}
+
+/**
+ * @return {Promise}
+ */
+function swapLayout(){
+    let container = document.querySelector('#container');
+    // let first   = document.querySelector('#first');
+    let second  = document.querySelector('#second');
+    let vfirst  = document.querySelector('#vfirst');
+    let vsecond = document.querySelector('#vsecond');
+    // children
+    // let cFirst   = null;
+    let cSecond  = null;
+    let cVFirst  = null;
+    let cVSecond = null;
+    // if(first.children.length > 0){cFirst = first.removeChild(first.firstChild);}
+    if(second.children.length > 0){cSecond = second.removeChild(second.firstChild);}
+    if(vfirst.children.length > 0){cVFirst = vfirst.removeChild(vfirst.firstChild);}
+    if(vsecond.children.length > 0){cVSecond = vsecond.removeChild(vsecond.firstChild);}
+    // first   = null;
+    second  = null;
+    vfirst  = null;
+    vsecond = null;
+    vsplit.release();
+    split.release();
+    // フラグを反転
+    horizonSplit = !horizonSplit;
+    let r = horizonSplit === true ? 0.2 : 0.5;
+    // 再生成
+    split = new Component.Splitter(container, horizonSplit);
+    split.first.setAttribute('id', 'first');
+    split.second.setAttribute('id', 'second');
+    split.on('change', (arg) => {
+        editors.forEach((v) => {
+            v.resize();
+        });
+        console.log('setframesize');
+        setFrameSize();
+    });
+    vsplit = new Component.Splitter(split.first, !horizonSplit, r);
+    vsplit.on('change', (arg) => {
+        setFrameSize();
+    });
+    vsplit.first.setAttribute('id', 'vfirst');
+    vsplit.second.setAttribute('id', 'vsecond');
+    // 子要素の再挿入
+    // if(cFirst != null){split.first.appendChild(cFirst);}
+    if(cSecond != null){split.second.appendChild(cSecond);}
+    if(cVFirst != null){vsplit.first.appendChild(cVFirst);}
+    if(cVSecond != null){vsplit.second.appendChild(cVSecond);}
+    editors.forEach((v) => {
+        v.resize();
+    });
+    setFrameSize();
 }
 
 /**
