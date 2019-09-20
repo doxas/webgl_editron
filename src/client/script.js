@@ -337,6 +337,25 @@ function initialSetting(){
         stopIcon.addEventListener('mouseleave', () => {
             stopIcon.style.filter = 'invert(0.5)';
         });
+        let layoutIcon = document.createElement('img');
+        layoutIcon.setAttribute('id', 'layout');
+        layoutIcon.setAttribute('title', 'レイアウトを変更');
+        layoutIcon.src = './image/layout.svg';
+        util.appendStyle(layoutIcon, {
+            minWidth: `${ICON_SIZE}px`,
+            maxWidth: `${ICON_SIZE}px`,
+            height: `${ICON_SIZE}px`,
+            margin: ICON_MARGIN,
+            cursor: 'pointer',
+            filter: 'invert(0.5)',
+            userSelect: 'none',
+        });
+        layoutIcon.addEventListener('mouseenter', () => {
+            layoutIcon.style.filter = 'invert(1)';
+        });
+        layoutIcon.addEventListener('mouseleave', () => {
+            layoutIcon.style.filter = 'invert(0.5)';
+        });
         let listBlock = document.createElement('div');
         listBlock.setAttribute('id', 'listblock');
         util.appendStyle(listBlock, {
@@ -351,6 +370,7 @@ function initialSetting(){
         buttonBlock.appendChild(openFolderIcon);
         buttonBlock.appendChild(playIcon);
         buttonBlock.appendChild(stopIcon);
+        buttonBlock.appendChild(layoutIcon);
 
         resolve();
     });
@@ -500,6 +520,7 @@ function eventSetting(){
     let open  = document.querySelector('#open');
     let play  = document.querySelector('#play');
     let stop  = document.querySelector('#stop');
+    let layout  = document.querySelector('#layout');
 
     open.addEventListener('click', () => {
         // 変更済みのソースコードがある場合、開く前に尋ねる
@@ -524,6 +545,9 @@ function eventSetting(){
         clearFrame();
         setStatusBarMessage('clear frame');
         setStatusBarIcon('#windowinterfacestatusfile', 'green', false, 'clear frame');
+    });
+    layout.addEventListener('click', () => {
+        swapLayout();
     });
 }
 
