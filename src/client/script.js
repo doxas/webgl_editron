@@ -488,6 +488,9 @@ function getTitleArray(data){
             titles.splice(i, 0, v);
         });
     }
+    // html を末尾に移動する
+    let html = titles.shift();
+    titles.push(html);
     return titles;
 }
 
