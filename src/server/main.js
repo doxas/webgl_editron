@@ -101,19 +101,27 @@ function createMainWindow(){
         }else{
             util.checkDirectories(arg.targetPath)
             .then((dirnames) => {
+                let launch = () => {
+                    connectApp.use(serveStatic(arg.targetPath));
+                    console.log(arg.targetPath);
+                    server = http.createServer(connectApp);
+                    server.listen(LOCAL_PORT);
+                    console.log('run local server');
+                    evt.sender.send('localserverrunning', {
+                        dirs: dirnames,
+                        pwd: arg.targetPath,
+                        port: LOCAL_PORT,
+                    });
+                };
                 if(server != null){
-                    server.close();
-                    server = null;
+                    server.close(() => {
+                        server = null;
+                        console.log('local server closed');
+                        launch();
+                    });
+                }else{
+                    launch();
                 }
-                connectApp.use(serveStatic(arg.targetPath));
-                server = http.createServer(connectApp);
-                server.listen(LOCAL_PORT);
-                console.log('run local server');
-                evt.sender.send('localserverrunning', {
-                    dirs: dirnames,
-                    pwd: arg.targetPath,
-                    port: LOCAL_PORT,
-                });
             })
             .catch((err) => {
                 evt.sender.send('localserverrunning', {err: 'invalid project'});
@@ -130,19 +138,27 @@ function createMainWindow(){
             }else{
                 util.checkDirectories(res[0])
                 .then((dirnames) => {
+                    let launch = () => {
+                        connectApp.use(serveStatic(res[0]));
+                        console.log(res[0]);
+                        server = http.createServer(connectApp);
+                        server.listen(LOCAL_PORT);
+                        console.log('run local server');
+                        evt.sender.send('localserverrunning', {
+                            dirs: dirnames,
+                            pwd: res[0],
+                            port: LOCAL_PORT,
+                        });
+                    };
                     if(server != null){
-                        server.close();
-                        server = null;
+                        server.close(() => {
+                            server = null;
+                            console.log('local server closed');
+                            launch();
+                        });
+                    }else{
+                        launch();
                     }
-                    connectApp.use(serveStatic(res[0]));
-                    server = http.createServer(connectApp);
-                    server.listen(LOCAL_PORT);
-                    console.log('run local server');
-                    evt.sender.send('localserverrunning', {
-                        dirs: dirnames,
-                        pwd: res[0],
-                        port: LOCAL_PORT,
-                    });
                 })
                 .catch((err) => {
                     evt.sender.send('localserverrunning', {err: 'invalid project'});
