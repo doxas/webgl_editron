@@ -209,6 +209,7 @@ function windowSetting(){
                     break;
                 // レイアウト変更
                 case 'c':
+                case 'ç':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
                         swapLayout();
                     }
@@ -247,6 +248,7 @@ function windowSetting(){
                 // vim mode
                 case 'v':
                 case 'V':
+                case '√':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
                         vimMode = !vimMode;
                         editors.forEach((v, index) => {
@@ -833,7 +835,7 @@ function saveEditorSource(){
 function setFrameSource(index){
     clearFrame();
     let frame = document.querySelector('#frame');
-    frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[index].dirName}`;
+    frame.src = `http://localhost:${latestResponse.port}/${latestResponse.dirs[index].dirName}?date=${Date.now()}`;
     frameListener = (evt) => {
         if(evt.key === 'F11'){
             evt.preventDefault();
