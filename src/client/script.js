@@ -652,7 +652,7 @@ function setServerRunningListener(){
                 nativeDialog('error', 'ソースコードの構成が正しくないか不正なプロジェクトです。', ['OK']);
                 return;
             }
-            setStatusBarMessage(`open project: [ ${res.pwd} ]`)
+            setStatusBarMessage(`open project: [ ${res.pwd} ] | port: [ ${res.port} ]`)
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'red', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'yellow', false, '');
             setStatusBarIcon('#windowinterfacestatuslocalserver', 'green', true, 'project open success');

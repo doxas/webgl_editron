@@ -1,5 +1,6 @@
 
 import http from 'http';
+import net from 'net';
 import fs from 'fs';
 import path from 'path';
 import {app, ipcMain, dialog, BrowserWindow} from 'electron';
@@ -28,6 +29,7 @@ let mainWindow;           // main window
 let connectClient;        // connector from electron-connect for client
 let connectApp = local(); // connect package
 let server = null;
+let localPortIncrement = 0;
 
 // app events =================================================================
 let isLockable = app.requestSingleInstanceLock();
@@ -102,15 +104,18 @@ function createMainWindow(){
             util.checkDirectories(arg.targetPath)
             .then((dirnames) => {
                 let launch = () => {
-                    connectApp.use(serveStatic(arg.targetPath));
-                    console.log(arg.targetPath);
-                    server = http.createServer(connectApp);
-                    server.listen(LOCAL_PORT);
-                    console.log('run local server');
-                    evt.sender.send('localserverrunning', {
-                        dirs: dirnames,
-                        pwd: arg.targetPath,
-                        port: LOCAL_PORT,
+                    getEmptyPort()
+                    .then((port) => {
+                        connectApp.use(serveStatic(arg.targetPath));
+                        console.log(arg.targetPath);
+                        server = http.createServer(connectApp);
+                        server.listen(port);
+                        console.log('run local server');
+                        evt.sender.send('localserverrunning', {
+                            dirs: dirnames,
+                            pwd: arg.targetPath,
+                            port: port,
+                        });
                     });
                 };
                 if(server != null){
@@ -139,16 +144,19 @@ function createMainWindow(){
                 util.checkDirectories(res[0])
                 .then((dirnames) => {
                     let launch = () => {
+                    getEmptyPort()
+                    .then((port) => {
                         connectApp.use(serveStatic(res[0]));
                         console.log(res[0]);
                         server = http.createServer(connectApp);
-                        server.listen(LOCAL_PORT);
+                        server.listen(port);
                         console.log('run local server');
                         evt.sender.send('localserverrunning', {
                             dirs: dirnames,
                             pwd: res[0],
-                            port: LOCAL_PORT,
+                            port: port,
                         });
+                    });
                     };
                     if(server != null){
                         server.close(() => {
@@ -201,3 +209,39 @@ function createMainWindow(){
     }
 }
 
+function getEmptyPort(){
+    return new Promise((resolve) => {
+        let target = LOCAL_PORT + localPortIncrement;
+        ++localPortIncrement;
+        checkEmptyPort(target)
+        .then((port) => {
+            resolve(port);
+        })
+        .catch(() => {
+            getEmptyPort()
+            .then((port) => {
+                resolve(port);
+            });
+        });
+    });
+}
+
+function checkEmptyPort(port){
+    return new Promise((resolve, reject) => {
+        console.log(`check-port: ${port}`);
+        let client = new net.Socket();
+        const something = () => {
+            client.destroy();
+            reject(port);
+        };
+        const empty = () => {
+            client.destroy();
+            resolve(port);
+        };
+        client.setTimeout(500);
+        client.on('connect', something);
+        client.on('timeout', empty);
+        client.on('error', empty);
+        client.connect(port, '127.0.0.1');
+    });
+};
