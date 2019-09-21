@@ -1,6 +1,6 @@
 {
   "name": "webgl_editron",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Live editor app for WebGL and GLSL with electron.",
   "main": "./app/server/main.js",
   "scripts": {
