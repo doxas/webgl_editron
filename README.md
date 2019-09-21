@@ -96,6 +96,7 @@ project-directory
 | Ctrl + Shift + i    | 開発者ツールの表示       |
 | F11                 | フルスクリーンモード     |
 | Ctrl + Alt + b      | テーマ明暗切り替え       |
+| Ctrl + Alt + c      | レイアウト切り替え       |
 | Ctrl + Alt + v      | vim キーバインド切り替え |
 
 ※Mac の場合は Ctrl の代わりに Command を使用
