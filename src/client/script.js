@@ -3,28 +3,13 @@ import {ipcRenderer, webFrame} from 'electron';
 import util from './lib/util.js';
 import Component from './lib/component.js';
 
-let macos = process.platform === 'darwin';
-let horizonSplit   = true;  // 水平方向に分割されたビュー
-let vimMode        = false; // vim keybind
-let latestResponse = null;  // サーバからのレスポンス（ファイル情報などを含む）
-let latestActive   = null;  // ユーザーがアクティブにしたソースコードのインデックス
-let activeTabIndex = 0;     // タブのなかで現在アクティブなインデックス
-let items          = [];    // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
-let pages          = [];    // エディタを格納するページ DOM
-let editors        = [];    // エディタ
-let isGeneration   = false; // エディタの生成中かどうか（生成中は onChange を無効化したいためのフラグ）
-let kiosk          = false; // kiosk mode
-let split          = null;  // 上下分割の Splitter
-let vsplit         = null;  // 上段の左右分割の Splitter
-let tabStrip       = null;  // TabStrip
-let frameListener  = null;  // frame 内で keydown を監視し F11 を禁止するためのリスナ
-
 const FONT_SIZE           = 16;                                // 基本のフォントサイズ
 const LIGHT_THEME         = 'ace/theme/tomorrow';              // ライト・テーマ
 const DARK_THEME          = 'ace/theme/tomorrow_night_bright'; // ダーク・テーマ
 const BUTTON_BLOCK_HEIGHT = 32;                                // ボタン領域の高さ
 const ICON_SIZE           = 16;                                // ボタンの大きさ
 const ICON_MARGIN         = '8px 7px';                         // ボタンの余白
+const DARK_MODE           = true;                              // テーマ
 // Ace に設定するオプション
 const EDITOR_OPTION = {
     highlightActiveLine: true,
@@ -45,6 +30,24 @@ const EDITOR_OPTION = {
     enableSnippets: false,
     enableLiveAutocompletion: true,
 };
+
+let macos = process.platform === 'darwin';
+let horizonSplit   = true;      // 水平方向に分割されたビュー
+let vimMode        = false;     // vim keybind
+let latestResponse = null;      // サーバからのレスポンス（ファイル情報などを含む）
+let latestActive   = null;      // ユーザーがアクティブにしたソースコードのインデックス
+let activeTabIndex = 0;         // タブのなかで現在アクティブなインデックス
+let items          = [];        // 読み込んだプロジェクトに含まれるソースコード（ディレクトリ）
+let pages          = [];        // エディタを格納するページ DOM
+let editors        = [];        // エディタ
+let isGeneration   = false;     // エディタの生成中かどうか（生成中は onChange を無効化したいためのフラグ）
+let kiosk          = false;     // kiosk mode
+let split          = null;      // 上下分割の Splitter
+let vsplit         = null;      // 上段の左右分割の Splitter
+let tabStrip       = null;      // TabStrip
+let frameListener  = null;      // frame 内で keydown を監視し F11 を禁止するためのリスナ
+let globalFontSize = FONT_SIZE; // フォントサイズ
+let globalDarkMode = DARK_MODE; // テーマ
 
 // DOM Content Loaded でフロント側の設定等を開始する
 window.addEventListener('DOMContentLoaded', () => {
@@ -129,8 +132,6 @@ function setStatusBarIcon(targetId, stat, add, title){
  * @return {Promise}
  */
 function windowSetting(){
-    let fontSize = FONT_SIZE;
-    let dark = true;
     // Electron 自体のズームは行われないように設定する
     webFrame.setZoomFactor(1);
     webFrame.setVisualZoomLevelLimits(1, 1);
@@ -197,9 +198,9 @@ function windowSetting(){
                 case 'b':
                 case '∫':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
-                        dark = !dark;
+                        globalDarkMode = !globalDarkMode;
                         editors.forEach((v, index) => {
-                            if(dark === true){
+                            if(globalDarkMode === true){
                                 v.setTheme(DARK_THEME);
                             }else{
                                 v.setTheme(LIGHT_THEME);
@@ -218,9 +219,9 @@ function windowSetting(){
                 case '-':
                 case '_':
                     if(evt.ctrlKey === true || evt.metaKey === true){
-                        --fontSize;
+                        --globalFontSize;
                         pages.forEach((v, index) => {
-                            v.style.fontSize = `${fontSize}px`;
+                            v.style.fontSize = `${globalFontSize}px`;
                         });
                     }
                     break;
@@ -228,9 +229,9 @@ function windowSetting(){
                 case '=':
                 case '+':
                     if(evt.ctrlKey === true || evt.metaKey === true){
-                        ++fontSize;
+                        ++globalFontSize;
                         pages.forEach((v, index) => {
-                            v.style.fontSize = `${fontSize}px`;
+                            v.style.fontSize = `${globalFontSize}px`;
                         });
                     }
                     break;
@@ -529,6 +530,12 @@ function editorSetting(data){
             editor.setOptions(EDITOR_OPTION);
             editor.session.setMode(`ace/mode/${type}`);
             editor.session.setTabSize(4);
+            if(globalDarkMode === true){
+                editor.setTheme(DARK_THEME);
+            }else{
+                editor.setTheme(LIGHT_THEME);
+            }
+            v.style.fontSize = `${globalFontSize}px`;
 
             // event setting
             // 諸事情により Command + L は封印する
