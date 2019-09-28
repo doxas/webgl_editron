@@ -61,7 +61,7 @@ app.on('window-all-closed', () => {
 
 // function ===================================================================
 function createMenu(){
-    if(process.platform !== 'darwin'){return;}
+    if(macos !== true){return;}
     const template = [{
         label: 'Edit',
         submenu: [
