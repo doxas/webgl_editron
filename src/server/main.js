@@ -10,19 +10,20 @@ import serveStatic from 'serve-static';
 import util from './lib/util.js';
 
 // constant variable ==========================================================
-let macos = process.platform === 'darwin';
+const VERSION = 'v2.1.2';
+const MACOS = process.platform === 'darwin';
 const LOCAL_PORT = 56565;
 const IS_DEVELOPMENT = __MODE__ === 'development';
 const INDEX_HTML_PATH = IS_DEVELOPMENT ? './app/client/index.html' : './client/index.html';
 const MAIN_WINDOW_PARAMETER = {
     width: 1400,
     height: 750,
-    frame: macos,
+    frame: MACOS,
     webPreferences: {
         nodeIntegration: true
     }
 };
-if(macos === true){MAIN_WINDOW_PARAMETER.titleBarStyle = 'hidden';}
+if(MACOS === true){MAIN_WINDOW_PARAMETER.titleBarStyle = 'hidden';}
 
 // variables ==================================================================
 let mainWindow;           // main window
@@ -61,7 +62,7 @@ app.on('window-all-closed', () => {
 
 // function ===================================================================
 function createMenu(){
-    if(macos !== true){return;}
+    if(MACOS !== true){return;}
     const template = [{
         label: 'Edit',
         submenu: [
@@ -122,8 +123,9 @@ function createMainWindow(){
         mainWindow.webContents.openDevTools();
     });
     ipcMain.on('settitle', (evt, arg) => {
-        mainWindow.setTitle(arg);
-        evt.sender.send('settitledom', arg);
+        let title = `${arg} [ ${VERSION} ]`;
+        mainWindow.setTitle(title);
+        evt.sender.send('settitledom', title);
     });
 
     ipcMain.on('nativedialog', (evt, arg) => {
