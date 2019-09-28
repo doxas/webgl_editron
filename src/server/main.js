@@ -3,7 +3,7 @@ import http from 'http';
 import net from 'net';
 import fs from 'fs';
 import path from 'path';
-import {app, ipcMain, dialog, BrowserWindow} from 'electron';
+import {app, ipcMain, dialog, Menu, BrowserWindow} from 'electron';
 import connect from 'electron-connect';
 import local from 'connect';
 import serveStatic from 'serve-static';
@@ -45,6 +45,7 @@ app.on('second-instance', () => {
 });
 
 app.on('ready', () => {
+    createMenu();
     createMainWindow();
 });
 
@@ -59,6 +60,43 @@ app.on('window-all-closed', () => {
 });
 
 // function ===================================================================
+function createMenu(){
+    if(process.platform !== 'darwin'){return;}
+    const template = [{
+        label: 'Edit',
+        submenu: [
+            {
+                label: 'Undo',
+                accelerator: 'CmdOrCtrl+Z',
+                role: 'undo'
+            }, {
+                label: 'Redo',
+                accelerator: 'Shift+CmdOrCtrl+Z',
+                role: 'redo'
+            }, {
+                type: 'separator'
+            }, {
+                label: 'Cut',
+                accelerator: 'CmdOrCtrl+X',
+                role: 'cut'
+            }, {
+                label: 'Copy',
+                accelerator: 'CmdOrCtrl+C',
+                role: 'copy'
+            }, {
+                label: 'Paste',
+                accelerator: 'CmdOrCtrl+V',
+                role: 'paste'
+            }, {
+                label: 'Select All',
+                accelerator: 'CmdOrCtrl+A',
+                role: 'selectall'
+            },
+        ]
+    }];
+    let menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+}
 function createMainWindow(){
     // create new browser window
     mainWindow = new BrowserWindow(MAIN_WINDOW_PARAMETER);
