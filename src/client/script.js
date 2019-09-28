@@ -247,6 +247,44 @@ function windowSetting(){
                         tabStrip.setPage(activeTabIndex);
                     }
                     break;
+                // item change
+                case 'i':
+                case 'o':
+                    if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        const update = () => {
+                            let idx = 0;
+                            let count = latestResponse.dirs.length;
+                            if(evt.key === 'i'){
+                                idx = (latestActive + 1) % count;
+                            }else{
+                                idx = (count + latestActive - 1) % count;
+                            }
+                            generateEditor(latestResponse.dirs[idx].data);
+                            latestActive = idx;
+                            items.forEach((w, i) => {
+                                w.update(false, false);
+                            });
+                            items[latestActive].update(true, false);
+                            setFrameSource(idx);
+                            setStatusBarMessage(`start: [ ${latestResponse.dirs[idx].dirName} ]`);
+                            setStatusBarIcon('#windowinterfacestatusfile', 'red', false, '');
+                            setStatusBarIcon('#windowinterfacestatusfile', 'yellow', false, '');
+                            setStatusBarIcon('#windowinterfacestatusfile', 'green', true, 'start success');
+                        };
+                        // ソースコードに変更が加えられているかどうかなどにより分岐する
+                        if(latestActive != null && items[latestActive].changes === true){
+                            let message = `現在のソースコード[ ${latestResponse.dirs[latestActive].dirName} ]に変更が加えられています。\n[ ${latestResponse.dirs[idx].dirName} ] を読み込むとその変更は破棄されます。読み込みを開始してよろしいですか？`;
+                            nativeDialog('info', message)
+                            .then((res) => {
+                                if(res > 0){
+                                    update();
+                                }
+                            });
+                        }else{
+                            update();
+                        }
+                    }
+                    break
                 // vim mode
                 case 'v':
                 case 'V':
