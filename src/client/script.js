@@ -228,6 +228,7 @@ function windowSetting(){
                 // フォントサイズ増
                 case '=':
                 case '+':
+                case ';':
                     if(evt.ctrlKey === true || evt.metaKey === true){
                         ++globalFontSize;
                         pages.forEach((v, index) => {
