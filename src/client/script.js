@@ -245,6 +245,7 @@ function windowSetting(){
                             activeTabIndex = (activeTabIndex + 1) % pages.length;
                         }
                         tabStrip.setPage(activeTabIndex);
+                        editors[activeTabIndex].focus();
                     }
                     break;
                 // item change
@@ -851,6 +852,7 @@ function setEditorSource(data){
     titles.forEach((v, index) => {
         editors[index].setValue(data[v].data, -1);
     });
+    editors[0].focus();
 }
 
 /**
