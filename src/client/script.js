@@ -248,17 +248,19 @@ function windowSetting(){
                     }
                     break;
                 // item change
-                case 'i':
-                case 'o':
+                case ',':
+                case '.':
+                case '≤':
+                case '≥':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        let idx = 0;
+                        let count = latestResponse.dirs.length;
+                        if(evt.key === ',' || evt.key == '≤'){
+                            idx = (count + latestActive - 1) % count;
+                        }else{
+                            idx = (latestActive + 1) % count;
+                        }
                         const update = () => {
-                            let idx = 0;
-                            let count = latestResponse.dirs.length;
-                            if(evt.key === 'i'){
-                                idx = (latestActive + 1) % count;
-                            }else{
-                                idx = (count + latestActive - 1) % count;
-                            }
                             generateEditor(latestResponse.dirs[idx].data);
                             latestActive = idx;
                             items.forEach((w, i) => {
