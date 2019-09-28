@@ -253,6 +253,7 @@ function windowSetting(){
                 case '≤':
                 case '≥':
                     if((evt.ctrlKey === true || evt.metaKey === true) && evt.altKey === true){
+                        if(latestResponse == null || latestResponse.dirs == null){return;}
                         let idx = 0;
                         let count = latestResponse.dirs.length;
                         if(evt.key === ',' || evt.key == '≤'){
