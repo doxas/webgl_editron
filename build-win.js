@@ -10,7 +10,6 @@ parsedPackageJson.main = './server/main.js';
 fs.writeFileSync('./app/package.json', JSON.stringify(parsedPackageJson, null, '  '));
 
 builder.build({
-    platform: 'win',
     config: {
         appId: `com.example.${appName}`,
         artifactName: '${productName}.${ext}',
