@@ -10,7 +10,7 @@ import serveStatic from 'serve-static';
 import util from './lib/util.js';
 
 // constant variable ==========================================================
-const VERSION = 'v2.1.2';
+const VERSION = 'v2.1.3';
 const MACOS = process.platform === 'darwin';
 const LOCAL_PORT = 56565;
 const IS_DEVELOPMENT = __MODE__ === 'development';
