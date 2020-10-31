@@ -86,18 +86,18 @@ project-directory
 
 ## shortcut key
 
-| キー                | 機能                     |
-|---------------------|--------------------------|
-| Ctrl + s            | 保存＋プレビュー実行     |
-| Ctrl + Tab          | 次のタブへ移動           |
-| Ctrl + Schift + Tab | 前のタブへ移動           |
-| Ctrl + plus         | 文字サイズ大きく         |
-| Ctrl + hyphen       | 文字サイズ小さく         |
-| Ctrl + Shift + i    | 開発者ツールの表示       |
-| F11                 | フルスクリーンモード     |
-| Ctrl + Alt + b      | テーマ明暗切り替え       |
-| Ctrl + Alt + c      | レイアウト切り替え       |
-| Ctrl + Alt + v      | vim キーバインド切り替え |
+| キー               | 機能                     |
+|--------------------|--------------------------|
+| Ctrl + s           | 保存＋プレビュー実行     |
+| Ctrl + Tab         | 次のタブへ移動           |
+| Ctrl + Shift + Tab | 前のタブへ移動           |
+| Ctrl + plus        | 文字サイズ大きく         |
+| Ctrl + hyphen      | 文字サイズ小さく         |
+| Ctrl + Shift + i   | 開発者ツールの表示       |
+| F11                | フルスクリーンモード     |
+| Ctrl + Alt + b     | テーマ明暗切り替え       |
+| Ctrl + Alt + c     | レイアウト切り替え       |
+| Ctrl + Alt + v     | vim キーバインド切り替え |
 
 ※Mac の場合は Ctrl の代わりに Command を使用
 
